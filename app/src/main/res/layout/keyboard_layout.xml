@@ -1,7 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.inputmethodservice.KeyboardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/keyboard"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"/>
+    android:orientation="vertical"
+    >
+
+
+    <!-- Top bar with settings button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end|center_horizontal"
+        android:orientation="horizontal"
+        android:paddingVertical="4dp">
+
+        <ImageButton
+            android:id="@+id/settings_button"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:contentDescription="@string/settings"
+            android:src="@drawable/ic_settings" />
+
+        <ImageButton
+            android:id="@+id/size_button"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:contentDescription="@string/keyboard_size"
+            android:src="@drawable/ic_transform" />
+    </LinearLayout>
+
+    <!-- Keyboard view -->
+    <android.inputmethodservice.KeyboardView
+        android:background="@color/background"
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:keyPreviewLayout="@layout/preview"
+        android:keyTextColor="@color/black"
+        android:keyTextSize="24dp"
+        android:shadowRadius="0"
+        android:keyBackground="@drawable/key_background"/>
+</LinearLayout>

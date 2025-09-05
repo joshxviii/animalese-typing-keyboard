@@ -1,11 +1,19 @@
 package com.example.animalese_typing
 
 
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
+import android.media.AudioAttributes
+import android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION
+import android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
+import android.media.AudioManager
+import android.media.SoundPool
 import android.util.Log
 import android.view.View
+import android.widget.ImageButton
+import android.widget.Toast
 
 @Suppress("DEPRECATION")
 class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
@@ -13,39 +21,152 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
     private lateinit var keyboard: Keyboard
     private val TAG = "AnimaleseIME"
 
-    override fun onCreateInputView(): View {
-        keyboardView = layoutInflater.inflate(R.layout.keyboard_layout, null) as KeyboardView
-        keyboard = Keyboard(this, R.xml.keyboard_keys)  // Define this XML in Step 7
-        keyboardView.setKeyboard(keyboard)
-        keyboardView.setOnKeyboardActionListener(this)
-        return keyboardView
-    }
+    private lateinit var audioManager: AudioManager
+    private var soundPool: SoundPool? = null
+    private var keyClickSoundId: Int = 0
+    private var soundsLoaded: Boolean = false
 
-    override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
-        // Log the primaryCode
-        Log.d(TAG, "onKey called with primaryCode: $primaryCode (char: ${primaryCode.toChar()})")
+    /**
+     * Flag to track whether preview is enabled or not
+      */
+    private var wasPreviewEnabled: Boolean = true
 
-        // Log keyCodes array if not null
-        if (keyCodes != null) {
-            Log.d(TAG, "keyCodes: ${keyCodes.joinToString()}")
-        } else {
-            Log.d(TAG, "keyCodes is null")
+    override fun onCreate() {
+        super.onCreate()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+
+        // Initialize SoundPool
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(1)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
+            if (status == 0) {
+                if (sampleId == keyClickSoundId) {
+                    soundsLoaded = true
+                    Log.d(TAG, "Custom key click sound loaded successfully.")
+                }
+            } else {
+                Log.e(TAG, "Failed to load sound ID: $sampleId, status: $status")
+            }
         }
 
-        // Optional: Commit the character to the input field for testing
-        val ic = currentInputConnection
-        ic?.commitText(primaryCode.toChar().toString(), 1)
+        if (keyClickSoundId == 0) Log.e(TAG, "Failed to initiate loading of custom key click sound.")
     }
 
+    override fun onCreateInputView(): View {
+
+        val entireInputView = layoutInflater.inflate(R.layout.keyboard_layout, null) // Use your actual layout file name
+
+        keyboardView = entireInputView.findViewById<KeyboardView>(R.id.keyboard) // Use the ID you defined in XML
+
+        keyboard = Keyboard(this, R.xml.keys_qwerty)
+        keyboardView.setKeyboard(keyboard)
+        keyboardView.setOnKeyboardActionListener(this)
+        keyboardView.isPreviewEnabled = false // TODO enable preview only for letter/numbers/punctuation keys
+
+        val settingsButton = entireInputView.findViewById<ImageButton>(R.id.settings_button)
+        val keyboardSizeButton = entireInputView.findViewById<ImageButton>(R.id.size_button)
+        settingsButton.setOnClickListener {
+            Log.d(TAG, "Settings Button Clicked")
+            val intent = Intent(this, SettingsActivity::class.java)
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            try { startActivity(intent) }
+            catch (e: Exception) {
+                Log.e(TAG, "Error Starting SettingsActivity", e)
+                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+        keyboardSizeButton.setOnClickListener {
+            // TODO
+        }
+
+        return entireInputView
+    }
+
+
+    @Deprecated("")
     override fun onPress(primaryCode: Int) {
         Log.d(TAG, "onPress called with primaryCode: $primaryCode")
+
+        audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK)
+//        if (shouldDisablePreviewForCode(primaryCode)) {
+//            if (keyboardView.isPreviewEnabled) {
+//                wasPreviewEnabled = true
+//                keyboardView.isPreviewEnabled = false
+//            } else {
+//                wasPreviewEnabled = false
+//            }
+//        } else {
+//            if (!keyboardView.isPreviewEnabled && wasPreviewEnabled) {
+//                keyboardView.isPreviewEnabled = true
+//            }
+//        }
     }
+
+    @Deprecated("")
     override fun onRelease(primaryCode: Int) {
         Log.d(TAG, "onRelease called with primaryCode: $primaryCode")
+//        if (!keyboardView.isPreviewEnabled && wasPreviewEnabled) {
+//            keyboardView.isPreviewEnabled = true
+//        }
     }
+
+    private fun shouldDisablePreviewForCode(primaryCode: Int): Boolean {
+        return when (primaryCode) {
+            32,                           // Space
+            Keyboard.KEYCODE_SHIFT,       // -1 (Shift)
+            Keyboard.KEYCODE_DELETE,      // -5 (Delete)
+            Keyboard.KEYCODE_DONE,        // -4 (Enter/Done)
+            10,                               // Newline (alternative for Enter)
+            Keyboard.KEYCODE_MODE_CHANGE, // -2 (Mode change, e.g., to symbols/numbers)
+            Keyboard.KEYCODE_CANCEL,       // -3 (Cancel)
+                -> true
+            else -> false
+        }
+    }
+
+    /**
+     * Called when a key is pressed on the keyboard.
+     * Commits the text to input fields.
+     */
+    @Deprecated("")
+    override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
+        val inputConnection = currentInputConnection
+        inputConnection?.let { ic ->
+            when (primaryCode) {
+                Keyboard.KEYCODE_DELETE -> ic.deleteSurroundingText(1, 0)
+                Keyboard.KEYCODE_DONE -> sendKeyChar('\n')
+                else -> {
+                    val code = primaryCode.toChar()
+                    if (Character.isDefined(code)) {
+                        ic.commitText(code.toString(), 1)
+                    }
+                }
+            }
+        }
+    }
+
+    @Deprecated("")
     override fun onText(text: CharSequence?) {}
+
+    @Deprecated("")
     override fun swipeDown() {}
+
+    @Deprecated("")
     override fun swipeLeft() {}
+
+    @Deprecated("")
     override fun swipeRight() {}
+
+    @Deprecated("")
     override fun swipeUp() {}
 }

@@ -2,4 +2,8 @@
 <resources>
 
     <style name="Theme.AnimaleseTyping" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.AnimaleseTypingLight" parent="Theme.AnimaleseTyping" />
+    <style name="Theme.AnimaleseTypingDark" parent="Theme.AnimaleseTyping" />
+
 </resources>
