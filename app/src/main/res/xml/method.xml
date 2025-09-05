@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="your.package.name.SettingsActivity">  <!-- Optional: Link to settings -->
+    <subtype
+        android:label="@string/ime_name"
+        android:imeSubtypeLocale="en_US"
+        android:imeSubtypeMode="keyboard"
+        android:icon="@drawable/ic_keyboard" />  <!-- Add an icon in res/drawable -->
+</input-method>
