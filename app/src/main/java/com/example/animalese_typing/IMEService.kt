@@ -20,11 +20,7 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
     private lateinit var keyboardView: KeyboardView
     private lateinit var keyboard: Keyboard
     private val TAG = "AnimaleseIME"
-
     private lateinit var audioManager: AudioManager
-    private var soundPool: SoundPool? = null
-    private var keyClickSoundId: Int = 0
-    private var soundsLoaded: Boolean = false
 
     /**
      * Flag to track whether preview is enabled or not
@@ -34,30 +30,8 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
     override fun onCreate() {
         super.onCreate()
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-
-        // Initialize SoundPool
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(1)
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            if (status == 0) {
-                if (sampleId == keyClickSoundId) {
-                    soundsLoaded = true
-                    Log.d(TAG, "Custom key click sound loaded successfully.")
-                }
-            } else {
-                Log.e(TAG, "Failed to load sound ID: $sampleId, status: $status")
-            }
-        }
-
-        if (keyClickSoundId == 0) Log.e(TAG, "Failed to initiate loading of custom key click sound.")
+        AppContext.initialize(this)
+        VoiceProfileManager.initialize(this)
     }
 
     override fun onCreateInputView(): View {
@@ -97,7 +71,21 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
     override fun onPress(primaryCode: Int) {
         Log.d(TAG, "onPress called with primaryCode: $primaryCode")
 
-        audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK)
+        val char = primaryCode.toChar()
+        if (Character.isLetterOrDigit(char) || primaryCode == 32 /* Space */) { // Example condition
+            val key = when (primaryCode) {
+                32 -> "space"
+                Keyboard.KEYCODE_DELETE -> "delete"
+                Keyboard.KEYCODE_DONE -> "enter"
+                // Add more special key mappings
+                else -> primaryCode.toChar().toString().lowercase()
+            }
+            val audioPath = VoiceProfileManager.getSoundFromKey(key)
+            AudioPlayer.playSound( audioPath )
+        } else {
+            // Generic key press sound
+            audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK)
+        }
 //        if (shouldDisablePreviewForCode(primaryCode)) {
 //            if (keyboardView.isPreviewEnabled) {
 //                wasPreviewEnabled = true
