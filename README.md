@@ -1,7 +1,7 @@
 # Animalese Typing - Keyboard
 
 
-### A mobile keyboard version of Animalese Typing!
+### An Android keyboard version of Animalese Typing!
 
 ---
 
@@ -9,4 +9,4 @@
 
 </br>
 
-<img width="240" height="505" alt="image" src="https://github.com/user-attachments/assets/16274283-3fa3-4229-b11a-27d852a1798b" />
+<img width="240" height="505" alt="image" src="https://github.com/user-attachments/assets/38aca67f-a8ba-4c5e-aa3d-39028009694a" />
