@@ -52,16 +52,4 @@ object VoiceProfileManager {
         //loadSelectedProfile(context)      // Load sounds for the selected profile
     }
 
-    fun getSoundFromKey(key: String): String {
-        return ""
-    }
-
-}
-
-object AppContext {
-    private var applicationContext: Context? = null
-    fun initialize(context: Context) {
-        applicationContext = context.applicationContext
-    }
-    fun get(): Context? = applicationContext
 }

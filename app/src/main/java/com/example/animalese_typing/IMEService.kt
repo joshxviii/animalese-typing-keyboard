@@ -5,39 +5,32 @@ import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
-import android.media.AudioAttributes
-import android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION
-import android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
 import android.media.AudioManager
-import android.media.SoundPool
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 
 @Suppress("DEPRECATION")
 class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
     private lateinit var keyboardView: KeyboardView
     private lateinit var keyboard: Keyboard
-    private val TAG = "AnimaleseIME"
+    private var inputView: View? = null
     private lateinit var audioManager: AudioManager
-
-    /**
-     * Flag to track whether preview is enabled or not
-      */
     private var wasPreviewEnabled: Boolean = true
 
     override fun onCreate() {
         super.onCreate()
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        AppContext.initialize(this)
-        VoiceProfileManager.initialize(this)
     }
 
     override fun onCreateInputView(): View {
 
         val entireInputView = layoutInflater.inflate(R.layout.keyboard_layout, null) // Use your actual layout file name
-
+        this.inputView = entireInputView
         keyboardView = entireInputView.findViewById<KeyboardView>(R.id.keyboard) // Use the ID you defined in XML
 
         keyboard = Keyboard(this, R.xml.keys_qwerty)
@@ -48,14 +41,14 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
         val settingsButton = entireInputView.findViewById<ImageButton>(R.id.settings_button)
         val keyboardSizeButton = entireInputView.findViewById<ImageButton>(R.id.size_button)
         settingsButton.setOnClickListener {
-            Log.d(TAG, "Settings Button Clicked")
+            logMessage("Settings Button Clicked")
             val intent = Intent(this, SettingsActivity::class.java)
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
             try { startActivity(intent) }
             catch (e: Exception) {
-                Log.e(TAG, "Error Starting SettingsActivity", e)
+                logMessage("Error Starting SettingsActivity $e")
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
             }
         }
@@ -63,63 +56,36 @@ class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
             // TODO
         }
 
+        // Dynamic padding for keyboard so it doesn't block nav bar
+        ViewCompat.setOnApplyWindowInsetsListener(entireInputView) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
+            view.updatePadding(bottom = systemBars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
+
         return entireInputView
     }
 
+    override fun onWindowShown() {
+        super.onWindowShown()
+        inputView?.requestApplyInsets()
+    }
 
     @Deprecated("")
     override fun onPress(primaryCode: Int) {
-        Log.d(TAG, "onPress called with primaryCode: $primaryCode")
+        logMessage("onPress called with primaryCode: $primaryCode")
 
-        val char = primaryCode.toChar()
-        if (Character.isLetterOrDigit(char) || primaryCode == 32 /* Space */) { // Example condition
-            val key = when (primaryCode) {
-                32 -> "space"
-                Keyboard.KEYCODE_DELETE -> "delete"
-                Keyboard.KEYCODE_DONE -> "enter"
-                // Add more special key mappings
-                else -> primaryCode.toChar().toString().lowercase()
-            }
-            val audioPath = VoiceProfileManager.getSoundFromKey(key)
-            AudioPlayer.playSound( audioPath )
-        } else {
-            // Generic key press sound
-            audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK)
-        }
-//        if (shouldDisablePreviewForCode(primaryCode)) {
-//            if (keyboardView.isPreviewEnabled) {
-//                wasPreviewEnabled = true
-//                keyboardView.isPreviewEnabled = false
-//            } else {
-//                wasPreviewEnabled = false
-//            }
-//        } else {
-//            if (!keyboardView.isPreviewEnabled && wasPreviewEnabled) {
-//                keyboardView.isPreviewEnabled = true
-//            }
-//        }
+        val soundPath = AudioPlayer.keycodeToSound( primaryCode )
+        AudioPlayer.playSound( soundPath )
+
     }
 
     @Deprecated("")
     override fun onRelease(primaryCode: Int) {
-        Log.d(TAG, "onRelease called with primaryCode: $primaryCode")
+        logMessage("onRelease called with primaryCode: $primaryCode")
 //        if (!keyboardView.isPreviewEnabled && wasPreviewEnabled) {
 //            keyboardView.isPreviewEnabled = true
 //        }
-    }
-
-    private fun shouldDisablePreviewForCode(primaryCode: Int): Boolean {
-        return when (primaryCode) {
-            32,                           // Space
-            Keyboard.KEYCODE_SHIFT,       // -1 (Shift)
-            Keyboard.KEYCODE_DELETE,      // -5 (Delete)
-            Keyboard.KEYCODE_DONE,        // -4 (Enter/Done)
-            10,                               // Newline (alternative for Enter)
-            Keyboard.KEYCODE_MODE_CHANGE, // -2 (Mode change, e.g., to symbols/numbers)
-            Keyboard.KEYCODE_CANCEL,       // -3 (Cancel)
-                -> true
-            else -> false
-        }
     }
 
     /**
