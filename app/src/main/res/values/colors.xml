@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="icons" >#5d5e5f</color>
-    <color name="background">#e8eaed</color>
+    <color name="background">#fffae4</color>
 
     <color name="key_top">#ece0d0</color>
     <color name="key_base">#d9bd96</color>
-    <color name="label">#d9bd96</color>
+    <color name="key_text">#CAAC84</color>
+    <color name="key_icon">#d9bd96</color>
+
+    <color name="icons">#d9bd96</color>
+    <color name="button">#d9bd96</color>
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

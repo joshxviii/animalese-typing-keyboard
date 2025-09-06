@@ -43,8 +43,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:keyPreviewLayout="@layout/preview"
-        android:keyTextColor="@color/black"
-        android:keyTextSize="24dp"
-        android:shadowRadius="0"
+        android:keyTextColor="@color/key_text"
+        android:keyTextSize="28dp"
+        android:shadowColor="@color/key_text"
+        android:shadowRadius="1.5"
         android:keyBackground="@drawable/key_background"/>
 </LinearLayout>
