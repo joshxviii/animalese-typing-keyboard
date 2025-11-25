@@ -12,9 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,14 +30,14 @@ private val LightColorScheme = lightColorScheme(
     onTertiaryContainer = KeyText,
     background = Background,
     onBackground = KeyText,
-    surface = KeyTop,
+    surface = KeyBase,
     onSurface = KeyText,
-    surfaceVariant = KeyTop,
+    surfaceVariant = KeyBase,
     onSurfaceVariant = KeyText,
     outline = KeyText,
     inverseOnSurface = Background,
     inverseSurface = KeyText,
-    inversePrimary = KeyTop,
+    inversePrimary = KeyBase,
     surfaceTint = KeyBase,
 //    scrim = Color.Black, error: Unresolved reference: Black
 )
@@ -63,7 +61,6 @@ fun AnimaleseTypingTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
