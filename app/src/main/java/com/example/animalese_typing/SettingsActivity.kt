@@ -54,9 +54,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { /* Add settings logic here, e.g., toggle theme */ }) {
-            Text("Toggle Theme (Placeholder)")
+        Button(onClick = { /* logic here */ }) {
+            Text("Button (Placeholder)")
         }
+        TextField("Placeholder", onValueChange = {})
     }
 }
 

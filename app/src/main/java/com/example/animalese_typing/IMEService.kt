@@ -1,126 +1,106 @@
 package com.example.animalese_typing
 
-
-import android.content.Intent
 import android.inputmethodservice.InputMethodService
-import android.inputmethodservice.Keyboard
-import android.inputmethodservice.KeyboardView
-import android.media.AudioManager
+import android.view.KeyEvent
 import android.view.View
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
+import android.view.Window
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.animalese_typing.ui.keyboard.KeyboardScreen
+import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-@Suppress("DEPRECATION")
-class IMEService: InputMethodService(), KeyboardView.OnKeyboardActionListener {
-    private lateinit var keyboardView: KeyboardView
-    private lateinit var keyboard: Keyboard
-    private var inputView: View? = null
-    private lateinit var audioManager: AudioManager
-    private var wasPreviewEnabled: Boolean = true
+class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+
+    private val _lifecycleRegistry = LifecycleRegistry(this)
+    private val _viewModelStore = ViewModelStore()
+    private val _savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    override val lifecycle: Lifecycle
+        get() = _lifecycleRegistry
+
+    override val viewModelStore: ViewModelStore
+        get() = _viewModelStore
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = _savedStateRegistryController.savedStateRegistry
 
     override fun onCreate() {
         super.onCreate()
-        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        _savedStateRegistryController.performRestore(null)
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     override fun onCreateInputView(): View {
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
-        val entireInputView = layoutInflater.inflate(R.layout.keyboard_layout, null) // Use your actual layout file name
-        this.inputView = entireInputView
-        keyboardView = entireInputView.findViewById<KeyboardView>(R.id.keyboard) // Use the ID you defined in XML
-
-        keyboard = Keyboard(this, R.xml.keys_qwerty)
-        keyboardView.setKeyboard(keyboard)
-        keyboardView.setOnKeyboardActionListener(this)
-        keyboardView.isPreviewEnabled = false // TODO enable preview only for letter/numbers/punctuation keys
-
-        val settingsButton = entireInputView.findViewById<ImageButton>(R.id.settings_button)
-        val keyboardSizeButton = entireInputView.findViewById<ImageButton>(R.id.size_button)
-        settingsButton.setOnClickListener {
-            logMessage("Settings Button Clicked")
-            val intent = Intent(this, SettingsActivity::class.java)
-
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-            try { startActivity(intent) }
-            catch (e: Exception) {
-                logMessage("Error Starting SettingsActivity $e")
-                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+            setContent {
+                AnimaleseTypingTheme {
+                    KeyboardScreen {  }
+                }
             }
         }
-        keyboardSizeButton.setOnClickListener {
-            // TODO
+
+        // Set the view tree owners on the decor view, not the composeView
+        window?.window?.decorView?.let { decorView ->
+            decorView.setViewTreeLifecycleOwner(this@IMEService)
+            decorView.setViewTreeViewModelStoreOwner(this@IMEService)
+            decorView.setViewTreeSavedStateRegistryOwner(this@IMEService)
         }
 
-        // Dynamic padding for keyboard so it doesn't block nav bar
-        ViewCompat.setOnApplyWindowInsetsListener(entireInputView) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
-            view.updatePadding(bottom = systemBars.bottom)
-            WindowInsetsCompat.CONSUMED
-        }
-
-        return entireInputView
+        return composeView
     }
 
     override fun onWindowShown() {
         super.onWindowShown()
-        inputView?.requestApplyInsets()
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
-    @Deprecated("")
-    override fun onPress(primaryCode: Int) {
-        logMessage("onPress called with primaryCode: $primaryCode")
-
-        val soundPath = AudioPlayer.keycodeToSound( primaryCode )
-        AudioPlayer.playSound( soundPath )
-
+    override fun onWindowHidden() {
+        super.onWindowHidden()
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }
 
-    @Deprecated("")
-    override fun onRelease(primaryCode: Int) {
-        logMessage("onRelease called with primaryCode: $primaryCode")
-//        if (!keyboardView.isPreviewEnabled && wasPreviewEnabled) {
-//            keyboardView.isPreviewEnabled = true
-//        }
+    override fun onFinishInputView(finishingInput: Boolean) {
+        super.onFinishInputView(finishingInput)
     }
 
-    /**
-     * Called when a key is pressed on the keyboard.
-     * Commits the text to input fields.
-     */
-    @Deprecated("")
-    override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
-        val inputConnection = currentInputConnection
-        inputConnection?.let { ic ->
-            when (primaryCode) {
-                Keyboard.KEYCODE_DELETE -> ic.deleteSurroundingText(1, 0)
-                Keyboard.KEYCODE_DONE -> sendKeyChar('\n')
-                else -> {
-                    val code = primaryCode.toChar()
-                    if (Character.isDefined(code)) {
-                        ic.commitText(code.toString(), 1)
-                    }
-                }
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        _viewModelStore.clear()
     }
 
-    @Deprecated("")
-    override fun onText(text: CharSequence?) {}
+    //region Event Handlers
+    private fun handleChar(char: Char) {
+        currentInputConnection?.commitText(char.toString(), 1)
+        // You can add sound playing logic here if you want
+    }
 
-    @Deprecated("")
-    override fun swipeDown() {}
+    private fun handleDelete() {
+        currentInputConnection?.deleteSurroundingText(1, 0)
+    }
 
-    @Deprecated("")
-    override fun swipeLeft() {}
+    private fun handleEnter() {
+        // This might need adjustment based on the app you're typing in
+        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+    }
+    //endregion
 
-    @Deprecated("")
-    override fun swipeRight() {}
-
-    @Deprecated("")
-    override fun swipeUp() {}
 }
