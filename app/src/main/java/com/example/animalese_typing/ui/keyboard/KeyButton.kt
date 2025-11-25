@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,56 +22,74 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.Highlight
 import com.example.animalese_typing.ui.theme.KeyBase
-import com.example.animalese_typing.ui.theme.KeyIcon
 import com.example.animalese_typing.ui.theme.KeyText
-import com.example.animalese_typing.ui.theme.KeyTop
+import com.example.animalese_typing.ui.theme.darken
 
 // Data model for keyboard keys
 sealed class Key(
     val code: Int,
     val weight: Float,
-    val isRepeatable: Boolean = false
+    val isRepeatable: Boolean = false,
+    val colors : KeyColors = KeyColors()
 ) {
-    class TextKey(
-        val text: String,
+    class CharKey(
+        val char: Char,
         weight: Float = 0.1f,
-        isRepeatable: Boolean = false
-    ) : Key(text.first().code or -1, weight, isRepeatable)
+        isRepeatable: Boolean = false,
+        colors : KeyColors = KeyColors()
+    ) : Key(char.code, weight, isRepeatable, colors)
 
     class Empty(
         weight: Float = 0.05f,
-        isRepeatable: Boolean = false
-    ) : Key(-1, weight, isRepeatable)
+        isRepeatable: Boolean = false,
+        colors : KeyColors = KeyColors()
+    ) : Key(-1, weight, isRepeatable, colors)
 
     class IconKey(
-        val imageVector: ImageVector,
-        val contentDescription: String,
-        code: Int,
-        weight: Float,
-        isRepeatable: Boolean = false
-    ) : Key(code, weight, isRepeatable)
+        val id: Int,
+        code: Int = -1,
+        weight: Float = 0.15f,
+        isRepeatable: Boolean = false,
+        val size: Dp = 32.dp,
+        colors : KeyColors = KeyColors()
+    ) : Key(code, weight, isRepeatable, colors)
 
-    class SpecialTextKey(
+    class TextKey(
         val text: String,
         code: Int,
         weight: Float,
-        isRepeatable: Boolean = false
-    ) : Key(code, weight, isRepeatable)
+        isRepeatable: Boolean = false,
+        colors : KeyColors = KeyColors()
+    ) : Key(code, weight, isRepeatable, colors)
 }
+
+class KeyColors(
+    val base: Color = KeyBase,
+    val label: Color = KeyText,
+)
 
 @Composable
 fun KeyButton(
-    modifier: Modifier = Modifier,
     key: Key,
+    modifier: Modifier = Modifier,
     isCaps: Boolean = false,
     onChar: (Char) -> Unit = {},
     onBackspace: () -> Unit = {},
@@ -76,21 +97,38 @@ fun KeyButton(
     onShiftToggle: () -> Unit = {},
     onModeChange: () -> Unit = {}
 ) {
+
+    val keyModifier = modifier.clip(RoundedCornerShape(33))
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val topColor = if (isPressed) KeyBase else KeyTop
-    val bottomColor = if (isPressed) KeyTop else KeyBase
-    val textColor = KeyText
+    val topColor = if (isPressed) key.colors.base.darken() else key.colors.base
+    val bottomColor = if (isPressed) key.colors.base.darken(.15f) else key.colors.base.darken()
+    val labelColor = if (isPressed) key.colors.label.darken() else key.colors.label
+
+    val defaultTextStyle = TextStyle(
+        fontFamily = FontFamily(
+            Font(R.font.arial_rounded_bold, FontWeight.Bold)
+        ),
+        fontSize = 22.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp,
+        shadow = Shadow(
+            color = labelColor.copy(alpha = 0.5f),
+            offset = Offset(1.0f, 1.0f),
+            blurRadius = 1.5f
+        )
+    )
 
     if (key !is Key.Empty) Box(
-        modifier = modifier
-            .height(56.dp)
-            .clip(RoundedCornerShape(12.dp))
+        modifier = keyModifier
+            .fillMaxHeight()
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = {
+
                     when (key.code) {
                         -1 -> onShiftToggle()
                         -5 -> onBackspace()
@@ -98,7 +136,7 @@ fun KeyButton(
                         -2 -> onModeChange()
                         else -> {
                             val char = when (key) {
-                                is Key.TextKey -> if (isCaps) key.text.uppercase()[0] else key.text[0]
+                                is Key.CharKey -> if (isCaps) key.char.uppercaseChar() else key.char
                                 else -> key.code.toChar()
                             }
                             onChar(char)
@@ -106,55 +144,42 @@ fun KeyButton(
                     }
                 }
             )
+ // For Button Depth Effect
 //            .background(bottomColor)
-//            .padding(bottom = 1.dp)
+//            .padding(bottom = 2.dp)
     ) {
         Box(
-            modifier = Modifier
+            contentAlignment = Alignment.Center,
+            modifier = keyModifier
+                .background(topColor)
                 .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
-                .background(topColor),
-            contentAlignment = Alignment.Center
         ) {
             when (key) {
-                is Key.TextKey -> {
+                is Key.CharKey -> {
                     Text(
-                        text = if (isCaps) key.text.uppercase() else key.text,
-                        color = textColor,
-                        fontSize = 22.sp,
+                        text = if (isCaps) key.char.uppercase() else key.char.toString(),
+                        color = labelColor,
                         textAlign = TextAlign.Center,
-                        style = TextStyle(
-                            shadow = Shadow(
-                                color = textColor.copy(alpha = 0.5f),
-                                offset = Offset(1.0f, 1.0f),
-                                blurRadius = 1.5f
-                            )
-                        )
+                        style = defaultTextStyle
                     )
                 }
 
                 is Key.IconKey -> {
                     Icon(
-                        imageVector = key.imageVector,
-                        contentDescription = key.contentDescription,
-                        tint = KeyIcon,
-                        modifier = Modifier.size(24.dp)
+                        imageVector = ImageVector.vectorResource(key.id),
+                        contentDescription = "",
+                        tint = labelColor,
+                        modifier = Modifier.size(key.size)
                     )
                 }
 
-                is Key.SpecialTextKey -> {
+                is Key.TextKey -> {
                     Text(
                         text = key.text,
-                        color = textColor,
+                        color = labelColor,
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
-                        style = TextStyle(
-                            shadow = Shadow(
-                                color = textColor.copy(alpha = 0.5f),
-                                offset = Offset(1.0f, 1.0f),
-                                blurRadius = 1.5f
-                            )
-                        )
+                        style = defaultTextStyle
                     )
                 }
 
@@ -167,12 +192,16 @@ fun KeyButton(
 }
 
 // ONLY USED FOR PREVIEWING
-@Preview(showBackground = true, widthDp = 411, heightDp = 300)
+@Preview(showBackground = true, widthDp = 100, heightDp = 200)
 @Composable
 fun KeyButtonPreview() {
     AnimaleseTypingTheme {
-        Box() {
-            KeyButton(key = Key.TextKey("a"))
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
+            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
+            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, colors = KeyColors(base = Highlight, label = Color.White)))
         }
     }
 }
