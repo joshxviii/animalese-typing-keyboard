@@ -37,7 +37,7 @@ object Qwerty: Layout(listOf(
 )
 
 // ONLY USED FOR PREVIEWING
-@Preview(showBackground = true, widthDp = 411, heightDp = 250)
+@Preview(showBackground = true, widthDp = 411, heightDp = 218)
 @Composable
 fun LayoutQwertyPreview() {
     AnimaleseTypingTheme {

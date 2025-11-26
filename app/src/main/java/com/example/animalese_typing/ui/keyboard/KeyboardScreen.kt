@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.animalese_typing.ui.keyboard.layouts.Azerty
+import com.example.animalese_typing.ui.keyboard.layouts.Numpad
 import com.example.animalese_typing.ui.keyboard.layouts.Qwerty
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme

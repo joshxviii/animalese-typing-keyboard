@@ -22,7 +22,6 @@ fun KeyboardLayout(
             .fillMaxWidth()
             .background(AnimaleseColors.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         layout.value.forEachIndexed { index, row ->
             Row(
@@ -30,7 +29,6 @@ fun KeyboardLayout(
                     .fillMaxWidth()
                     .background(color = AnimaleseColors.background)
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 row.forEach { key ->
                     KeyButton(

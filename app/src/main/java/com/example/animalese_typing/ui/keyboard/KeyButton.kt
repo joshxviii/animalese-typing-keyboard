@@ -1,5 +1,6 @@
 package com.example.animalese_typing.ui.keyboard
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,10 +10,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -21,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -81,6 +85,10 @@ sealed class Key(
     ) : Key(code, weight, isRepeatable, type, data)
 }
 
+class OnColor(val color: Color) : ColorProducer {
+    override fun invoke(): Color = color
+}
+
 @Composable
 fun KeyButton(
     key: Key,
@@ -93,8 +101,6 @@ fun KeyButton(
     onSendData: (String?) -> Unit = {},
     onKeyPress: () -> Unit = {}
 ) {
-    val keyModifier = modifier.clip(RoundedCornerShape(33))
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -107,15 +113,14 @@ fun KeyButton(
     val darkenAmount = if (isPressed) 0.15f else 0f
 
     val topColor    = base.darken(darkenAmount)
-    val bottomColor = base.darken(darkenAmount + 0.08f)
     val labelColor  = label.darken(darkenAmount)
 
     val defaultTextStyle = TextStyle(
+        textAlign = TextAlign.Center,
         fontFamily = FontFamily(
             Font(R.font.arial_rounded_bold, FontWeight.Bold)
         ),
-        fontSize = 22.sp,
-        lineHeight = 16.sp,
+
         letterSpacing = 0.5.sp,
         shadow = Shadow(
             color = labelColor.copy(alpha = 0.5f),
@@ -123,13 +128,19 @@ fun KeyButton(
             blurRadius = 1.5f
         )
     )
+    val defaultAutoSize = TextAutoSize.StepBased(
+        minFontSize = 8.sp,
+        maxFontSize = 60.sp,
+        stepSize = 2.sp
+    )
 
-    if (key !is Key.Empty) Box(
-        modifier = keyModifier
+    if (key !is Key.Empty)
+    Box(// Key interaction size
+        modifier = modifier
             .fillMaxHeight()
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = LocalIndication.current,
                 onClick = {
                     //TODO handle all special keys with a new 'DataRead' handler
                     when (key.code) {
@@ -148,46 +159,53 @@ fun KeyButton(
                     if (key.data != null) onSendData(key.data)
                 }
             )
- // For Button Depth Effect
-//            .background(bottomColor)
-//            .padding(bottom = 2.dp)
+//            .background(Color.Red) // for debugging
     ) {
-        Box(
+        Box( // key base color
             contentAlignment = Alignment.Center,
-            modifier = keyModifier
+            modifier = modifier
+                .padding(2.dp,0.dp,2.dp,10.dp)
+                .clip(RoundedCornerShape(33))
                 .background(topColor)
                 .fillMaxSize()
         ) {
-            when (key) {
-                is Key.CharKey -> {
-                    Text(
-                        text = if (isCaps) key.char.uppercase() else key.char.toString(),
-                        color = labelColor,
-                        textAlign = TextAlign.Center,
-                        style = defaultTextStyle
-                    )
-                }
+            Box( // Text/icon size limiter
+                modifier = modifier
+                    .fillMaxSize(0.6f),
+                contentAlignment = Alignment.Center,
+            ) {
+                when (key) {
+                    is Key.CharKey -> {
+                        BasicText(
+                            text = if (isCaps) key.char.uppercase() else key.char.toString(),
+                            style = defaultTextStyle,
+                            autoSize = defaultAutoSize,
+                            softWrap = false,
+                            color = OnColor(labelColor)
+                        )
+                    }
 
-                is Key.IconKey -> {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(key.id),
-                        contentDescription = "",
-                        tint = labelColor,
-                        modifier = Modifier.size(key.size)
-                    )
-                }
+                    is Key.IconKey -> {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(key.id),
+                            contentDescription = "",
+                            tint = labelColor,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
-                is Key.TextKey -> {
-                    Text(
-                        text = key.text,
-                        color = labelColor,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        style = defaultTextStyle
-                    )
-                }
+                    is Key.TextKey -> {
+                        BasicText(
+                            text = key.text,
+                            style = defaultTextStyle,
+                            autoSize = defaultAutoSize,
+                            softWrap = false,
+                            color = OnColor(labelColor)
+                        )
+                    }
 
-                else -> {}
+                    else -> {}
+                }
             }
         }
     } else {
@@ -196,13 +214,11 @@ fun KeyButton(
 }
 
 // ONLY USED FOR PREVIEWING
-@Preview(showBackground = true, widthDp = 100, heightDp = 200)
+@Preview(showBackground = true, widthDp = 70, heightDp = 160)
 @Composable
 fun KeyButtonPreview() {
     AnimaleseTypingTheme {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
+        Column() {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, type = "highlight"))
