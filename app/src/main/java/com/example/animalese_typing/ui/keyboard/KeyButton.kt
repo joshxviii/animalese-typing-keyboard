@@ -66,7 +66,7 @@ sealed class Key(
     class IconKey(
         val id: Int,
         code: Int = -1,
-        weight: Float = 0.15f,
+        weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         val size: Dp = 32.dp,
         colors : KeyColors = KeyColors()
@@ -75,7 +75,7 @@ sealed class Key(
     class TextKey(
         val text: String,
         code: Int,
-        weight: Float,
+        weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         colors : KeyColors = KeyColors()
     ) : Key(code, weight, isRepeatable, colors)
