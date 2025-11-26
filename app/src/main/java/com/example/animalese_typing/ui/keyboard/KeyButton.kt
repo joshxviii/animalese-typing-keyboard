@@ -90,27 +90,25 @@ fun KeyButton(
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
     onShiftToggle: () -> Unit = {},
-    onReadData: (String?) -> Unit = {}
+    onSendData: (String?) -> Unit = {},
+    onKeyPress: () -> Unit = {}
 ) {
     val keyModifier = modifier.clip(RoundedCornerShape(33))
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val base = when (key.type) {
-        "alt" -> AnimaleseColors.keyBaseAlt
-        "highlight" -> AnimaleseColors.highlight
-        else -> AnimaleseColors.keyBase
-    }
-    val label = when (key.type) {
-        "alt" -> AnimaleseColors.keyTextAlt
-        "highlight" -> Color.White
-        else -> AnimaleseColors.keyText
+    val (base, label) = when (key.type) {
+        "alt" -> AnimaleseColors.keyBaseAlt to AnimaleseColors.keyTextAlt
+        "highlight" -> AnimaleseColors.highlight to Color.White
+        else -> AnimaleseColors.keyBase to AnimaleseColors.keyText
     }
 
-    val topColor = if (isPressed) base.darken() else base
-    val bottomColor = if (isPressed) base.darken(.15f) else base.darken()
-    val labelColor = if (isPressed) label.darken() else label
+    val darkenAmount = if (isPressed) 0.15f else 0f
+
+    val topColor    = base.darken(darkenAmount)
+    val bottomColor = base.darken(darkenAmount + 0.08f)
+    val labelColor  = label.darken(darkenAmount)
 
     val defaultTextStyle = TextStyle(
         fontFamily = FontFamily(
@@ -147,7 +145,7 @@ fun KeyButton(
                             }
                         }
                     }
-                    if (key.data != null) onReadData(key.data)
+                    if (key.data != null) onSendData(key.data)
                 }
             )
  // For Button Depth Effect

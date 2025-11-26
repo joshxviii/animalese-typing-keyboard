@@ -3,6 +3,8 @@ package com.example.animalese_typing
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
@@ -24,6 +26,8 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private lateinit var audioManager: AudioManager
+    val vibrator: Vibrator? = this.getSystemService(Vibrator::class.java)
+    val vibe = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -55,7 +59,8 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
                         onBackspace = ::handleDelete,
                         onEnter = ::handleEnter,
                         onSettings = ::handleSettings,
-                        onReadData = ::handleReadData
+                        onSendData = ::handleReadData,
+                        onKeyPress = ::onKeyPress
                     )
                 }
             }
@@ -93,6 +98,10 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     }
 
     //region Event Handlers
+    private fun onKeyPress() {
+        vibrator?.vibrate(vibe)
+    }
+
     private fun handleSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
 
@@ -103,7 +112,6 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
     private fun handleReadData(data: String?) {
         //TODO parse data to handle layout changes, special key functions, etc
-        AudioPlayer.playSound( AudioPlayer.keycodeToSound( 'a'.code ) )
         Toast.makeText(this, "Mode Change: $data", Toast.LENGTH_SHORT).show()
     }
 

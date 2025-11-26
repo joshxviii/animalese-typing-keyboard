@@ -4,22 +4,20 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 
 @Composable
 fun AnimaleseTypingTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: ThemeColors = if(isSystemInDarkTheme()) Dark else Light,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkMode else LightMode
 
-    CompositionLocalProvider(LocalAnimaleseColors provides colors) {
+    CompositionLocalProvider(LocalAnimaleseColors provides theme) {
         MaterialTheme(
             colorScheme = androidx.compose.material3.darkColorScheme()
                 .copy(
-                    primary = colors.highlight,
-                    surface = colors.keyBase,
-                    background = colors.background,
+                    primary = theme.highlight,
+                    surface = theme.keyBase,
+                    background = theme.background,
                 ),
             content = content
         )

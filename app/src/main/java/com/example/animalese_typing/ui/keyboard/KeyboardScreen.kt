@@ -18,76 +18,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.animalese_typing.ui.keyboard.layouts.Qwerty
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.ThemeColors
 
 
 @Composable
 fun KeyboardScreen(
     height: Dp = 250.dp,
-    onKeyPress: (String) -> Unit = {},
+    onKeyPress: () -> Unit = {},
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {},
     onChar: (Char) -> Unit = {},
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
     onShiftToggle: () -> Unit = {},
-    onReadData: (String?) -> Unit = {},
+    onSendData: (String?) -> Unit = {},
 ) {
     var isCaps by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
+            .background(AnimaleseColors.background)
             .padding(4.dp)
             .height(height),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Top Bar
-            TopBar(
-                onSettings = onSettings,
-                onResize = onResize
-            )
+        // Top Bar
+        TopBar(
+            onSettings = onSettings,
+            onResize = onResize
+        )
 
-            // Keyboard
-            KeyboardLayouts.Qwerty.forEachIndexed { index, row ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = AnimaleseColors.background)
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    row.forEach { key ->
-                        KeyButton(
-                            key = key,
-                            modifier = Modifier.weight(key.weight),
-                            isCaps = isCaps,
-                            onChar = onChar,
-                            onBackspace = onBackspace,
-                            onEnter = onEnter,
-                            onShiftToggle = {
-                                isCaps = !isCaps
-                                onShiftToggle()
-                            },
-                            onReadData = onReadData
-                        )
-                    }
-                }
-            }
-        }
+        // Keyboard
+        KeyboardLayout(layout = Qwerty)
     }
 }
 
 // ONLY USED FOR PREVIEWING
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 411, heightDp = 250)
 @Composable
 fun KeyboardPreview() {
     AnimaleseTypingTheme {
