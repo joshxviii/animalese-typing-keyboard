@@ -33,6 +33,8 @@ import com.example.animalese_typing.ui.theme.KeyIcon
 fun KeyboardScreen(
     height: Dp = 250.dp,
     onKeyPress: (String) -> Unit = {},
+    onSettings: () -> Unit = {},
+    onResize: () -> Unit = {},
     onChar: (Char) -> Unit = {},
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
@@ -55,7 +57,10 @@ fun KeyboardScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Top Bar
-            TopBar()
+            TopBar(
+                onSettings = onSettings,
+                onResize = onResize
+            )
 
             // Keyboard
             KeyboardLayouts.Qwerty.forEachIndexed { index, row ->
