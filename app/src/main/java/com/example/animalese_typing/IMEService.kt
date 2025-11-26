@@ -21,13 +21,14 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyboardScreen
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private lateinit var audioManager: AudioManager
-    val vibrator: Vibrator? = this.getSystemService(Vibrator::class.java)
-    val vibe = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
+    private lateinit var vibrator: Vibrator
+    private lateinit var vibe : VibrationEffect
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -44,6 +45,13 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override fun onCreate() {
         super.onCreate()
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        vibrator = getSystemService(Vibrator::class.java)
+        vibe = VibrationEffect.createWaveform(
+        longArrayOf(0, 10, 20, 10),
+        intArrayOf(0, 255, 0, 255),// TODO setting for vibration intensity
+        0
+        )
+
         _savedStateRegistryController.performRestore(null)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
@@ -55,12 +63,9 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             setContent {
                 AnimaleseTypingTheme {
                     KeyboardScreen(
-                        onChar = ::handleChar,
-                        onBackspace = ::handleDelete,
-                        onEnter = ::handleEnter,
                         onSettings = ::handleSettings,
-                        onSendData = ::handleReadData,
-                        onKeyPress = ::onKeyPress
+                        onKeyDown = ::onKeyDown,
+                        onKeyUp = ::onKeyUp
                     )
                 }
             }
@@ -98,15 +103,24 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     }
 
     //region Event Handlers
-    private fun onKeyPress() {
-        vibrator?.vibrate(vibe)
+
+    // TODO handle key stuff
+    private fun onKeyDown(key: Key) {
+        AnimaleseTyping.logMessage("KEY DOWN: $key")
+        vibrator.vibrate(vibe)
+        if (key.data != null) handleReadData(key.data)
+    }
+    private fun onKeyUp(key: Key) {
+        AnimaleseTyping.logMessage("KEY UP: $key")
+        when (key) {
+            is Key.CharKey -> handleChar(key.char)
+            else -> {}
+        }
     }
 
     private fun handleSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
         startActivity(intent)
     }
 

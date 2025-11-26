@@ -28,14 +28,10 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 @Composable
 fun KeyboardScreen(
     height: Dp = 250.dp,
-    onKeyPress: () -> Unit = {},
+    onKeyDown: (Key) -> Unit = {},
+    onKeyUp: (Key) -> Unit = {},
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {},
-    onChar: (Char) -> Unit = {},
-    onBackspace: () -> Unit = {},
-    onEnter: () -> Unit = {},
-    onShiftToggle: () -> Unit = {},
-    onSendData: (String?) -> Unit = {},
 ) {
     var isCaps by remember { mutableStateOf(false) }
 
@@ -54,7 +50,11 @@ fun KeyboardScreen(
         )
 
         // Keyboard
-        KeyboardLayout(layout = Qwerty)
+        KeyboardLayout(
+            layout = Qwerty,
+            onKeyDown = onKeyDown,
+            onKeyUp = onKeyUp,
+        )
     }
 }
 

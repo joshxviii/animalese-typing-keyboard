@@ -21,12 +21,12 @@ object Numpad: Layout(listOf(
             Key.CharKey('*', 0.066f, type = "alt"), Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.TextKey("ABC", -2, 0.2125f, type = "alt"),
-            Key.CharKey(',', 0.125f, type = "alt"),
-            Key.TextKey("!?#", -2, 0.175f),
-            Key.CharKey('0', 0.325f),
-            Key.CharKey('=', 0.175f),
-            Key.CharKey('.', 0.125f, type = "alt"),
+            Key.TextKey("ABC",-2, 0.2125f, type = "alt"),
+            Key.CharKey(',',0.125f, type = "alt"),
+            Key.TextKey("!?#",-2, 0.175f),
+            Key.CharKey('0',0.325f),
+            Key.CharKey('=',0.175f),
+            Key.CharKey('.',0.125f, type = "alt"),
             Key.IconKey(R.drawable.ic_enter, 10, 0.2125f, type = "highlight")
         )
     )

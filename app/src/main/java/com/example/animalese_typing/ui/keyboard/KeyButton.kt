@@ -1,17 +1,16 @@
 package com.example.animalese_typing.ui.keyboard
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -34,56 +34,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.darken
-
-// Data model for keyboard keys
-sealed class Key(
-    val code: Int?,
-    val weight: Float,
-    val isRepeatable: Boolean = false,
-    val type : String,
-    val data : String?
-) {
-    class CharKey(
-        val char: Char,
-        weight: Float = 0.1f,
-        isRepeatable: Boolean = false,
-        type : String = "",
-        data : String? = null
-    ) : Key(char.code, weight, isRepeatable, type, data)
-
-    class Empty(
-        weight: Float = 0.05f,
-        isRepeatable: Boolean = false,
-        type : String = "",
-        data : String? = null
-    ) : Key(null, weight, isRepeatable, type, data)
-
-    class IconKey(
-        val id: Int,
-        code: Int = -1,
-        weight: Float = 0.1f,
-        isRepeatable: Boolean = false,
-        val size: Dp = 32.dp,
-        type : String = "",
-        data : String? = null
-    ) : Key(code, weight, isRepeatable, type, data)
-
-    class TextKey(
-        val text: String,
-        code: Int? = null,
-        weight: Float = 0.1f,
-        isRepeatable: Boolean = false,
-        type : String = "",
-        data : String? = null
-    ) : Key(code, weight, isRepeatable, type, data)
-}
 
 class OnColor(val color: Color) : ColorProducer {
     override fun invoke(): Color = color
@@ -92,14 +48,9 @@ class OnColor(val color: Color) : ColorProducer {
 @Composable
 fun KeyButton(
     key: Key,
-    modifier: Modifier = Modifier,
-    isCaps: Boolean = false,
-    onChar: (Char) -> Unit = {},
-    onBackspace: () -> Unit = {},
-    onEnter: () -> Unit = {},
-    onShiftToggle: () -> Unit = {},
-    onSendData: (String?) -> Unit = {},
-    onKeyPress: () -> Unit = {}
+    modifier: Modifier,
+    onKeyUp: (Key) -> Unit = {},
+    onKeyDown: (Key) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -140,25 +91,19 @@ fun KeyButton(
             .fillMaxHeight()
             .clickable(
                 interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = {
-                    //TODO handle all special keys with a new 'DataRead' handler
-                    when (key.code) {
-                        -1 -> onShiftToggle()
-                        -5 -> onBackspace()
-                        10 -> onEnter()
-                        else -> {
-                            if (key is Key.CharKey) {
-                                onChar(
-                                    if (isCaps) key.char.uppercaseChar()
-                                    else key.char
-                                )
-                            }
-                        }
-                    }
-                    if (key.data != null) onSendData(key.data)
-                }
+                indication = null,
+                onClick = {}
             )
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        awaitFirstDown(requireUnconsumed = false)
+                        onKeyDown(key)
+                        waitForUpOrCancellation()
+                        onKeyUp(key)
+                    }
+                }
+            }
 //            .background(Color.Red) // for debugging
     ) {
         Box( // key base color
@@ -177,7 +122,7 @@ fun KeyButton(
                 when (key) {
                     is Key.CharKey -> {
                         BasicText(
-                            text = if (isCaps) key.char.uppercase() else key.char.toString(),
+                            text = if (false) key.char.uppercase() else key.char.toString(),
                             style = defaultTextStyle,
                             autoSize = defaultAutoSize,
                             softWrap = false,
@@ -218,7 +163,7 @@ fun KeyButton(
 @Composable
 fun KeyButtonPreview() {
     AnimaleseTypingTheme {
-        Column() {
+        Column(modifier = Modifier.background(color=Color(0xFF1E1F22))) {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, type = "highlight"))

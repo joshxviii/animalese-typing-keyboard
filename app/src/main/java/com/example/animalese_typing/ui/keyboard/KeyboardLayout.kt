@@ -1,13 +1,11 @@
 package com.example.animalese_typing.ui.keyboard
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 
@@ -15,7 +13,8 @@ import com.example.animalese_typing.ui.theme.AnimaleseColors
 fun KeyboardLayout(
     layout : Layout,
     modifier: Modifier = Modifier,
-    onKeyPress: () -> Unit = {},
+    onKeyDown: (Key) -> Unit = {},
+    onKeyUp: (Key) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -34,7 +33,8 @@ fun KeyboardLayout(
                     KeyButton(
                         key = key,
                         modifier = modifier.weight(key.weight),
-                        onKeyPress = onKeyPress
+                        onKeyDown = onKeyDown,
+                        onKeyUp = onKeyUp
                     )
                 }
             }

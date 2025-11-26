@@ -19,16 +19,16 @@ object Azerty: Layout(listOf(
             Key.CharKey('k'), Key.CharKey('l'), Key.Empty()
         ),
         listOf(
-            Key.IconKey(R.drawable.ic_shift_lock, weight = 0.16f, type = "alt"),
+            Key.IconKey(R.drawable.ic_shift_off, weight = 0.16f, type = "alt"),
             Key.CharKey('w'), Key.CharKey('x'), Key.CharKey('c'), Key.CharKey('v'),
             Key.CharKey('b'), Key.CharKey('n'), Key.CharKey('m'),
             Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true, weight = 0.16f, type = "alt")
         ),
         listOf(
-            Key.TextKey("?123", weight = 0.15f, type = "alt", data="numpad"),
-            Key.CharKey(',', 0.1f),
-            Key.CharKey(' ', 0.5f, isRepeatable = true),
-            Key.CharKey('.', 0.1f),
+            Key.TextKey("123", weight = 0.15f, type = "alt", data="numpad"),
+            Key.CharKey(',',0.1f, type = "alt"),
+            Key.CharKey(' ',0.5f, isRepeatable = true),
+            Key.CharKey('.',0.1f, type = "alt"),
             Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
         )
     )

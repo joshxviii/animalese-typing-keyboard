@@ -15,8 +15,6 @@ fun AnimaleseTypingTheme(
         MaterialTheme(
             colorScheme = androidx.compose.material3.darkColorScheme()
                 .copy(
-                    primary = theme.highlight,
-                    surface = theme.keyBase,
                     background = theme.background,
                 ),
             content = content
