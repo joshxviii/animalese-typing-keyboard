@@ -1,11 +1,11 @@
 package com.example.animalese_typing
 
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
+import android.media.AudioManager
 import android.view.KeyEvent
 import android.view.View
-import android.view.Window
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
@@ -19,11 +19,12 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.ui.keyboard.KeyboardScreen
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
-
+    private lateinit var audioManager: AudioManager
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -39,6 +40,7 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
     override fun onCreate() {
         super.onCreate()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         _savedStateRegistryController.performRestore(null)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
@@ -49,12 +51,16 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
             setContent {
                 AnimaleseTypingTheme {
-                    KeyboardScreen {  }
+                    KeyboardScreen(
+                        onChar = ::handleChar,
+                        onBackspace = ::handleDelete,
+                        onEnter = ::handleEnter,
+                        onSettings = ::handleSettings
+                    ) {  }
                 }
             }
         }
 
-        // Set the view tree owners on the decor view, not the composeView
         window?.window?.decorView?.let { decorView ->
             decorView.setViewTreeLifecycleOwner(this@IMEService)
             decorView.setViewTreeViewModelStoreOwner(this@IMEService)
@@ -87,9 +93,20 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     }
 
     //region Event Handlers
+    private fun handleSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        startActivity(intent)
+    }
+
     private fun handleChar(char: Char) {
         currentInputConnection?.commitText(char.toString(), 1)
-        // You can add sound playing logic here if you want
+
+        //TODO Improve playback performance.
+        // Same old audio play logic as before
+        AudioPlayer.playSound( AudioPlayer.keycodeToSound( char.lowercaseChar().code ) )
     }
 
     private fun handleDelete() {
@@ -97,7 +114,6 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     }
 
     private fun handleEnter() {
-        // This might need adjustment based on the app you're typing in
         currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
         currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
     }
