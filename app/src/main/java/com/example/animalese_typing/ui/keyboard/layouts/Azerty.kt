@@ -2,6 +2,7 @@ package com.example.animalese_typing.ui.keyboard.layouts
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.animalese_typing.KeyFunctionIds
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
@@ -19,17 +20,17 @@ object Azerty: Layout(listOf(
             Key.CharKey('k'), Key.CharKey('l'), Key.Empty()
         ),
         listOf(
-            Key.IconKey(R.drawable.ic_shift_off, weight = 0.16f, type = "alt"),
+            Key.IconKey(R.drawable.ic_shift_off, weight = 0.16f, type = "alt", function=KeyFunctionIds.SHIFT),
             Key.CharKey('w'), Key.CharKey('x'), Key.CharKey('c'), Key.CharKey('v'),
             Key.CharKey('b'), Key.CharKey('n'), Key.CharKey('m'),
-            Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true, weight = 0.16f, type = "alt")
+            Key.IconKey(R.drawable.ic_backspace, isRepeatable = true, weight = 0.16f, type = "alt", function=KeyFunctionIds.BACKSPACE)
         ),
         listOf(
-            Key.TextKey("123", weight = 0.15f, type = "alt", data="numpad"),
+            Key.TextKey("123", weight = 0.15f, type = "alt", function=KeyFunctionIds.OPEN_NUMPAD),
             Key.CharKey(',',0.1f, type = "alt"),
             Key.CharKey(' ',0.5f, isRepeatable = true),
             Key.CharKey('.',0.1f, type = "alt"),
-            Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
+            Key.IconKey(R.drawable.ic_enter,0.15f, type = "highlight", function=KeyFunctionIds.ENTER)
         )
     )
 )

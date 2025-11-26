@@ -2,45 +2,43 @@ package com.example.animalese_typing.ui.keyboard
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.animalese_typing.KeyFunctionIds
 
 // Data model for keyboard keys
 sealed class Key(
-    val code: Int?,
     val weight: Float,
     val isRepeatable: Boolean = false,
     val type : String,
-    val data : String?
+    val function : KeyFunctionIds?
 ) {
     class Empty(
         weight: Float = 0.05f,
         isRepeatable: Boolean = false,
         type : String = "",
-        data : String? = null
-    ) : Key(null, weight, isRepeatable, type, data)
+        function : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, function)
     class CharKey(
         val char: Char,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         type : String = "",
-        data : String? = null
-    ) : Key(char.code, weight, isRepeatable, type, data)
+        function : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, function)
     class IconKey(
         val id: Int,
-        code: Int = -1,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         val size: Dp = 32.dp,
         type : String = "",
-        data : String? = null
-    ) : Key(code, weight, isRepeatable, type, data)
+        function : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, function)
     class TextKey(
         val text: String,
-        code: Int? = null,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         type : String = "",
-        data : String? = null
-    ) : Key(code, weight, isRepeatable, type, data)
+        function : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, function)
 
     override fun toString(): String {
         return when (this) {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.animalese_typing.KeyFunctionIds
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
@@ -21,13 +22,13 @@ object Numpad: Layout(listOf(
             Key.CharKey('*', 0.066f, type = "alt"), Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.TextKey("ABC",-2, 0.2125f, type = "alt"),
+            Key.TextKey("ABC",weight=0.2125f, type = "alt", function=KeyFunctionIds.OPEN_KEYPAD),
             Key.CharKey(',',0.125f, type = "alt"),
-            Key.TextKey("!?#",-2, 0.175f),
+            Key.TextKey("!?#",0.175f),
             Key.CharKey('0',0.325f),
             Key.CharKey('=',0.175f),
             Key.CharKey('.',0.125f, type = "alt"),
-            Key.IconKey(R.drawable.ic_enter, 10, 0.2125f, type = "highlight")
+            Key.IconKey(R.drawable.ic_enter, weight=0.2125f, type = "highlight", function=KeyFunctionIds.ENTER)
         )
     )
 )

@@ -108,7 +108,7 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     private fun onKeyDown(key: Key) {
         AnimaleseTyping.logMessage("KEY DOWN: $key")
         vibrator.vibrate(vibe)
-        if (key.data != null) handleReadData(key.data)
+        if (key.function != null) handleFunction(key.function)
     }
     private fun onKeyUp(key: Key) {
         AnimaleseTyping.logMessage("KEY UP: $key")
@@ -124,11 +124,6 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         startActivity(intent)
     }
 
-    private fun handleReadData(data: String?) {
-        //TODO parse data to handle layout changes, special key functions, etc
-        Toast.makeText(this, "Mode Change: $data", Toast.LENGTH_SHORT).show()
-    }
-
     private fun handleChar(char: Char) {
         currentInputConnection?.commitText(char.toString(), 1)
 
@@ -137,14 +132,23 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         AudioPlayer.playSound( AudioPlayer.keycodeToSound( char.lowercaseChar().code ) )
     }
 
-    private fun handleDelete() {
-        currentInputConnection?.deleteSurroundingText(1, 0)
-    }
-
-    private fun handleEnter() {
-        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+    private fun handleFunction(id: KeyFunctionIds) {
+        when (id) {
+            KeyFunctionIds.BACKSPACE -> {
+                currentInputConnection?.deleteSurroundingText(1, 0)
+            }
+            KeyFunctionIds.ENTER -> {
+                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+            }
+            KeyFunctionIds.SHIFT -> {
+                //TODO on/off/lock
+            }
+            KeyFunctionIds.OPEN_NUMPAD -> {}
+            KeyFunctionIds.OPEN_KEYPAD -> {}
+            KeyFunctionIds.OPEN_SPECIAL -> {}
+            else -> {}
+        }
     }
     //endregion
-
 }

@@ -2,6 +2,7 @@ package com.example.animalese_typing.ui.keyboard.layouts
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.animalese_typing.KeyFunctionIds
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
@@ -19,17 +20,17 @@ object SpecialCharacters: Layout( listOf(
             Key.CharKey(')'), Key.CharKey('/')
         ),
         listOf(
-            Key.TextKey("=\\", -4, 0.15f),
+            Key.TextKey("=\\", 0.15f),
             Key.CharKey('*'), Key.CharKey('\"'), Key.CharKey('\''), Key.CharKey(':'),
             Key.CharKey(';'), Key.CharKey('!'), Key.CharKey('?'),
-            Key.IconKey(R.drawable.ic_backspace, -5, isRepeatable = true)
+            Key.IconKey(R.drawable.ic_backspace, isRepeatable = true)
         ),
         listOf(
-            Key.TextKey("ABC", -3, 0.15f),
+            Key.TextKey("ABC", 0.15f, function=KeyFunctionIds.OPEN_KEYPAD),
             Key.CharKey(',', 0.1f),
             Key.CharKey(' ', 0.5f, isRepeatable = true),
             Key.CharKey('.', 0.1f),
-            Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
+            Key.IconKey(R.drawable.ic_enter,0.15f, type = "highlight", function=KeyFunctionIds.ENTER)
         )
     )
 )
