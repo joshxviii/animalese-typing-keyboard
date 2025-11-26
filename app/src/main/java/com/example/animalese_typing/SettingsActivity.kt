@@ -5,10 +5,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.animalese_typing.ui.settings.GeneralSettingsScreen
+import com.example.animalese_typing.ui.settings.LayoutSettingsScreen
+import com.example.animalese_typing.ui.settings.MainSettingsScreen
+import com.example.animalese_typing.ui.settings.ThemesSettingsScreen
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -18,42 +25,37 @@ class SettingsActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AnimaleseTypingTheme {
+                val navController = rememberNavController()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text("Keyboard Settings") }
+                            title = { Text("Keyboard Settings") },
+                            navigationIcon = {
+                                if (navController.previousBackStackEntry != null) {
+                                    IconButton(onClick = { navController.popBackStack() }) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowBack,
+                                            contentDescription = "Back"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     }
                 ) { innerPadding ->
-                    SettingsScreen(Modifier.padding(innerPadding))
+                    NavHost(
+                        navController = navController,
+                        startDestination = "main_settings",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("main_settings") { MainSettingsScreen(navController) }
+                        composable("themes") { ThemesSettingsScreen() }
+                        composable("general") { GeneralSettingsScreen() }
+                        composable("layout") { LayoutSettingsScreen() }
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-
-}
-
-
-// FOR PREVIEW ONLY
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-@Preview(showBackground = true)
-fun SettingsScreenPreview() {
-    AnimaleseTypingTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(
-                    title = { Text("Keyboard Settings") }
-                )
-            }
-        ) { innerPadding ->
-            SettingsScreen(Modifier.padding(innerPadding))
         }
     }
 }
