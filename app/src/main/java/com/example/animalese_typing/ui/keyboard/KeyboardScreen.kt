@@ -33,7 +33,7 @@ fun KeyboardScreen(
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
     onShiftToggle: () -> Unit = {},
-    onModeChange: (String?) -> Unit = {},
+    onReadData: (String?) -> Unit = {},
 ) {
     var isCaps by remember { mutableStateOf(false) }
 
@@ -77,7 +77,7 @@ fun KeyboardScreen(
                                 isCaps = !isCaps
                                 onShiftToggle()
                             },
-                            onModeChange = onModeChange
+                            onReadData = onReadData
                         )
                     }
                 }

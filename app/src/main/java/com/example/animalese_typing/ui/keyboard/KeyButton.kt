@@ -90,7 +90,7 @@ fun KeyButton(
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
     onShiftToggle: () -> Unit = {},
-    onModeChange: (String?) -> Unit = {}
+    onReadData: (String?) -> Unit = {}
 ) {
     val keyModifier = modifier.clip(RoundedCornerShape(33))
 
@@ -133,7 +133,7 @@ fun KeyButton(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = {
-
+                    //TODO handle all special keys with a new 'DataRead' handler
                     when (key.code) {
                         -1 -> onShiftToggle()
                         -5 -> onBackspace()
@@ -147,7 +147,7 @@ fun KeyButton(
                             }
                         }
                     }
-                    if (key.data != null) onModeChange(key.data)
+                    if (key.data != null) onReadData(key.data)
                 }
             )
  // For Button Depth Effect

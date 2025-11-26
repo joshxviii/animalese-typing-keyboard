@@ -19,7 +19,6 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.ui.keyboard.KeyboardScreen
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
@@ -56,7 +55,7 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
                         onBackspace = ::handleDelete,
                         onEnter = ::handleEnter,
                         onSettings = ::handleSettings,
-                        onModeChange = ::handleModeChange
+                        onReadData = ::handleReadData
                     )
                 }
             }
@@ -102,8 +101,9 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         startActivity(intent)
     }
 
-    private fun handleModeChange(data: String?) {
-        //TODO parse data and change keyboard layout
+    private fun handleReadData(data: String?) {
+        //TODO parse data to handle layout changes, special key functions, etc
+        AudioPlayer.playSound( AudioPlayer.keycodeToSound( 'a'.code ) )
         Toast.makeText(this, "Mode Change: $data", Toast.LENGTH_SHORT).show()
     }
 
