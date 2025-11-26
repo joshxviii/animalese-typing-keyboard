@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -23,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -37,31 +34,32 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.R
+import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.Highlight
-import com.example.animalese_typing.ui.theme.KeyBase
-import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.darken
 
 // Data model for keyboard keys
 sealed class Key(
-    val code: Int,
+    val code: Int?,
     val weight: Float,
     val isRepeatable: Boolean = false,
-    val colors : KeyColors = KeyColors()
+    val type : String,
+    val data : String?
 ) {
     class CharKey(
         val char: Char,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
-        colors : KeyColors = KeyColors()
-    ) : Key(char.code, weight, isRepeatable, colors)
+        type : String = "",
+        data : String? = null
+    ) : Key(char.code, weight, isRepeatable, type, data)
 
     class Empty(
         weight: Float = 0.05f,
         isRepeatable: Boolean = false,
-        colors : KeyColors = KeyColors()
-    ) : Key(-1, weight, isRepeatable, colors)
+        type : String = "",
+        data : String? = null
+    ) : Key(null, weight, isRepeatable, type, data)
 
     class IconKey(
         val id: Int,
@@ -69,22 +67,19 @@ sealed class Key(
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         val size: Dp = 32.dp,
-        colors : KeyColors = KeyColors()
-    ) : Key(code, weight, isRepeatable, colors)
+        type : String = "",
+        data : String? = null
+    ) : Key(code, weight, isRepeatable, type, data)
 
     class TextKey(
         val text: String,
-        code: Int,
+        code: Int? = null,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
-        colors : KeyColors = KeyColors()
-    ) : Key(code, weight, isRepeatable, colors)
+        type : String = "",
+        data : String? = null
+    ) : Key(code, weight, isRepeatable, type, data)
 }
-
-class KeyColors(
-    val base: Color = KeyBase,
-    val label: Color = KeyText,
-)
 
 @Composable
 fun KeyButton(
@@ -95,17 +90,27 @@ fun KeyButton(
     onBackspace: () -> Unit = {},
     onEnter: () -> Unit = {},
     onShiftToggle: () -> Unit = {},
-    onModeChange: () -> Unit = {}
+    onModeChange: (String?) -> Unit = {}
 ) {
-
     val keyModifier = modifier.clip(RoundedCornerShape(33))
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val topColor = if (isPressed) key.colors.base.darken() else key.colors.base
-    val bottomColor = if (isPressed) key.colors.base.darken(.15f) else key.colors.base.darken()
-    val labelColor = if (isPressed) key.colors.label.darken() else key.colors.label
+    val base = when (key.type) {
+        "alt" -> AnimaleseColors.keyBaseAlt
+        "highlight" -> AnimaleseColors.highlight
+        else -> AnimaleseColors.keyBase
+    }
+    val label = when (key.type) {
+        "alt" -> AnimaleseColors.keyTextAlt
+        "highlight" -> Color.White
+        else -> AnimaleseColors.keyText
+    }
+
+    val topColor = if (isPressed) base.darken() else base
+    val bottomColor = if (isPressed) base.darken(.15f) else base.darken()
+    val labelColor = if (isPressed) label.darken() else label
 
     val defaultTextStyle = TextStyle(
         fontFamily = FontFamily(
@@ -133,15 +138,16 @@ fun KeyButton(
                         -1 -> onShiftToggle()
                         -5 -> onBackspace()
                         10 -> onEnter()
-                        -2 -> onModeChange()
                         else -> {
-                            val char = when (key) {
-                                is Key.CharKey -> if (isCaps) key.char.uppercaseChar() else key.char
-                                else -> key.code.toChar()
+                            if (key is Key.CharKey) {
+                                onChar(
+                                    if (isCaps) key.char.uppercaseChar()
+                                    else key.char
+                                )
                             }
-                            onChar(char)
                         }
                     }
+                    if (key.data != null) onModeChange(key.data)
                 }
             )
  // For Button Depth Effect
@@ -201,7 +207,7 @@ fun KeyButtonPreview() {
         ) {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
-            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, colors = KeyColors(base = Highlight, label = Color.White)))
+            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, type = "highlight"))
         }
     }
 }

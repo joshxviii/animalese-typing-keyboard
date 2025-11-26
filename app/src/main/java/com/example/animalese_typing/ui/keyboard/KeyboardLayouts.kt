@@ -1,13 +1,9 @@
 package com.example.animalese_typing.ui.keyboard
-
-import androidx.compose.ui.graphics.Color
 import com.example.animalese_typing.R
-import com.example.animalese_typing.ui.theme.Highlight
-import com.example.animalese_typing.ui.theme.KeyBaseAlt
-import com.example.animalese_typing.ui.theme.KeyTextAlt
 
 // Defining Keyboard layouts
-object KeyboardLayouts {
+object KeyboardLayouts{
+
     // qwerty keyboard
     val Qwerty = listOf(
         listOf(
@@ -22,18 +18,18 @@ object KeyboardLayouts {
             Key.CharKey('j'), Key.CharKey('k'), Key.CharKey('l'), Key.Empty()
         ),
         listOf(
-            Key.IconKey(R.drawable.ic_shift_off, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
+            Key.IconKey(R.drawable.ic_shift_off, weight = 0.16f, type = "alt"),
             Key.CharKey('z'), Key.CharKey('x'), Key.CharKey('c'),
             Key.CharKey('v'), Key.CharKey('b'), Key.CharKey('n'),
             Key.CharKey('m'),
-            Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true, colors = KeyColors(KeyBaseAlt, KeyTextAlt))
+            Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true, weight = 0.16f, type = "alt")
         ),
         listOf(
-            Key.TextKey("?123", -2, 0.15f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
-            Key.CharKey(',',0.1f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
+            Key.TextKey("?123", weight = 0.15f, type = "alt", data="numpad"),
+            Key.CharKey(',',0.1f, type = "alt"),
             Key.CharKey(' ',0.5f, isRepeatable = true),
-            Key.CharKey('.',0.1f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
-            Key.IconKey(R.drawable.ic_enter, 10,0.15f, colors = KeyColors(Highlight,Color.White))
+            Key.CharKey('.',0.1f, type = "alt"),
+            Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
         )
     )
 
@@ -50,39 +46,39 @@ object KeyboardLayouts {
             Key.CharKey('k'), Key.CharKey('l'), Key.Empty()
         ),
         listOf(
-            Key.IconKey(R.drawable.ic_shift_lock),
+            Key.IconKey(R.drawable.ic_shift_lock, weight = 0.16f, type = "alt"),
             Key.CharKey('w'), Key.CharKey('x'), Key.CharKey('c'), Key.CharKey('v'),
             Key.CharKey('b'), Key.CharKey('n'), Key.CharKey('m'),
-            Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true)
+            Key.IconKey(R.drawable.ic_backspace,-5, isRepeatable = true, weight = 0.16f, type = "alt")
         ),
         listOf(
-            Key.TextKey("?123", -2, 0.15f),
+            Key.TextKey("?123", weight = 0.15f, type = "alt", data="numpad"),
             Key.CharKey(',', 0.1f),
             Key.CharKey(' ', 0.5f, isRepeatable = true),
             Key.CharKey('.', 0.1f),
-            Key.IconKey(R.drawable.ic_enter, 10,0.15f, colors = KeyColors(Highlight, Color.White))
+            Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
         )
     )
 
     // number pad
     val NumPad = listOf(
         listOf(
-            Key.CharKey('+', 0.066f, colors = KeyColors( KeyBaseAlt, KeyTextAlt)), Key.CharKey('7'), Key.CharKey('8'), Key.CharKey('9'), Key.CharKey('.', 0.066f, colors = KeyColors(base = KeyBaseAlt,KeyTextAlt))
+            Key.CharKey('+', 0.066f, type = "alt"), Key.CharKey('7'), Key.CharKey('8'), Key.CharKey('9'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.CharKey('-', 0.066f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)), Key.CharKey('4'), Key.CharKey('5'), Key.CharKey('6'), Key.CharKey('.', 0.066f, colors = KeyColors(base = KeyBaseAlt,KeyTextAlt))
+            Key.CharKey('-', 0.066f, type = "alt"), Key.CharKey('4'), Key.CharKey('5'), Key.CharKey('6'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.CharKey('*', 0.066f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)), Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('.', 0.066f, colors = KeyColors(base = KeyBaseAlt,KeyTextAlt))
+            Key.CharKey('*', 0.066f, type = "alt"), Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.TextKey("ABC", -2, 0.2125f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
-            Key.CharKey(',', 0.125f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
+            Key.TextKey("ABC", -2, 0.2125f, type = "alt"),
+            Key.CharKey(',', 0.125f, type = "alt"),
             Key.TextKey("!?#", -2, 0.175f),
             Key.CharKey('0', 0.325f),
             Key.CharKey('=', 0.175f),
-            Key.CharKey('.', 0.125f, colors = KeyColors(KeyBaseAlt, KeyTextAlt)),
-            Key.IconKey(R.drawable.ic_enter, 10, 0.2125f, colors = KeyColors(Highlight, Color.White))
+            Key.CharKey('.', 0.125f, type = "alt"),
+            Key.IconKey(R.drawable.ic_enter, 10, 0.2125f, type = "highlight")
         )
     )
 
@@ -109,7 +105,7 @@ object KeyboardLayouts {
             Key.CharKey(',', 0.1f),
             Key.CharKey(' ', 0.5f, isRepeatable = true),
             Key.CharKey('.', 0.1f),
-            Key.IconKey(R.drawable.ic_enter, 10,0.15f, colors = KeyColors(base = Highlight, label = Color.White))
+            Key.IconKey(R.drawable.ic_enter, 10,0.15f, type = "highlight")
         )
     )
 

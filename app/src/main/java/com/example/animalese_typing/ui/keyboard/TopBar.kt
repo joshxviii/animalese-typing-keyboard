@@ -15,20 +15,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
+import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.Background
-import com.example.animalese_typing.ui.theme.KeyIcon
 
 @Composable
 fun TopBar(
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {}
 ) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp, 0.dp)
-            .background(color = Background),
+            .padding(8.dp, 0.dp),
+//            .background(color = colors.background),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -60,7 +60,7 @@ fun TopBarButton(
         onClick = onClick,
         modifier = modifier.size(24.dp)
     ) {
-        Icon(painter = painterResource(icon), contentDescription = "", tint = KeyIcon)
+        Icon(painter = painterResource(icon), contentDescription = "", tint = AnimaleseColors.keyIcon)
     }
 }
 

@@ -55,8 +55,9 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
                         onChar = ::handleChar,
                         onBackspace = ::handleDelete,
                         onEnter = ::handleEnter,
-                        onSettings = ::handleSettings
-                    ) {  }
+                        onSettings = ::handleSettings,
+                        onModeChange = ::handleModeChange
+                    )
                 }
             }
         }
@@ -99,6 +100,11 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         startActivity(intent)
+    }
+
+    private fun handleModeChange(data: String?) {
+        //TODO parse data and change keyboard layout
+        Toast.makeText(this, "Mode Change: $data", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleChar(char: Char) {
