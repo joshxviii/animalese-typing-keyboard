@@ -15,17 +15,37 @@ data class ThemeColors(
     val highlight: Color,
 )
 
-val LightMode = ThemeColors(
+val Light = ThemeColors(
+    background   = Color(0xFFF1F0F7),
+    keyBase      = Color(0xFFFFFFFF),
+    keyBaseAlt   = Color(0xFFCFE1FF),
+    keyText      = Color(0xFF484F50),
+    keyTextAlt   = Color(0xFF1A1B20),
+    keyIcon      = Color(0xFF1A1B20),
+    highlight    = Color(0xFF2ED3CE)
+)
+
+val Dark = ThemeColors(
+    background   = Color(0xFF1A1B20),
+    keyBase      = Color(0xFF2F3036),
+    keyBaseAlt   = Color(0xFF45464C),
+    keyText      = Color(0xFFF1F0F7),
+    keyTextAlt   = Color(0xFFF1F0F7),
+    keyIcon      = Color(0xFFF1F0F7),
+    highlight    = Color(0xFF00D0CB)
+)
+
+val Latte:ThemeColors = ThemeColors(
     background   = Color(0xFFFFFAE4),
     keyBase      = Color(0xFFECE0D0),
     keyBaseAlt   = Color(0xFFDECBB2),
-    keyText      = Color(0xFFCAAC84),
+    keyText      = Color(0xFFBE9D70),
     keyTextAlt   = Color(0xFFB9935E),
     keyIcon      = Color(0xFFD9BD96),
     highlight    = Color(0xFF00D0CB)
 )
 
-val DarkMode = ThemeColors(
+val Chocolate:ThemeColors = ThemeColors(
     background   = Color(0xFF2B2218),
     keyBase      = Color(0xFF3A3429),
     keyBaseAlt   = Color(0xFF4A3F30),
@@ -44,7 +64,7 @@ fun Color.darken(darkenBy: Float = 0.1f): Color {
     )
 }
 
-val LocalAnimaleseColors = staticCompositionLocalOf { LightMode }
+val LocalAnimaleseColors = staticCompositionLocalOf { Light }
 
 val AnimaleseColors: ThemeColors
     @Composable
