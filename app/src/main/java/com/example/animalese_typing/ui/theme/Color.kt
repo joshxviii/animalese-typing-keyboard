@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 
 val Background = Color(0xFFFFFAE4)
 val KeyBase = Color(0xFFECE0D0)
+val KeyBaseAlt = Color(0xFFDECBB2)
 val KeyText = Color(0xFFCAAC84)
+val KeyTextAlt = Color(0xFFB9935E)
 val KeyIcon = Color(0xFFD9BD96)
 val Highlight = Color(0xFF00D0CB)
 
