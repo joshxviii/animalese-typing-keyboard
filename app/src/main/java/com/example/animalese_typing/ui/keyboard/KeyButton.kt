@@ -135,12 +135,12 @@ fun KeyButton(
                     is Key.IconKey -> {
                         Icon(
                             imageVector = ImageVector.vectorResource(
-                                if (key.function == KeyFunctionIds.SHIFT) when (shiftState) {
+                                if (key.event == KeyFunctionIds.SHIFT) when (shiftState) {
                                     ShiftState.OFF -> R.drawable.ic_shift_off
                                     ShiftState.ON -> R.drawable.ic_shift_on
                                     ShiftState.LOCKED -> R.drawable.ic_shift_lock
                                 }
-                                else key.id
+                                else key.iconId
                             ),
                             contentDescription = "",
                             tint = labelColor,
@@ -175,7 +175,7 @@ fun KeyButtonPreview() {
         Column(modifier = Modifier.background(color=Color(0xFF1E1F22))) {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
-            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(id=R.drawable.ic_enter, type = "highlight"))
+            KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(iconId=R.drawable.ic_enter, type = "highlight"))
         }
     }
 }

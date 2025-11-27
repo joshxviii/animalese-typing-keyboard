@@ -7,7 +7,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
-import androidx.activity.result.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -25,14 +24,17 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.animalese_typing.ui.keyboard.Key
+import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 enum class ShiftState {
@@ -50,9 +52,10 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _pressedKey = MutableStateFlow<Key?>(null)
     private val pressedKey: StateFlow<Key?> = _pressedKey
-
     private val _shiftState = MutableStateFlow(ShiftState.OFF)
     val shiftState: StateFlow<ShiftState> = _shiftState
+    private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
+    val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
 
     override val lifecycle: Lifecycle
         get() = _lifecycleRegistry
@@ -82,8 +85,10 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             setContent {
                 AnimaleseTypingTheme {
                     val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                    val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
                     KeyboardView(
                         modifier = Modifier,
+                        currentLayout = keyboardLayoutValue,
                         onSettings = ::handleSettings,
                         onKeyDown = ::onKeyDown,
                         onKeyUp = ::onKeyUp,
@@ -132,21 +137,21 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         _pressedKey.value = key
 
         // handle repeating keys in coroutine
-        if (key.isRepeatable && key.function != null) {
+        if (key.isRepeatable) {
             repeatJob = coroutineScope.launch {
-                handleFunction(key.function)
+                handleFunction(key.event)
                 delay(500)
                 while (true) {
-                    handleFunction(key.function)
+                    handleFunction(key.event)
                     delay(75)
                 }
             }
-        } else if (key.function != null) handleFunction(key.function)
+        } else handleFunction(key.event)
         return true
     }
     private fun onKeyUp(key: Key): Boolean {
         repeatJob?.cancel()
-        _pressedKey.value = null
+        if (_pressedKey.value == key) _pressedKey.value = null
 
         when (key) {
             is Key.CharKey -> {
@@ -163,13 +168,8 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         return true
     }
 
-    private fun handleSettings() {
-        val intent = Intent(this, SettingsActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
-
     private fun handleFunction(id: KeyFunctionIds) {
+        AnimaleseTyping.logMessage("Key Event: ${id}")
         when (id) {
             KeyFunctionIds.BACKSPACE -> {
                 if (currentInputConnection?.getSelectedText(0) != null) {
@@ -189,11 +189,17 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
                     ShiftState.LOCKED -> ShiftState.OFF
                 }
             }
-            KeyFunctionIds.OPEN_NUMPAD -> {}
-            KeyFunctionIds.OPEN_KEYPAD -> {}
-            KeyFunctionIds.OPEN_SPECIAL -> {}
+            KeyFunctionIds.OPEN_NUMPAD -> _keyboardLayout.value = KeyboardLayouts.NUMPAD
+            KeyFunctionIds.OPEN_KEYPAD -> _keyboardLayout.value = KeyboardLayouts.QWERTY // TODO: Get from settings
+            KeyFunctionIds.OPEN_SPECIAL -> _keyboardLayout.value = KeyboardLayouts.SPECIAL
             else -> {}
         }
+    }
+
+    private fun handleSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
     //endregion
 }

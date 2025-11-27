@@ -30,13 +30,13 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 @Composable
 fun KeyboardView(
     modifier: Modifier = Modifier,
+    currentLayout: KeyboardLayouts = KeyboardLayouts.QWERTY,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {},
     shiftState: ShiftState = ShiftState.OFF
 ) {
-    var isCaps by remember { mutableStateOf(false) }
     val height by AnimalesePreferences(LocalContext.current).getKeyboardHeight().collectAsState(initial = 250f)
 
     Column(
@@ -55,7 +55,7 @@ fun KeyboardView(
 
         // Keyboard
         KeyboardLayout(
-            layout = Qwerty,
+            layout = currentLayout.layout,
             onKeyDown = onKeyDown,
             onKeyUp = onKeyUp,
             shiftState = shiftState,

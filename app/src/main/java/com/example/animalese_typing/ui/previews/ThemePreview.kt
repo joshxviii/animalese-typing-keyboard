@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
+import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.layouts.Numpad
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
@@ -35,10 +36,7 @@ fun ThemePreview() {
 
             AnimaleseTypingTheme(
                 theme = Cream
-            ) { KeyboardLayout(
-                modifier = Modifier.weight(1f),
-                layout = Numpad
-            ) }
+            ) { KeyboardView(currentLayout = KeyboardLayouts.NUMPAD) }
         }
 
         Column(
@@ -47,10 +45,7 @@ fun ThemePreview() {
         ) {
             AnimaleseTypingTheme(
                 theme = Dark
-            ) { KeyboardLayout(
-                modifier = Modifier.weight(1f),
-                layout = Numpad
-            ) }
+            ) { KeyboardView(currentLayout = KeyboardLayouts.NUMPAD) }
 
             AnimaleseTypingTheme(
                 theme = Chocolate

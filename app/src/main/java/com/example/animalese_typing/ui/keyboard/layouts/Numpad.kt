@@ -19,13 +19,13 @@ object Numpad: Layout(listOf(
             Key.CharKey('*', 0.066f, type = "alt"), Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('.', 0.066f, type = "alt")
         ),
         listOf(
-            Key.TextKey("ABC",weight=0.2125f, type = "alt", event=KeyFunctionIds.OPEN_KEYPAD),
+            Key.TextKey("ABC", 0.2125f, type = "alt", event=KeyFunctionIds.OPEN_KEYPAD),
             Key.CharKey(',',0.125f, type = "alt"),
             Key.TextKey("!?#",0.175f),
             Key.CharKey('0',0.325f),
             Key.CharKey('=',0.175f),
             Key.CharKey('.',0.125f, type = "alt"),
-            Key.IconKey(R.drawable.ic_enter, weight=0.2125f, type = "highlight", event=KeyFunctionIds.ENTER)
+            Key.IconKey(R.drawable.ic_enter, 0.2125f, type = "highlight", event=KeyFunctionIds.ENTER)
         )
     )
 )
