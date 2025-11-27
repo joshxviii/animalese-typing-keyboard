@@ -6,5 +6,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+!.idea/runConfigurations/
 /.idea
 /.kotlin/errors
