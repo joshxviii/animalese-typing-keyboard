@@ -168,7 +168,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         return true
     }
     private fun handleKeyEvent(id: KeyFunctions) {
-        AnimaleseTyping.logMessage("Key Event: ${id}")
+        if (id == KeyFunctions.NONE || id == KeyFunctions.CHARACTER) return
+        AudioPlayer.playSound(AudioPlayer.keycodeToSound(0))
         when (id) {
             KeyFunctions.BACKSPACE -> {
                 if (currentInputConnection?.getSelectedText(0) != null) {
