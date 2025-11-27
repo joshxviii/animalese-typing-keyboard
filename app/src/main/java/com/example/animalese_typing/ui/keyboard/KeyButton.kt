@@ -54,14 +54,21 @@ fun KeyButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
+    // get generic colors based on key type
     val (base, label) = when (key.type) {
         "alt" -> AnimaleseColors.keyBaseAlt to AnimaleseColors.keyTextAlt
         "highlight" -> AnimaleseColors.highlight to Color.White
         else -> AnimaleseColors.keyBase to AnimaleseColors.keyText
     }
 
-    val baseColor   = if (isPressed) if (key is Key.CharKey) Color.Transparent else base.highlight() else base
-    val labelColor  = if (isPressed) if (key is Key.CharKey) label.opacity(0.1f) else label.highlight() else label
+    // get the final color for key's label/base
+    val shouldShowPopup = key is Key.CharKey && key.showPopup
+    val (baseColor, labelColor) = when {
+        isPressed && shouldShowPopup -> Color.Transparent to label.opacity(0.1f)
+        isPressed -> base.highlight() to label.highlight()
+        else -> base to label
+    }
+
 
     if (key !is Key.Empty)
     BoxWithConstraints(// Key interaction size
@@ -138,6 +145,9 @@ fun KeyButton(
                 }
             }
         }
+
+        //TODO: key popups only overly on top of the keyboard
+        // Need to extend bounds to cover the whole screen to overlay outside the bounds of the keyboard
         if (isPressed && key is Key.CharKey && key.showPopup) {
             KeyPopout(
                 key = key,
