@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,26 +32,49 @@ fun TopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(8.dp, 0.dp, 8.dp, 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(8.dp, 0.dp, 8.dp, 8.dp)
+            .background(color = AnimaleseColors.background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TopBarButton(
-            icon = R.drawable.ic_settings,
-            onClick = onSettings,
-            modifier = Modifier.weight(1f)
-        )
-        TopBarButton(
-            icon = R.drawable.ic_clipboard,
-            onClick = {},
-            modifier = Modifier.weight(1f)
-        )
-        TopBarButton(
-            icon = R.drawable.ic_keyboard_resize,
-            onClick = onResize,
-            modifier = Modifier.weight(1f)
-        )
+        val showSuggestions = false
+        if (showSuggestions) {
+            TopBarButton(
+                icon = R.drawable.ic_settings,
+                onClick = onSettings,
+                modifier = Modifier.weight(1f)
+            )
+            TopBarButton(
+                icon = R.drawable.ic_clipboard,
+                onClick = {},
+                modifier = Modifier.weight(1f)
+            )
+            TopBarButton(
+                icon = R.drawable.ic_keyboard_resize,
+                onClick = onResize,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        else {
+            TextSuggestBar(
+                suggestions = listOf("animalese", "keyboard", "test", "more"),
+                modifier =  Modifier.weight(1f)
+            )
+        }
+
+        // edit menu button
+        IconButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.size(
+                24.dp
+            )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_elipsis),
+                contentDescription = "",
+                tint = AnimaleseColors.keyText
+            )
+        }
+
     }
 }
 
@@ -62,9 +86,14 @@ fun TopBarButton(
 ) {
     IconButton(
         onClick = onClick,
-        modifier = modifier.size(24.dp)
+        modifier = modifier
+            .size(24.dp)
+            .padding(16.dp, 0.dp)
     ) {
-        Icon(painter = painterResource(icon), contentDescription = "", tint = AnimaleseColors.keyIcon)
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = "",
+            tint = AnimaleseColors.keyIcon)
     }
 }
 
