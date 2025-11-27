@@ -7,6 +7,8 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
+import androidx.activity.result.launch
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -15,6 +17,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
@@ -22,9 +25,19 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.animalese_typing.ui.keyboard.Key
-import com.example.animalese_typing.ui.keyboard.KeyboardScreen
+import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
+enum class ShiftState {
+    OFF, ON, LOCKED
+}
 class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private lateinit var audioManager: AudioManager
     private lateinit var vibrator: Vibrator
@@ -32,6 +45,14 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
+
+    private var repeatJob: Job? = null
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private val _pressedKey = MutableStateFlow<Key?>(null)
+    private val pressedKey: StateFlow<Key?> = _pressedKey
+
+    private val _shiftState = MutableStateFlow(ShiftState.OFF)
+    val shiftState: StateFlow<ShiftState> = _shiftState
 
     override val lifecycle: Lifecycle
         get() = _lifecycleRegistry
@@ -60,11 +81,13 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AnimaleseTypingTheme {
-                    KeyboardScreen(
+                    val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                    KeyboardView(
                         modifier = Modifier,
                         onSettings = ::handleSettings,
                         onKeyDown = ::onKeyDown,
-                        onKeyUp = ::onKeyUp
+                        onKeyUp = ::onKeyUp,
+                        shiftState = shiftStateValue
                     )
                 }
             }
@@ -99,22 +122,45 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         super.onDestroy()
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         _viewModelStore.clear()
+        repeatJob?.cancel()
     }
 
     //region Event Handlers
 
-    // TODO handle key stuff
-    private fun onKeyDown(key: Key) {
-        AnimaleseTyping.logMessage("KEY DOWN: $key")
+    private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
-        if (key.function != null) handleFunction(key.function)
+        _pressedKey.value = key
+
+        // handle repeating keys in coroutine
+        if (key.isRepeatable && key.function != null) {
+            repeatJob = coroutineScope.launch {
+                handleFunction(key.function)
+                delay(500)
+                while (true) {
+                    handleFunction(key.function)
+                    delay(75)
+                }
+            }
+        } else if (key.function != null) handleFunction(key.function)
+        return true
     }
-    private fun onKeyUp(key: Key) {
-        AnimaleseTyping.logMessage("KEY UP: $key")
+    private fun onKeyUp(key: Key): Boolean {
+        repeatJob?.cancel()
+        _pressedKey.value = null
+
         when (key) {
-            is Key.CharKey -> handleChar(key.char)
+            is Key.CharKey -> {
+                val isUppercase = _shiftState.value != ShiftState.OFF
+                val charToCommit = if (isUppercase) key.char.uppercaseChar() else key.char.lowercaseChar()
+                currentInputConnection?.commitText(charToCommit.toString(), 1)
+
+                AudioPlayer.playSound( AudioPlayer.keycodeToSound( key.char.lowercaseChar().code ) )
+
+                if (_shiftState.value == ShiftState.ON) _shiftState.value = ShiftState.OFF
+            }
             else -> {}
         }
+        return true
     }
 
     private fun handleSettings() {
@@ -123,25 +169,25 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         startActivity(intent)
     }
 
-    private fun handleChar(char: Char) {
-        currentInputConnection?.commitText(char.toString(), 1)
-
-        //TODO Improve playback performance.
-        // Same old audio play logic as before
-        AudioPlayer.playSound( AudioPlayer.keycodeToSound( char.lowercaseChar().code ) )
-    }
-
     private fun handleFunction(id: KeyFunctionIds) {
         when (id) {
             KeyFunctionIds.BACKSPACE -> {
-                currentInputConnection?.deleteSurroundingText(1, 0)
+                if (currentInputConnection?.getSelectedText(0) != null) {
+                    currentInputConnection?.commitText("", 1)
+                } else {
+                    currentInputConnection?.deleteSurroundingText(1, 0)
+                }
             }
             KeyFunctionIds.ENTER -> {
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
             }
             KeyFunctionIds.SHIFT -> {
-                //TODO on/off/lock
+                _shiftState.value = when (_shiftState.value) {
+                    ShiftState.OFF -> ShiftState.ON
+                    ShiftState.ON -> ShiftState.LOCKED
+                    ShiftState.LOCKED -> ShiftState.OFF
+                }
             }
             KeyFunctionIds.OPEN_NUMPAD -> {}
             KeyFunctionIds.OPEN_KEYPAD -> {}

@@ -36,10 +36,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.animalese_typing.KeyFunctionIds
 import com.example.animalese_typing.R
+import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.darken
+import com.example.animalese_typing.ui.theme.highlight
 
 class OnColor(val color: Color) : ColorProducer {
     override fun invoke(): Color = color
@@ -50,7 +52,8 @@ fun KeyButton(
     key: Key,
     modifier: Modifier,
     onKeyUp: (Key) -> Unit = {},
-    onKeyDown: (Key) -> Unit = {}
+    onKeyDown: (Key) -> Unit = {},
+    shiftState: ShiftState = ShiftState.OFF
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -61,10 +64,8 @@ fun KeyButton(
         else -> AnimaleseColors.keyBase to AnimaleseColors.keyText
     }
 
-    val darkenAmount = if (isPressed) 0.15f else 0f
-
-    val topColor    = base.darken(darkenAmount)
-    val labelColor  = label.darken(darkenAmount)
+    val baseColor   = if (isPressed) base.highlight() else base
+    val labelColor  = if (isPressed) label.highlight() else label
 
     val defaultTextStyle = TextStyle(
         textAlign = TextAlign.Center,
@@ -111,7 +112,7 @@ fun KeyButton(
             modifier = modifier
                 .padding(2.dp,0.dp,2.dp,10.dp)
                 .clip(RoundedCornerShape(33))
-                .background(topColor)
+                .background(baseColor)
                 .fillMaxSize()
         ) {
             Box( // Text/icon size limiter
@@ -121,8 +122,9 @@ fun KeyButton(
             ) {
                 when (key) {
                     is Key.CharKey -> {
+                        val isUppercase = shiftState != ShiftState.OFF
                         BasicText(
-                            text = if (false) key.char.uppercase() else key.char.toString(),
+                            text = if (isUppercase) key.char.uppercase() else key.char.toString(),
                             style = defaultTextStyle,
                             autoSize = defaultAutoSize,
                             softWrap = false,
@@ -132,7 +134,14 @@ fun KeyButton(
 
                     is Key.IconKey -> {
                         Icon(
-                            imageVector = ImageVector.vectorResource(key.id),
+                            imageVector = ImageVector.vectorResource(
+                                if (key.function == KeyFunctionIds.SHIFT) when (shiftState) {
+                                    ShiftState.OFF -> R.drawable.ic_shift_off
+                                    ShiftState.ON -> R.drawable.ic_shift_on
+                                    ShiftState.LOCKED -> R.drawable.ic_shift_lock
+                                }
+                                else key.id
+                            ),
                             contentDescription = "",
                             tint = labelColor,
                             modifier = Modifier.fillMaxSize()

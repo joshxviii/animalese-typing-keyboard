@@ -30,15 +30,15 @@ sealed class Key(
         isRepeatable: Boolean = false,
         val size: Dp = 32.dp,
         type : String = "",
-        function : KeyFunctionIds? = null
-    ) : Key(weight, isRepeatable, type, function)
+        event : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, event)
     class TextKey(
         val text: String,
         weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         type : String = "",
-        function : KeyFunctionIds? = null
-    ) : Key(weight, isRepeatable, type, function)
+        event : KeyFunctionIds? = null
+    ) : Key(weight, isRepeatable, type, event)
 
     override fun toString(): String {
         return when (this) {

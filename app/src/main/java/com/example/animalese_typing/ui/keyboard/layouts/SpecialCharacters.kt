@@ -26,11 +26,11 @@ object SpecialCharacters: Layout( listOf(
             Key.IconKey(R.drawable.ic_backspace, isRepeatable = true)
         ),
         listOf(
-            Key.TextKey("ABC", 0.15f, function=KeyFunctionIds.OPEN_KEYPAD),
+            Key.TextKey("ABC", 0.15f, event=KeyFunctionIds.OPEN_KEYPAD),
             Key.CharKey(',', 0.1f),
             Key.CharKey(' ', 0.5f, isRepeatable = true),
             Key.CharKey('.', 0.1f),
-            Key.IconKey(R.drawable.ic_enter,0.15f, type = "highlight", function=KeyFunctionIds.ENTER)
+            Key.IconKey(R.drawable.ic_enter,0.15f, type = "highlight", event=KeyFunctionIds.ENTER)
         )
     )
 )

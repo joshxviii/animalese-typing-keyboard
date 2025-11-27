@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 
@@ -15,6 +16,7 @@ fun KeyboardLayout(
     layout : Layout,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
+    shiftState: ShiftState = ShiftState.OFF
 ) {
     Column(
         modifier = modifier
@@ -34,7 +36,8 @@ fun KeyboardLayout(
                         key = key,
                         modifier = Modifier.weight(key.weight),
                         onKeyDown = onKeyDown,
-                        onKeyUp = onKeyUp
+                        onKeyUp = onKeyUp,
+                        shiftState = shiftState
                     )
                 }
             }

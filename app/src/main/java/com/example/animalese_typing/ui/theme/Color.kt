@@ -54,6 +54,9 @@ val Chocolate:ThemeColors = ThemeColors(
     highlight    = Color(0xFF00D0CB)
 )
 
+/**
+ * Parses a theme name string into a [ThemeColors]
+  */
 fun parseTheme(name: String): ThemeColors {
     return when (name.lowercase()) {
         "dark" -> Dark
@@ -63,13 +66,28 @@ fun parseTheme(name: String): ThemeColors {
     }
 }
 
-fun Color.darken(darkenBy: Float = 0.1f): Color {
-    return copy(
-        red = red * (1f - darkenBy),
-        green = green * (1f - darkenBy),
-        blue = blue * (1f - darkenBy),
-        alpha = alpha
-    )
+/**
+ * Darkens light colors and lightens dark colors.
+ */
+fun Color.highlight(amount: Float = 0.125f): Color {
+    val luminance = 0.299f * red + 0.587f * green + 0.114f * blue
+    val isDark = luminance < 0.5f
+
+    return if (isDark) {
+        copy(
+            red = red + (1f - red) * amount,
+            green = green + (1f - green) * amount,
+            blue = blue + (1f - blue) * amount,
+            alpha = alpha
+        )
+    } else {
+        copy(
+            red = red * (1f - amount),
+            green = green * (1f - amount),
+            blue = blue * (1f - amount),
+            alpha = alpha
+        )
+    }
 }
 
 val LocalAnimaleseColors = staticCompositionLocalOf { Light }
