@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -30,15 +32,18 @@ class SettingsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = { Text("Keyboard Settings") },
+                            title = { Text("Animalese Keyboard") },
                             navigationIcon = {
-                                if (navController.previousBackStackEntry != null) {
-                                    IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            imageVector = Icons.Default.ArrowBack,
-                                            contentDescription = "Back"
-                                        )
+                                IconButton(onClick = {
+                                    if(navController.previousBackStackEntry != null) {
+                                        navController.popBackStack()
                                     }
+                                    else finish()
+                                }) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_back),
+                                        contentDescription = "Back"
+                                    )
                                 }
                             }
                         )
