@@ -1,4 +1,4 @@
-package com.example.animalese_typing
+package com.example.animalese_typing.audio
 
 import android.content.Context
 import android.media.AudioAttributes

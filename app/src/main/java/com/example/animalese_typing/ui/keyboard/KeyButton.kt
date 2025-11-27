@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.animalese_typing.KeyFunctionIds
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.theme.AnimaleseColors
@@ -135,7 +134,7 @@ fun KeyButton(
                     is Key.IconKey -> {
                         Icon(
                             imageVector = ImageVector.vectorResource(
-                                if (key.event == KeyFunctionIds.SHIFT) when (shiftState) {
+                                if (key.event == KeyFunctions.SHIFT) when (shiftState) {
                                     ShiftState.OFF -> R.drawable.ic_shift_off
                                     ShiftState.ON -> R.drawable.ic_shift_on
                                     ShiftState.LOCKED -> R.drawable.ic_shift_lock
@@ -167,7 +166,7 @@ fun KeyButton(
     }
 }
 
-// ONLY USED FOR PREVIEWING
+// region UI PREVIEW
 @Preview(showBackground = true, widthDp = 70, heightDp = 160)
 @Composable
 fun KeyButtonPreview() {
@@ -179,3 +178,4 @@ fun KeyButtonPreview() {
         }
     }
 }
+// endregion

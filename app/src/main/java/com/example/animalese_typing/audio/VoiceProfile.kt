@@ -1,4 +1,4 @@
-package com.example.animalese_typing
+package com.example.animalese_typing.audio
 
 data class VoiceProfile(
     val profileId: String,

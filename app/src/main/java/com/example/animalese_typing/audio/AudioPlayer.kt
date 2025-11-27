@@ -1,18 +1,21 @@
-package com.example.animalese_typing
+package com.example.animalese_typing.audio
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION
 import android.media.AudioAttributes.USAGE_GAME
 import android.media.SoundPool
-import androidx.media3.common.util.Log
 import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
+import com.example.animalese_typing.R
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.StringWriter
-import kotlin.math.log
+import kotlin.collections.iterator
 
+/**
+ * Dedicated Audio Player for sounds.
+ */
 object AudioPlayer {
     private var applicationContext: Context? = null
     private var keycodeMap: Map<Int, String>? = null

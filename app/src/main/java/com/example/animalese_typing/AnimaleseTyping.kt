@@ -2,6 +2,7 @@ package com.example.animalese_typing
 
 import android.app.Application
 import android.util.Log
+import com.example.animalese_typing.audio.AudioPlayer
 
 class AnimaleseTyping: Application() {
 

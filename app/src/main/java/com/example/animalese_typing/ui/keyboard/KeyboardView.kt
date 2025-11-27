@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,11 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.ShiftState
-import com.example.animalese_typing.ui.keyboard.layouts.Qwerty
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 
+/**
+ * The full keyboard view.
+ */
 @Composable
 fun KeyboardView(
     modifier: Modifier = Modifier,
@@ -71,7 +70,7 @@ fun KeyboardView(
     }
 }
 
-// ONLY USED FOR PREVIEWING
+// region UI PREVIEW
 @Preview(showBackground = true)
 @Composable
 fun KeyboardPreview() {
@@ -79,3 +78,4 @@ fun KeyboardPreview() {
         KeyboardView()
     }
 }
+// endregion

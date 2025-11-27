@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.animalese_typing.AnimalesePreferences
 
+/**
+ * Applies the Animalese Theme to all it's children.
+ */
 @Composable
 fun AnimaleseTypingTheme(
     theme: ThemeColors? = null,

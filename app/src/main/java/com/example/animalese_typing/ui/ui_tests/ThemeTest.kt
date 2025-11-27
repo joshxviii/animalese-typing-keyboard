@@ -1,4 +1,4 @@
-package com.example.animalese_typing.ui.previews
+package com.example.animalese_typing.ui.ui_tests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,10 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.animalese_typing.ui.keyboard.KeyboardLayout
 import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.KeyboardView
-import com.example.animalese_typing.ui.keyboard.layouts.Numpad
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Chocolate
 import com.example.animalese_typing.ui.theme.Cream

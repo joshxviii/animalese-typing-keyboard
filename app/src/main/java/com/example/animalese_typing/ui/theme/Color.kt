@@ -5,6 +5,9 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+/**
+ * Color values used for the keyboard theme.
+ */
 data class ThemeColors(
     val background: Color,
     val keyBase: Color,
@@ -41,7 +44,7 @@ val Cream:ThemeColors = ThemeColors(
     keyText      = Color(0xFFB49162),
     keyTextAlt   = Color(0xFFB9935E),
     keyIcon      = Color(0xFFD9BD96),
-    highlight    = Color(0xFF00D0CB)
+    highlight    = Color(0xFF2ED3CE)
 )
 
 val Chocolate:ThemeColors = ThemeColors(
@@ -67,7 +70,7 @@ fun parseTheme(name: String): ThemeColors {
 }
 
 /**
- * Darkens light colors and lightens dark colors.
+ * Darkens light [Color] and lightens dark colors.
  */
 fun Color.highlight(amount: Float = 0.125f): Color {
     val luminance = 0.299f * red + 0.587f * green + 0.114f * blue

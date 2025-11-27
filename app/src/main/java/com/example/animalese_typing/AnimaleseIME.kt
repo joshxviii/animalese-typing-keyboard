@@ -23,31 +23,30 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
+import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 enum class ShiftState {
     OFF, ON, LOCKED
 }
-class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private lateinit var audioManager: AudioManager
     private lateinit var vibrator: Vibrator
     private lateinit var vibe : VibrationEffect
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
-
     private var repeatJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _pressedKey = MutableStateFlow<Key?>(null)
@@ -57,6 +56,7 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
     val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
 
+    // region IME Overrides
     override val lifecycle: Lifecycle
         get() = _lifecycleRegistry
 
@@ -65,19 +65,6 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
     override val savedStateRegistry: SavedStateRegistry
         get() = _savedStateRegistryController.savedStateRegistry
-
-    override fun onCreate() {
-        super.onCreate()
-        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        vibrator = getSystemService(Vibrator::class.java)
-        vibe = VibrationEffect.createWaveform(
-        longArrayOf(0, 10),
-        intArrayOf(0, 125),// TODO setting for vibration intensity
-        -1
-        )
-        _savedStateRegistryController.performRestore(null)
-        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    }
 
     override fun onCreateInputView(): View {
         val composeView = ComposeView(this).apply {
@@ -99,12 +86,25 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         }
 
         window?.window?.decorView?.let { decorView ->
-            decorView.setViewTreeLifecycleOwner(this@IMEService)
-            decorView.setViewTreeViewModelStoreOwner(this@IMEService)
-            decorView.setViewTreeSavedStateRegistryOwner(this@IMEService)
+            decorView.setViewTreeLifecycleOwner(this@AnimaleseIME)
+            decorView.setViewTreeViewModelStoreOwner(this@AnimaleseIME)
+            decorView.setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
         }
 
         return composeView
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        vibrator = getSystemService(Vibrator::class.java)
+        vibe = VibrationEffect.createWaveform(
+            longArrayOf(0, 10),
+            intArrayOf(0, 125),// TODO setting for vibration intensity
+            -1
+        )
+        _savedStateRegistryController.performRestore(null)
+        _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     override fun onWindowShown() {
@@ -129,9 +129,9 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         _viewModelStore.clear()
         repeatJob?.cancel()
     }
+    // endregion
 
     //region Event Handlers
-
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
@@ -139,14 +139,14 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         // handle repeating keys in coroutine
         if (key.isRepeatable) {
             repeatJob = coroutineScope.launch {
-                handleFunction(key.event)
+                handleKeyEvent(key.event)
                 delay(500)
                 while (true) {
-                    handleFunction(key.event)
+                    handleKeyEvent(key.event)
                     delay(75)
                 }
             }
-        } else handleFunction(key.event)
+        } else handleKeyEvent(key.event)
         return true
     }
     private fun onKeyUp(key: Key): Boolean {
@@ -167,32 +167,31 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         }
         return true
     }
-
-    private fun handleFunction(id: KeyFunctionIds) {
+    private fun handleKeyEvent(id: KeyFunctions) {
         AnimaleseTyping.logMessage("Key Event: ${id}")
         when (id) {
-            KeyFunctionIds.BACKSPACE -> {
+            KeyFunctions.BACKSPACE -> {
                 if (currentInputConnection?.getSelectedText(0) != null) {
                     currentInputConnection?.commitText("", 1)
                 } else {
                     currentInputConnection?.deleteSurroundingText(1, 0)
                 }
             }
-            KeyFunctionIds.ENTER -> {
+            KeyFunctions.ENTER -> {
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
             }
-            KeyFunctionIds.SHIFT -> {
+            KeyFunctions.SHIFT -> {
                 _shiftState.value = when (_shiftState.value) {
                     ShiftState.OFF -> ShiftState.ON
                     ShiftState.ON -> ShiftState.LOCKED
                     ShiftState.LOCKED -> ShiftState.OFF
                 }
             }
-            KeyFunctionIds.OPEN_NUMPAD -> _keyboardLayout.value = KeyboardLayouts.NUMPAD
-            KeyFunctionIds.OPEN_KEYPAD -> _keyboardLayout.value = KeyboardLayouts.QWERTY // TODO: Get from settings
-            KeyFunctionIds.OPEN_SPECIAL -> _keyboardLayout.value = KeyboardLayouts.SPECIAL
-            KeyFunctionIds.OPEN_SPECIAL_ALT -> _keyboardLayout.value = KeyboardLayouts.SPECIAL_ALT
+            KeyFunctions.OPEN_NUMPAD -> _keyboardLayout.value = KeyboardLayouts.NUMPAD
+            KeyFunctions.OPEN_KEYPAD -> _keyboardLayout.value = KeyboardLayouts.QWERTY // TODO: Get from settings
+            KeyFunctions.OPEN_SPECIAL -> _keyboardLayout.value = KeyboardLayouts.SPECIAL
+            KeyFunctions.OPEN_SPECIAL_ALT -> _keyboardLayout.value = KeyboardLayouts.SPECIAL_ALT
             else -> {}
         }
     }

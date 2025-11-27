@@ -19,6 +19,9 @@ import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
+/**
+ * The menu bar above the main keyboard.
+ */
 @Composable
 fun TopBar(
     onSettings: () -> Unit = {},
@@ -64,7 +67,7 @@ fun TopBarButton(
     }
 }
 
-// ONLY USED FOR PREVIEWING
+// region UI PREVIEW
 @Preview(showBackground = true, widthDp = 490)
 @Composable
 fun TopBarPreview() {
@@ -72,3 +75,4 @@ fun TopBarPreview() {
         TopBar()
     }
 }
+// endregion
