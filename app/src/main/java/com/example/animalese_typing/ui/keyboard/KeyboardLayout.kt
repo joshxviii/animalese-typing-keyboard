@@ -14,6 +14,7 @@ import com.example.animalese_typing.ui.keyboard.layouts.Numpad
 import com.example.animalese_typing.ui.keyboard.layouts.Qwerty
 import com.example.animalese_typing.ui.keyboard.layouts.Qwertz
 import com.example.animalese_typing.ui.keyboard.layouts.SpecialCharacters
+import com.example.animalese_typing.ui.keyboard.layouts.SpecialCharactersAlt
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 
 enum class KeyboardLayouts(val layout: Layout) {
@@ -21,7 +22,8 @@ enum class KeyboardLayouts(val layout: Layout) {
     QWERTZ(Qwertz),
     AZERTY(Azerty),
     NUMPAD(Numpad),
-    SPECIAL(SpecialCharacters)
+    SPECIAL(SpecialCharacters),
+    SPECIAL_ALT(SpecialCharactersAlt)
 }
 
 @Composable

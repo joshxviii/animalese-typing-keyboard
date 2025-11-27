@@ -8,22 +8,22 @@ import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object SpecialCharacters: Layout( listOf(
+object SpecialCharactersAlt: Layout( listOf(
         listOf(
-            Key.CharKey('1'), Key.CharKey('2'), Key.CharKey('3'), Key.CharKey('4'),
-            Key.CharKey('5'), Key.CharKey('6'), Key.CharKey('7'), Key.CharKey('8'),
-            Key.CharKey('9'), Key.CharKey('0')
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.CharKey('.'), Key.CharKey('.')
         ),
         listOf(
-             Key.CharKey('@'), Key.CharKey('#'), Key.CharKey('$'), Key.CharKey('_'),
-            Key.CharKey('&'), Key.CharKey('-'), Key.CharKey('+'), Key.CharKey('('),
-            Key.CharKey(')'), Key.CharKey('/')
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.CharKey('.')
         ),
         listOf(
-            Key.TextKey("=\\<",0.15f,"alt", event=KeyFunctionIds.OPEN_SPECIAL_ALT),
-            Key.CharKey('*'), Key.CharKey('\"'), Key.CharKey('\''), Key.CharKey(':'),
-            Key.CharKey(';'), Key.CharKey('!'), Key.CharKey('?'),
-            Key.IconKey(R.drawable.ic_backspace,0.15f,"alt", isRepeatable = true)
+            Key.TextKey("123", 0.15f,"alt", event=KeyFunctionIds.OPEN_SPECIAL),
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.CharKey('.'), Key.CharKey('.'), Key.CharKey('.'),
+            Key.IconKey(R.drawable.ic_backspace,0.15f,"alt",isRepeatable = true)
         ),
         listOf(
             Key.TextKey("ABC", 0.15f,"alt", event=KeyFunctionIds.OPEN_KEYPAD),
@@ -38,10 +38,10 @@ object SpecialCharacters: Layout( listOf(
 // ONLY USED FOR PREVIEWING
 @Preview(showBackground = true, widthDp = 411, heightDp = 218)
 @Composable
-fun LayoutSpecialCharactersPreview() {
+fun LayoutSpecialCharactersAltPreview() {
     AnimaleseTypingTheme {
         KeyboardLayout(
-            layout = SpecialCharacters
+            layout = SpecialCharactersAlt
         )
     }
 }

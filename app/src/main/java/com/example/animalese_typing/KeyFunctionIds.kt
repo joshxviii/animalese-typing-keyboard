@@ -8,5 +8,6 @@ enum class KeyFunctionIds {
     SHIFT,
     OPEN_NUMPAD,
     OPEN_KEYPAD,
-    OPEN_SPECIAL
+    OPEN_SPECIAL,
+    OPEN_SPECIAL_ALT
 }

@@ -192,6 +192,7 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             KeyFunctionIds.OPEN_NUMPAD -> _keyboardLayout.value = KeyboardLayouts.NUMPAD
             KeyFunctionIds.OPEN_KEYPAD -> _keyboardLayout.value = KeyboardLayouts.QWERTY // TODO: Get from settings
             KeyFunctionIds.OPEN_SPECIAL -> _keyboardLayout.value = KeyboardLayouts.SPECIAL
+            KeyFunctionIds.OPEN_SPECIAL_ALT -> _keyboardLayout.value = KeyboardLayouts.SPECIAL_ALT
             else -> {}
         }
     }
