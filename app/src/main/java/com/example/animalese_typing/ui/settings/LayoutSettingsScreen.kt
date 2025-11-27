@@ -30,6 +30,7 @@ fun LayoutSettingsScreen(
 
         SettingsCategory("Layout")
         RadioButtonItem(title = "QWERTY", selected = true, onClick = {})
+        RadioButtonItem(title = "QWERTZ", selected = false, onClick = {})
         RadioButtonItem(title = "AZERTY", selected = false, onClick = {})
     }
 }

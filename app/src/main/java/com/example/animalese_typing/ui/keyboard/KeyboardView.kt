@@ -55,12 +55,12 @@ fun KeyboardView(
 
         // Keyboard
         KeyboardLayout(
-            modifier = modifier
-                .weight(1f),
             layout = Qwerty,
             onKeyDown = onKeyDown,
             onKeyUp = onKeyUp,
-            shiftState = shiftState
+            shiftState = shiftState,
+            modifier = modifier
+                .weight(1f),
         )
 
         // Nav Bar Padding
