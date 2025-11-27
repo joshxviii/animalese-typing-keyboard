@@ -11,13 +11,13 @@ import com.example.animalese_typing.ui.theme.AnimaleseColors
 
 @Composable
 fun KeyboardLayout(
-    layout : Layout,
     modifier: Modifier = Modifier,
+    layout : Layout,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(AnimaleseColors.background),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -32,7 +32,7 @@ fun KeyboardLayout(
                 row.forEach { key ->
                     KeyButton(
                         key = key,
-                        modifier = modifier.weight(key.weight),
+                        modifier = Modifier.weight(key.weight),
                         onKeyDown = onKeyDown,
                         onKeyUp = onKeyUp
                     )

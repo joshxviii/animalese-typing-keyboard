@@ -96,14 +96,20 @@ fun SettingsItem(
 fun RadioButtonItem(
     title: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     ListItem(
         headlineContent = { Text(title) },
         trailingContent = {
-            RadioButton(selected = selected, onClick = onClick)
+            RadioButton(
+                selected = selected,
+                onClick = onClick,
+                enabled = enabled
+            )
+
         },
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier.clickable(enabled = enabled) { onClick() }
     )
 }
 

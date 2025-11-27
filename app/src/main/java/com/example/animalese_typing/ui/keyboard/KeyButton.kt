@@ -116,7 +116,7 @@ fun KeyButton(
         ) {
             Box( // Text/icon size limiter
                 modifier = modifier
-                    .fillMaxSize(0.6f),
+                    .fillMaxSize(0.64f),
                 contentAlignment = Alignment.Center,
             ) {
                 when (key) {

@@ -21,11 +21,11 @@ fun GeneralSettingsScreen(
     SettingsList {
         SettingsCategory("General")
         SettingsItem(
-            title = "Sound on keypress",
+            title = "Play Sounds",
             control = { Switch(checked = true, onCheckedChange = {}) }
         )
         SettingsItem(
-            title = "Vibration on keypress",
+            title = "Vibrate",
             control = { Switch(checked = false, onCheckedChange = {}) }
         )
         SliderItem(

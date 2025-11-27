@@ -12,8 +12,8 @@ import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.ui.keyboard.KeyboardScreen
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Chocolate
+import com.example.animalese_typing.ui.theme.Cream
 import com.example.animalese_typing.ui.theme.Dark
-import com.example.animalese_typing.ui.theme.Latte
 import com.example.animalese_typing.ui.theme.Light
 
 @Preview(showBackground = true, widthDp = (411*2)+20, heightDp = (250*2)+20)
@@ -32,7 +32,7 @@ fun ThemePreview() {
             ) { KeyboardScreen() }
 
             AnimaleseTypingTheme(
-                theme = Latte
+                theme = Cream
             ) { KeyboardScreen() }
         }
 

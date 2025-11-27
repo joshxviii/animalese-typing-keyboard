@@ -1,5 +1,6 @@
 package com.example.animalese_typing.ui.settings
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,7 +16,7 @@ fun LayoutSettingsScreen(
     preferences: AnimalesePreferences = AnimalesePreferences(LocalContext.current)
 ) {
     val scope = rememberCoroutineScope()
-    val currentKeyboardHeight by preferences.getKeyboardHeight().collectAsState(initial = 0.3f)
+    val currentKeyboardHeight by preferences.getKeyboardHeight().collectAsState(initial = 250f)
 
     SettingsList {
         SettingsCategory("Keyboard Height")
@@ -23,8 +24,9 @@ fun LayoutSettingsScreen(
             title = "Height",
             value = currentKeyboardHeight,
             onValueChange = { scope.launch { preferences.saveKeyboardHeight(it) } },
-            valueRange = 0.4f..0.9f
+            valueRange = 180f..310f,
         )
+        Text( text = "${currentKeyboardHeight.toInt()}" )
 
         SettingsCategory("Layout")
         RadioButtonItem(title = "QWERTY", selected = true, onClick = {})
