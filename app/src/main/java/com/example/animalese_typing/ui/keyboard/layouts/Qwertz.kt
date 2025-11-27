@@ -48,7 +48,7 @@ object Qwertz: Layout(listOf(
         listOf(
             Key.TextKey("123", 0.15f,"alt", event=KeyFunctions.OPEN_NUMPAD),
             Key.CharKey(',',0.1f,"alt"),
-            Key.CharKey(' ',0.5f, isRepeatable = true),
+            Key.CharKey(' ',0.5f, isRepeatable = true, showPopup = false),
             Key.CharKey('.',0.1f,"alt"),
             Key.IconKey(R.drawable.ic_enter,0.15f,"highlight", event=KeyFunctions.ENTER)
         )

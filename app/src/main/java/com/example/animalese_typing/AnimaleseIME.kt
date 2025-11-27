@@ -100,7 +100,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
             longArrayOf(0, 10),
-            intArrayOf(0, 125),// TODO setting for vibration intensity
+            intArrayOf(0, 90),// TODO setting for vibration intensity
             -1
         )
         _savedStateRegistryController.performRestore(null)

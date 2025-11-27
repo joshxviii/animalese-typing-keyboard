@@ -93,6 +93,13 @@ fun Color.highlight(amount: Float = 0.125f): Color {
     }
 }
 
+/**
+ * Change the alpha value on a [Color] by an amount
+ */
+fun Color.opacity(amount: Float): Color {
+    return copy(alpha = amount)
+}
+
 val LocalAnimaleseColors = staticCompositionLocalOf { Light }
 
 val AnimaleseColors: ThemeColors
