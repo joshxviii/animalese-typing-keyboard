@@ -15,16 +15,19 @@ fun AnimaleseTypingTheme(
     content: @Composable () -> Unit
 ) {
     val storedTheme by AnimalesePreferences(LocalContext.current).getTheme().collectAsState(initial = Light)
-    val currentTheme = theme?:storedTheme
+    val useSystemTheme by AnimalesePreferences(LocalContext.current).getSystemDefaultTheme().collectAsState(initial = true)
+    val currentTheme = theme?:
+        if (useSystemTheme) if (isSystemInDarkTheme()) Dark else Light
+        else storedTheme
 
     CompositionLocalProvider(LocalAnimaleseColors provides currentTheme) {
         MaterialTheme(
             colorScheme = androidx.compose.material3.darkColorScheme()
                 .copy(
                     background = currentTheme.background,
+                    onBackground = currentTheme.keyText,
                     surface = currentTheme.keyBase,
                     onSurface = currentTheme.keyText,
-
                     primary = currentTheme.highlight,
                     onPrimary = currentTheme.keyBase
                 ),

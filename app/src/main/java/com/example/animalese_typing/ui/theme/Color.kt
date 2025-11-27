@@ -14,8 +14,7 @@ data class ThemeColors(
     val keyIcon: Color,
     val highlight: Color,
 )
-
-val Light = ThemeColors(
+val Light:ThemeColors = ThemeColors(
     background   = Color(0xFFF1F0F7),
     keyBase      = Color(0xFFFFFFFF),
     keyBaseAlt   = Color(0xFFCFE1FF),
@@ -25,7 +24,7 @@ val Light = ThemeColors(
     highlight    = Color(0xFF2ED3CE)
 )
 
-val Dark = ThemeColors(
+val Dark:ThemeColors = ThemeColors(
     background   = Color(0xFF1A1B20),
     keyBase      = Color(0xFF2F3036),
     keyBaseAlt   = Color(0xFF45464C),
@@ -35,11 +34,11 @@ val Dark = ThemeColors(
     highlight    = Color(0xFF00D0CB)
 )
 
-val Latte:ThemeColors = ThemeColors(
+val Cream:ThemeColors = ThemeColors(
     background   = Color(0xFFFFFAE4),
     keyBase      = Color(0xFFECE0D0),
     keyBaseAlt   = Color(0xFFDECBB2),
-    keyText      = Color(0xFFBE9D70),
+    keyText      = Color(0xFFB49162),
     keyTextAlt   = Color(0xFFB9935E),
     keyIcon      = Color(0xFFD9BD96),
     highlight    = Color(0xFF00D0CB)
@@ -54,6 +53,15 @@ val Chocolate:ThemeColors = ThemeColors(
     keyIcon      = Color(0xFFF0D9B0),
     highlight    = Color(0xFF00D0CB)
 )
+
+fun parseTheme(name: String): ThemeColors {
+    return when (name.lowercase()) {
+        "dark" -> Dark
+        "cream" -> Cream
+        "chocolate" -> Chocolate
+        else -> Light
+    }
+}
 
 fun Color.darken(darkenBy: Float = 0.1f): Color {
     return copy(

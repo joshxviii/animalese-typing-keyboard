@@ -7,7 +7,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
-import android.widget.Toast
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
@@ -47,11 +47,10 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
-        longArrayOf(0, 10, 20, 10),
-        intArrayOf(0, 255, 0, 255),// TODO setting for vibration intensity
-        0
+        longArrayOf(0, 10),
+        intArrayOf(0, 125),// TODO setting for vibration intensity
+        -1
         )
-
         _savedStateRegistryController.performRestore(null)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
@@ -59,10 +58,10 @@ class IMEService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override fun onCreateInputView(): View {
         val composeView = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-
             setContent {
                 AnimaleseTypingTheme {
                     KeyboardScreen(
+                        modifier = Modifier,
                         onSettings = ::handleSettings,
                         onKeyDown = ::onKeyDown,
                         onKeyUp = ::onKeyUp
