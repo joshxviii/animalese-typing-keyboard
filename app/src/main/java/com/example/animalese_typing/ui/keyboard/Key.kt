@@ -1,8 +1,11 @@
 package com.example.animalese_typing.ui.keyboard
 
+import androidx.compose.ui.layout.LayoutCoordinates
+
 enum class KeyFunctions {
     NONE,
     CHARACTER,
+    SPACE,
     ENTER,
     BACKSPACE,
     SHIFT,
@@ -19,10 +22,16 @@ sealed class Key(
     val weight: Float,
     val type : String,
     val isRepeatable: Boolean = false,
-    val event : KeyFunctions
+    val event : KeyFunctions,
+    var coordinates: LayoutCoordinates? = null
 ) {
     class Empty(
         weight: Float = 0.05f,
+        isRepeatable: Boolean = false,
+        event : KeyFunctions = KeyFunctions.NONE
+    ) : Key(weight, "", isRepeatable, event)
+    class Blank(
+        weight: Float = 0.1f,
         isRepeatable: Boolean = false,
         event : KeyFunctions = KeyFunctions.NONE
     ) : Key(weight, "", isRepeatable, event)
@@ -53,6 +62,7 @@ sealed class Key(
     override fun toString(): String {
         return when (this) {
             is Empty -> "Empty"
+            is Blank -> "Blank"
             is CharKey -> "CharKey($char)"
             is IconKey -> "IconKey($iconId)"
             is TextKey -> "TextKey($text)"
