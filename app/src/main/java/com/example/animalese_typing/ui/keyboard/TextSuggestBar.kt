@@ -4,8 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,10 +21,10 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 @Composable
 fun TextSuggestBar(
+    modifier: Modifier = Modifier,
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit = {},
     onExitSuggestion: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier

@@ -1,14 +1,25 @@
 package com.example.animalese_typing
 
 import android.content.Intent
+import android.graphics.PixelFormat
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
@@ -26,9 +37,10 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.opacity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -56,6 +68,47 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
     val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
 
+    var overlayView: ComposeView? = null
+    lateinit var windowManager: WindowManager
+
+    override fun onCreateInputView(): View {
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                AnimaleseTypingTheme {
+                    val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                    val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
+                    val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+                    KeyboardView(
+                        modifier = Modifier,
+                        currentLayout = keyboardLayoutValue,
+                        onSettings = ::handleSettings,
+                        onKeyDown = ::onKeyDown,
+                        onKeyUp = ::onKeyUp,
+                        shiftState = shiftStateValue,
+                        pressedKey = pressedKeyValue,
+                        imeService = this@AnimaleseIME
+                    )
+                }
+            }
+            setOverlayContent {
+                AnimaleseTypingTheme {
+                    Column(
+                        modifier = Modifier
+                            .background(Color.Red.opacity(0.3f))
+                    ) {}
+
+                }
+            }
+        }
+        window?.window?.decorView?.let { decorView ->
+            decorView.setViewTreeLifecycleOwner(this@AnimaleseIME)
+            decorView.setViewTreeViewModelStoreOwner(this@AnimaleseIME)
+            decorView.setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
+        }
+        return composeView
+    }
+
     // region IME Overrides
     override val lifecycle: Lifecycle
         get() = _lifecycleRegistry
@@ -66,36 +119,11 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     override val savedStateRegistry: SavedStateRegistry
         get() = _savedStateRegistryController.savedStateRegistry
 
-    override fun onCreateInputView(): View {
-        val composeView = ComposeView(this).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AnimaleseTypingTheme {
-                    val shiftStateValue by shiftState.collectAsStateWithLifecycle()
-                    val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
-                    KeyboardView(
-                        modifier = Modifier,
-                        currentLayout = keyboardLayoutValue,
-                        onSettings = ::handleSettings,
-                        onKeyDown = ::onKeyDown,
-                        onKeyUp = ::onKeyUp,
-                        shiftState = shiftStateValue
-                    )
-                }
-            }
-        }
-
-        window?.window?.decorView?.let { decorView ->
-            decorView.setViewTreeLifecycleOwner(this@AnimaleseIME)
-            decorView.setViewTreeViewModelStoreOwner(this@AnimaleseIME)
-            decorView.setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
-        }
-
-        return composeView
-    }
-
     override fun onCreate() {
         super.onCreate()
+        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+
+
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
@@ -128,6 +156,33 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         _viewModelStore.clear()
         repeatJob?.cancel()
+    }
+
+    fun setOverlayContent(content: @Composable (() -> Unit)) {
+        val decorView = window?.window?.decorView ?: return
+        overlayView?.let { windowManager.removeView(it) }
+
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewTreeLifecycleOwner(this@AnimaleseIME)
+            setViewTreeViewModelStoreOwner(this@AnimaleseIME)
+            setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
+            setContent { content() }
+        }
+        val params = WindowManager.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            token = decorView.windowToken
+        }
+
+        overlayView = composeView
+        windowManager.addView(composeView, params)
     }
     // endregion
 

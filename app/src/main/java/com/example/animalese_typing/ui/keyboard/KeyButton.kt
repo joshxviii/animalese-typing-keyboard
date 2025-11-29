@@ -84,7 +84,7 @@ fun KeyButton(
                     }
                 }
             }
-//            .background(Color.Red) // for debugging
+            .background(Color.Red) // for debugging
     ) {
         Box(
             modifier = Modifier
@@ -144,19 +144,6 @@ fun KeyButton(
                     }
                 }
             }
-        }
-
-        //TODO: key popups only overly on top of the keyboard
-        // Need to extend bounds to cover the whole screen to overlay outside the bounds of the keyboard
-        if (isPressed && key is Key.CharKey && key.showPopup) {
-            KeyPopout(
-                key = key,
-                isUppercase = shiftState != ShiftState.OFF,
-                modifier = Modifier
-                    .offset(y = (-32).dp)
-                    .align(Alignment.TopCenter)
-                    .zIndex(1f)
-            )
         }
     } else {
         Box(modifier = modifier)
