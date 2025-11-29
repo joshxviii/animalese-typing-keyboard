@@ -84,7 +84,7 @@ fun KeyButton(
                     }
                 }
             }
-            .background(Color.Red) // for debugging
+//            .background(Color.Red) // for debugging
     ) {
         Box(
             modifier = Modifier

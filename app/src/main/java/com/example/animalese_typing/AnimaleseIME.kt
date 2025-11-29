@@ -6,20 +6,13 @@ import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
@@ -37,10 +30,10 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
+import com.example.animalese_typing.ui.keyboard.KeyPopout
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.opacity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -92,12 +85,14 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 }
             }
             setOverlayContent {
+                val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+                val shiftStateValue by shiftState.collectAsStateWithLifecycle()
                 AnimaleseTypingTheme {
-                    Column(
-                        modifier = Modifier
-                            .background(Color.Red.opacity(0.3f))
-                    ) {}
-
+                    // TODO created a dedicated Overlay window for drawing Key menus etc
+                    KeyPopout(
+                        key = pressedKeyValue,
+                        isUppercase = shiftStateValue != ShiftState.OFF
+                    )
                 }
             }
         }
@@ -170,8 +165,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             setContent { content() }
         }
         val params = WindowManager.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or

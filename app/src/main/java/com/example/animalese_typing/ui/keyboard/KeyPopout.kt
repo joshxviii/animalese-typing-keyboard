@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,34 +28,43 @@ import com.example.animalese_typing.ui.theme.KeyText
  */
 @Composable
 fun KeyPopout(
-    key: Key.CharKey,
+    key: Key?,
     modifier: Modifier = Modifier,
     isUppercase: Boolean = false,
 ) {
-    Box(
+    if (key is Key.CharKey && key.showPopup) Box(
+        modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
                 .clip(RoundedCornerShape(50))
-                .background(color= AnimaleseColors.highlight)
-                .padding(4.dp, 8.dp)
-                .fillMaxWidth()
+                .background(color = AnimaleseColors.highlight)
+                .padding(8.dp, 8.dp)
         ) {
             KeyText(
                 text = if (isUppercase) key.char.uppercase() else key.char.toString(),
                 color = Color.White,
-            )
+
+                )
         }
-        if (key.subChars.isNotEmpty()) {
-            Icon(
-                modifier = modifier.align(
-                    alignment = Alignment.BottomCenter
-                ),
-                imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
-                contentDescription = "",
-                tint = Color.White
+        if (key.subChars.isNotEmpty()) Icon(
+            modifier = modifier.align(
+                alignment = Alignment.BottomCenter
+            ),
+            imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
+            contentDescription = "",
+            tint = Color.White
+        )
+    }
+    else {
+        Box(
+            modifier.fillMaxWidth()
+        ) {
+            Text(// TODO currently something needs to be composed to redraw the layer, even if the color is transparent
+                color = Color.Transparent,
+                text = ""
             )
         }
     }
