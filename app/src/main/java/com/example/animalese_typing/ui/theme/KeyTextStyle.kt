@@ -3,6 +3,7 @@ package com.example.animalese_typing.ui.theme
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -17,6 +18,7 @@ import com.example.animalese_typing.ui.keyboard.OnColor
 
 @Composable
 fun KeyText(
+    modifier: Modifier = Modifier,
     text: String,
     color: Color,
 ) {
@@ -40,6 +42,7 @@ fun KeyText(
     )
 
     BasicText(
+        modifier = modifier,
         text = text,
         style = defaultTextStyle,
         autoSize = defaultAutoSize,

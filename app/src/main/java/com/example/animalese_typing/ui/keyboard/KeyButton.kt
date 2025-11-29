@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -29,12 +29,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
+import com.example.animalese_typing.ui.theme.Light
 import com.example.animalese_typing.ui.theme.highlight
 import com.example.animalese_typing.ui.theme.opacity
 
@@ -103,15 +103,24 @@ fun KeyButton(
                     .background(baseColor)
                     .fillMaxSize()
             ) {
+                if (key is Key.CharKey && key.subChars.isNotEmpty())
+                KeyText( // tiny sub char label
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(5.dp, 2.dp)
+                        .height(14.dp),
+                    text = "${key.subChars[0]}",
+                    color = labelColor.opacity(0.1f),
+                )
                 Box( // Text/icon size limiter
-                    modifier = modifier
-                        .fillMaxSize(0.64f),
+                    modifier = modifier.fillMaxSize(0.64f),
                     contentAlignment = Alignment.Center,
                 ) {
                     when (key) {
                         is Key.CharKey -> {
                             key.isUpperCase = shiftState != ShiftState.OFF
                             KeyText(
+                                modifier = Modifier.fillMaxSize(),
                                 text = "${key.finalChar}",
                                 color = labelColor
                             )
@@ -151,12 +160,14 @@ fun KeyButton(
 }
 
 // region UI PREVIEW
-@Preview(showBackground = true, widthDp = 70, heightDp = 160)
+@Preview(showBackground = true, widthDp = 40, heightDp = 160)
 @Composable
 fun KeyButtonPreview() {
-    AnimaleseTypingTheme {
+    AnimaleseTypingTheme(
+        theme = Light
+    ) {
         Column(modifier = Modifier.background(color=Color(0xFF1E1F22))) {
-            KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a'))
+            KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a', subChars = listOf('1', '2', '3')))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(R.drawable.ic_shift_lock))
             KeyButton(modifier = Modifier.weight(1f), key = Key.IconKey(iconId=R.drawable.ic_enter, type = "highlight"))
         }

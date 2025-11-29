@@ -38,7 +38,6 @@ val offsetY = 60.dp
 fun KeyPopout(
     key: Key,
     modifier: Modifier = Modifier,
-    isUppercase: Boolean = false,
 ) {
     //val size = DpSize(key.size.width.dp,key.size.height.dp)
 
@@ -60,7 +59,7 @@ fun KeyPopout(
             modifier = modifier
                 .clip(RoundedCornerShape(50))
                 .background(color = AnimaleseColors.highlight)
-                .padding(8.dp, 8.dp)
+                .padding(8.dp, 8.dp, 8.dp, 14.dp)
                 .fillMaxSize()
         ) {
             KeyText(

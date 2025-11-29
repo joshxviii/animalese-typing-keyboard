@@ -10,16 +10,16 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 object Qwerty: Layout(listOf(
         listOf(
-            Key.CharKey('q'),
-            Key.CharKey('w'),
-            Key.CharKey('e'),
-            Key.CharKey('r'),
-            Key.CharKey('t'),
-            Key.CharKey('y'),
-            Key.CharKey('u'),
-            Key.CharKey('i'),
-            Key.CharKey('o'),
-            Key.CharKey('p')
+            Key.CharKey('q', subChars = listOf('1')),
+            Key.CharKey('w', subChars = listOf('2')),
+            Key.CharKey('e', subChars = listOf('3')),
+            Key.CharKey('r', subChars = listOf('4')),
+            Key.CharKey('t', subChars = listOf('5')),
+            Key.CharKey('y', subChars = listOf('6')),
+            Key.CharKey('u', subChars = listOf('7')),
+            Key.CharKey('i', subChars = listOf('8')),
+            Key.CharKey('o', subChars = listOf('9')),
+            Key.CharKey('p', subChars = listOf('0'))
         ),
         listOf(
             Key.Empty(),
