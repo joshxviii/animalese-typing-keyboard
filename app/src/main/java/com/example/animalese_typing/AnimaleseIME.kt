@@ -10,11 +10,26 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -27,7 +42,9 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
+import com.example.animalese_typing.ui.keyboard.ScreenOverlay
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyPopout
@@ -67,7 +84,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     override fun onCreateInputView(): View {
         val composeView = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
+            setContent {// main keyboard View
                 AnimaleseTypingTheme {
                     val shiftStateValue by shiftState.collectAsStateWithLifecycle()
                     val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
@@ -84,15 +101,16 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     )
                 }
             }
-            setOverlayContent {
-                val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
-                val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+            setOverlayContent {// overlay view
                 AnimaleseTypingTheme {
-                    // TODO created a dedicated Overlay window for drawing Key menus etc
-                    KeyPopout(
-                        key = pressedKeyValue,
-                        isUppercase = shiftStateValue != ShiftState.OFF
-                    )
+                    val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+                    val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                    ScreenOverlay {
+                        if (pressedKeyValue == null) return@ScreenOverlay
+                        KeyPopout(
+                            pressedKeyValue!!
+                        )
+                    }
                 }
             }
         }
@@ -118,7 +136,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
@@ -128,6 +145,34 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         )
         _savedStateRegistryController.performRestore(null)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    fun setOverlayContent(content: @Composable (() -> Unit)) {
+        val decorView = window?.window?.decorView ?: return
+        overlayView?.let { windowManager.removeView(it) }
+
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewTreeLifecycleOwner(this@AnimaleseIME)
+            setViewTreeViewModelStoreOwner(this@AnimaleseIME)
+            setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
+            setContent { content() }
+        }
+        val params = WindowManager.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            token = decorView.windowToken
+        }
+
+        overlayView = composeView
+        windowManager.addView(composeView, params)
     }
 
     override fun onWindowShown() {
@@ -152,39 +197,13 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         _viewModelStore.clear()
         repeatJob?.cancel()
     }
-
-    fun setOverlayContent(content: @Composable (() -> Unit)) {
-        val decorView = window?.window?.decorView ?: return
-        overlayView?.let { windowManager.removeView(it) }
-
-        val composeView = ComposeView(this).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setViewTreeLifecycleOwner(this@AnimaleseIME)
-            setViewTreeViewModelStoreOwner(this@AnimaleseIME)
-            setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
-            setContent { content() }
-        }
-        val params = WindowManager.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            token = decorView.windowToken
-        }
-
-        overlayView = composeView
-        windowManager.addView(composeView, params)
-    }
     // endregion
 
     //region Event Handlers
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
+        logMessage("Key pressed: $key")
 
         // handle repeating keys in coroutine
         if (key.isRepeatable) {
@@ -205,8 +224,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
 
         when (key) {
             is Key.CharKey -> {
-                val isUppercase = _shiftState.value != ShiftState.OFF
-                val charToCommit = if (isUppercase) key.char.uppercaseChar() else key.char.lowercaseChar()
+                val charToCommit = key.finalChar
                 currentInputConnection?.commitText(charToCommit.toString(), 1)
 
                 AudioPlayer.playSound( AudioPlayer.keycodeToSound( key.char.lowercaseChar().code ) )
@@ -221,6 +239,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         if (id == KeyFunctions.NONE || id == KeyFunctions.CHARACTER) return
         AudioPlayer.playSound(AudioPlayer.keycodeToSound(0))
         when (id) {
+            KeyFunctions.SPACE -> {
+                currentInputConnection?.commitText(" ", 1)
+            }
             KeyFunctions.BACKSPACE -> {
                 if (currentInputConnection?.getSelectedText(0) != null) {
                     currentInputConnection?.commitText("", 1)

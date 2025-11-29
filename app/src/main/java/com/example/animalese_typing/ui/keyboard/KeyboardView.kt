@@ -18,12 +18,15 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
+import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
@@ -135,7 +138,6 @@ fun KeyboardLayout(
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     shiftState: ShiftState = ShiftState.OFF,
-    pressedKey: Key? = null
 ) {
     Column(
         modifier = modifier
@@ -156,8 +158,10 @@ fun KeyboardLayout(
                             KeyButton(
                                 key = key,
                                 modifier = Modifier
-                                    .weight(key.weight).onGloballyPositioned { coordinates ->
-                                         key.coordinates = coordinates
+                                    .weight(key.weight)
+                                    .onGloballyPositioned { c ->
+                                        key.size = c.size
+                                        key.coordinates = c.positionOnScreen()
                                     },
                                 onKeyDown = onKeyDown,
                                 onKeyUp = onKeyUp,

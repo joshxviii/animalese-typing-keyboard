@@ -108,14 +108,14 @@ object AudioPlayer {
     }
 
     fun playSound(audioFile: String?) {
-        logMessage("Playing $audioFile $soundPool")
+        //logMessage("Playing $audioFile $soundPool")
         if (audioFile == null || soundPool == null) playSound(keycodeToSound(0))
         val soundId = soundIdMap[audioFile]
 
         if (soundId != null && soundId != 0) {
             if (isSoundPoolLoaded || soundPool?.load(applicationContext!!,soundIdMap[audioFile] ?: 0,1) != 0 ) {
                 soundPool?.play(soundId, 1f, 1f, 0, 0, 1f)
-                logMessage("Audio Played $audioFile")
+                //logMessage("Audio Played $audioFile")
             }
         }
     }

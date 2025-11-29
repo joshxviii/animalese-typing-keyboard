@@ -110,9 +110,9 @@ fun KeyButton(
                 ) {
                     when (key) {
                         is Key.CharKey -> {
-                            val isUppercase = shiftState != ShiftState.OFF
+                            key.isUpperCase = shiftState != ShiftState.OFF
                             KeyText(
-                                text = if (isUppercase) key.char.uppercase() else key.char.toString(),
+                                text = "${key.finalChar}",
                                 color = labelColor
                             )
                         }
