@@ -10,26 +10,11 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -44,11 +29,11 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
-import com.example.animalese_typing.ui.keyboard.ScreenOverlay
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyPopout
 import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.ScreenOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
@@ -102,13 +87,16 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 }
             }
             setOverlayContent {// overlay view
+                val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+                val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                // TODO overlayView should be visible when interacting with sub key menu as well as key pressing
+                overlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
                 AnimaleseTypingTheme {
-                    val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
-                    val shiftStateValue by shiftState.collectAsStateWithLifecycle()
-                    ScreenOverlay {
-                        if (pressedKeyValue == null) return@ScreenOverlay
+                    ScreenOverlay() {
+                        if (pressedKeyValue != null)
                         KeyPopout(
-                            pressedKeyValue!!
+                            modifier = Modifier,
+                            key = pressedKeyValue!!
                         )
                     }
                 }

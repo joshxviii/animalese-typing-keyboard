@@ -27,8 +27,8 @@ import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 
-val size = DpSize(50.dp, 50.dp)
-val offsetY = 40.dp
+val size = DpSize(64.dp, 64.dp)
+val offsetY = 60.dp
 
 /**
  * When [Key.CharKey.showPopup] is enabled [KeyPopout] will render

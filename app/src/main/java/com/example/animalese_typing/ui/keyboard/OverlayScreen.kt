@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import com.example.animalese_typing.ui.theme.opacity
 
