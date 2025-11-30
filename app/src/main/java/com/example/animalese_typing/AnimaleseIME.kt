@@ -32,6 +32,7 @@ import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyPopout
+import com.example.animalese_typing.ui.keyboard.KeyPopoutMenu
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.ScreenOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
@@ -55,9 +56,12 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
     private var repeatJob: Job? = null
+    private var showPopupJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _pressedKey = MutableStateFlow<Key?>(null)
     private val pressedKey: StateFlow<Key?> = _pressedKey
+    private val _showPopupMenu = MutableStateFlow<Boolean>(false)
+    private val showPopupMenu: StateFlow<Boolean> = _showPopupMenu
     private val _shiftState = MutableStateFlow(ShiftState.OFF)
     val shiftState: StateFlow<ShiftState> = _shiftState
     private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
@@ -88,16 +92,15 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             }
             setOverlayContent {// overlay view
                 val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
-                val shiftStateValue by shiftState.collectAsStateWithLifecycle()
+                val showPopupMenuValue by showPopupMenu.collectAsStateWithLifecycle()
                 // TODO overlayView should be visible when interacting with sub key menu as well as key pressing
                 overlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
                 AnimaleseTypingTheme {
                     ScreenOverlay() {
-                        if (pressedKeyValue != null)
-                        KeyPopout(
-                            modifier = Modifier,
-                            key = pressedKeyValue!!
-                        )
+                        if (pressedKeyValue != null) {
+                            if (showPopupMenuValue) KeyPopoutMenu(key = pressedKeyValue!!)
+                            else KeyPopout(key = pressedKeyValue!!)
+                        }
                     }
                 }
             }
@@ -200,14 +203,22 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 delay(500)
                 while (true) {
                     handleKeyEvent(key.event)
-                    delay(75)
+                    delay(50)
                 }
             }
         } else handleKeyEvent(key.event)
+
+        showPopupJob = coroutineScope.launch { // show popup menu when holding key down
+            delay(350)
+            _showPopupMenu.value = key is Key.CharKey && key.subChars.isNotEmpty()
+        }
+
         return true
     }
     private fun onKeyUp(key: Key): Boolean {
         repeatJob?.cancel()
+        showPopupJob?.cancel()
+        _showPopupMenu.value = false
         if (_pressedKey.value == key) _pressedKey.value = null
 
         when (key) {

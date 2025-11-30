@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.OnColor
@@ -21,6 +22,7 @@ fun KeyText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color,
+    size: TextUnit? = null
 ) {
     val defaultTextStyle = TextStyle(
         textAlign = TextAlign.Center,
@@ -36,8 +38,8 @@ fun KeyText(
         )
     )
     val defaultAutoSize = TextAutoSize.StepBased(
-        minFontSize = 8.sp,
-        maxFontSize = 60.sp,
+        minFontSize = size ?: 8.sp,
+        maxFontSize = size ?: 60.sp,
         stepSize = 2.sp
     )
 

@@ -29,8 +29,8 @@ object SpecialCharacters: Layout( listOf(
             Key.CharKey('&'),
 			Key.CharKey('-'),
 			Key.CharKey('+'),
-			Key.CharKey('('),
-            Key.CharKey(')'),
+			Key.CharKey('(', subChars = listOf('[', '{', '<')),
+            Key.CharKey(')', subChars = listOf(']', '}', '>')),
 			Key.CharKey('/')
         ),
         listOf(

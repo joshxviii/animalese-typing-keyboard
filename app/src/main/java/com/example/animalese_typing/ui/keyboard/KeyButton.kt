@@ -33,8 +33,8 @@ import com.example.animalese_typing.R
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.Chocolate
 import com.example.animalese_typing.ui.theme.KeyText
-import com.example.animalese_typing.ui.theme.Light
 import com.example.animalese_typing.ui.theme.highlight
 import com.example.animalese_typing.ui.theme.opacity
 
@@ -103,8 +103,7 @@ fun KeyButton(
                     .background(baseColor)
                     .fillMaxSize()
             ) {
-                if (key is Key.CharKey && key.subChars.isNotEmpty())
-                KeyText( // tiny sub char label
+                if (key is Key.CharKey && key.subChars.isNotEmpty()) KeyText( // tiny sub char label
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(5.dp, 2.dp)
@@ -164,7 +163,7 @@ fun KeyButton(
 @Composable
 fun KeyButtonPreview() {
     AnimaleseTypingTheme(
-        theme = Light
+        theme = Chocolate
     ) {
         Column(modifier = Modifier.background(color=Color(0xFF1E1F22))) {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a', subChars = listOf('1', '2', '3')))
