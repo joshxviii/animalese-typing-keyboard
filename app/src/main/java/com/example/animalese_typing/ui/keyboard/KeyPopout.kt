@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,13 +16,10 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseColors
@@ -37,69 +33,58 @@ import com.example.animalese_typing.ui.theme.opacity
  */
 @Composable
 fun KeyPopout(
-    key: Key,
+    key: Key?,
     modifier: Modifier = Modifier,
     size: DpSize = DpSize(64.dp, 64.dp),
-    offsetY: Dp = 70.dp,
 ) {
+    if (key == null) return
+
     val shape = RoundedCornerShape(50)
 
-    val offset : IntOffset = with(LocalDensity.current) {
-        IntOffset(
-            ( key.coordinates.x.toInt() - (size.width/2).roundToPx() ),
-            ( key.coordinates.y.toInt() - ((size.height/2) + offsetY).roundToPx()  )
-        )
-    }
-
-    if (key is Key.CharKey && key.showPopup) Box(
-        modifier = modifier
-            .offset {offset}
-            .size(size)
-            .dropShadow(
-                shape = shape,
-                shadow = Shadow(
-                    radius = 4.dp,
-                    offset = DpOffset(0.dp, 2.dp),
-                    color = Color.Black.opacity(0.5f)
-                )
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
+    Box {
+        if (key is Key.CharKey && key.showPopup) Box(
             modifier = modifier
+                .size(size)
+                .dropShadow(
+                    shape = shape,
+                    shadow = Shadow(
+                        radius = 4.dp,
+                        offset = DpOffset(0.dp, 2.dp),
+                        color = Color.Black.opacity(0.5f)
+                    )
+                )
                 .clip(shape)
-                .background(color = AnimaleseColors.keyBase)
-                .padding(8.dp, 8.dp, 8.dp, 14.dp)
-                .fillMaxSize()
+                .background(color = AnimaleseColors.keyBase),
         ) {
-            KeyText(
-                text = "${key.finalChar}",
-                color = AnimaleseColors.keyText,
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(8.dp, 8.dp, 8.dp, 14.dp)
+                    .fillMaxSize()
+            ) {
+                KeyText(
+                    text = "${key.finalChar}",
+                    color = AnimaleseColors.keyText,
+                )
+            }
+            if (key.subChars.isNotEmpty()) Icon(
+                modifier = Modifier
+                    .size(size / 4)
+                    .align(Alignment.BottomCenter),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
+                contentDescription = "",
+                tint = AnimaleseColors.keyText
             )
         }
-        if (key.subChars.isNotEmpty()) Icon(
-            modifier = modifier
-                .size(size/4)
-                .align(Alignment.BottomCenter),
-            imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
-            contentDescription = "",
-            tint = AnimaleseColors.keyText
-        )
     }
 }
 
 // region UI PREVIEW
-@Preview(showBackground = false, widthDp = 96)
+@Preview(showBackground = true, widthDp = 96)
 @Composable
 fun KeyPopoutPreview() {
     AnimaleseTypingTheme {
-        Column(
-            modifier = Modifier.offset(
-                x = 64.dp/2,
-                y = (64.dp/2) + 70.dp
-            )
-        ) {
+        Column {
             KeyPopout(Key.CharKey('a'))
             KeyPopout(Key.CharKey('?', subChars = listOf('?', '!', '.')))
         }

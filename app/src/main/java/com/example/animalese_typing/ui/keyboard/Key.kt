@@ -1,7 +1,6 @@
 package com.example.animalese_typing.ui.keyboard
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 enum class KeyFunctions {
@@ -27,9 +26,9 @@ sealed class Key(
     val event : KeyFunctions,
     ) {
     var size: IntSize = IntSize(0, 0)
-    var coordinates: Offset = Offset(0f, 0f) // from center of key
+    var position: IntOffset = IntOffset(0, 0) // from center of key
         get() {
-            return Offset(
+            return IntOffset(
                 x = field.x + (size.width / 2),
                 y = field.y - (size.height / 2)
             )
@@ -76,8 +75,8 @@ sealed class Key(
     override fun toString(): String {
         return when (this) {
             is Empty -> "Empty"
-            is CharKey -> "${char.uppercase()} $event at (${coordinates.x}, ${coordinates.y}) size: $size"
-            else -> "$event at (${coordinates.x}, ${coordinates.y}) size: $size"
+            is CharKey -> "${char.uppercase()} $event at (${position.x}, ${position.y}) size: $size"
+            else -> "$event at (${position.x}, ${position.y}) size: $size"
         }
     }
 }
