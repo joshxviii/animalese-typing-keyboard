@@ -28,8 +28,8 @@ import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
-import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.Theme
 
 
 /**
@@ -53,7 +53,7 @@ fun KeyboardView(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .background(AnimaleseColors.background)
+                .background(Theme.colors.background)
                 .padding(4.dp)
                 .height(height.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -140,7 +140,7 @@ fun KeyboardLayout(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(AnimaleseColors.background),
+            .background(Theme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         layout.value.forEachIndexed { index, row ->
@@ -148,7 +148,7 @@ fun KeyboardLayout(
                 Row(
                     modifier = modifier
                         .fillMaxWidth()
-                        .background(color = AnimaleseColors.background)
+                        .background(color = Theme.colors.background)
                         .weight(1f),
                 ) {
                     row.forEach { key ->

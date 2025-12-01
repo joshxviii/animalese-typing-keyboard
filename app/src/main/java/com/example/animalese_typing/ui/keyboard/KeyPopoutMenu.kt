@@ -19,10 +19,10 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.animalese_typing.ui.theme.AnimaleseColors
+import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
-import com.example.animalese_typing.ui.theme.Light
+import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.opacity
 
 
@@ -35,7 +35,7 @@ fun KeyPopoutMenu(
     key: Key?,
     modifier: Modifier = Modifier,
     selectedIndex: Int = 0,
-    size: DpSize = DpSize(32.dp, 48.dp),
+    size: DpSize = DpSize(40.dp, 46.dp),
 ) {
     if (key == null) return
     val shape = RoundedCornerShape(50.dp)
@@ -57,8 +57,8 @@ fun KeyPopoutMenu(
                     )
                 )
                 .clip(shape)
-                .background(AnimaleseColors.keyBase)
-                .padding(12.dp),
+                .background(Theme.colors.keyBase)
+                .padding(10.dp),
             content = {
                 chars.forEachIndexed { index, char ->
                     val isSelected = index == selectedIndex
@@ -66,7 +66,7 @@ fun KeyPopoutMenu(
                         modifier = Modifier
                             .size(size)
                             .clip(shape)
-                            .background(if (isSelected) AnimaleseColors.highlight else Color.Transparent),
+                            .background(if (isSelected) Theme.colors.highlight else Color.Transparent),
                     ) {
                         Box(
                             modifier.fillMaxSize(),
@@ -75,7 +75,7 @@ fun KeyPopoutMenu(
                             { KeyText(
                                 modifier = Modifier,
                                 text = "$char",
-                                color = if (isSelected) Color.White else AnimaleseColors.keyText,
+                                color = if (isSelected) Color.White else Theme.colors.keyText,
                                 size = 32.sp
                             )
                         }
@@ -118,7 +118,7 @@ fun KeyPopoutMenu(
 @Composable
 fun KeyPopoutMenuPreview() {
     AnimaleseTypingTheme(
-        theme = Light
+        theme = AnimaleseThemes.Dark
     ) {
         KeyPopoutMenu(
             Key.CharKey(

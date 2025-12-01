@@ -14,8 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
-import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.Theme
 
 /**
  * The menu bar above the main keyboard.
@@ -29,7 +29,7 @@ fun TopBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp, 0.dp, 8.dp, 8.dp)
-            .background(color = AnimaleseColors.background),
+            .background(color = Theme.colors.background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val showSuggestions = false
@@ -67,7 +67,7 @@ fun TopBar(
             Icon(
                 painter = painterResource(id = R.drawable.ic_elipsis),
                 contentDescription = "",
-                tint = AnimaleseColors.keyText
+                tint = Theme.colors.keyText
             )
         }
 
@@ -89,7 +89,7 @@ fun TopBarButton(
         Icon(
             painter = painterResource(icon),
             contentDescription = "",
-            tint = AnimaleseColors.keyIcon)
+            tint = Theme.colors.keyIcon)
     }
 }
 

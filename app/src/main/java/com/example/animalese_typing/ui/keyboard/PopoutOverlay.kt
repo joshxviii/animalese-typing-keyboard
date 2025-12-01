@@ -29,7 +29,7 @@ fun PopoutOverlay(
             val position = it.positionOnScreen()
             overlayScreenOffset = IntOffset(position.x.toInt(), position.y.toInt())
         }
-            .background(Color.Red.opacity(0.1f))
+//            .background(Color.Red.opacity(0.1f))
     ) {
         Layout(
             modifier = modifier,

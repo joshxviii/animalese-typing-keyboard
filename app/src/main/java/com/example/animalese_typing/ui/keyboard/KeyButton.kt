@@ -10,11 +10,9 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -33,10 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ShiftState
-import com.example.animalese_typing.ui.theme.AnimaleseColors
+import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.Chocolate
 import com.example.animalese_typing.ui.theme.KeyText
+import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.highlight
 import com.example.animalese_typing.ui.theme.opacity
 
@@ -58,9 +56,9 @@ fun KeyButton(
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
-        "alt" -> AnimaleseColors.keyBaseAlt to AnimaleseColors.keyTextAlt
-        "highlight" -> AnimaleseColors.highlight to Color.White
-        else -> AnimaleseColors.keyBase to AnimaleseColors.keyText
+        "alt" -> Theme.colors.keyBaseAlt to Theme.colors.keyTextAlt
+        "highlight" -> Theme.colors.highlight to Color.White
+        else -> Theme.colors.keyBase to Theme.colors.keyText
     }
 
     // get the final color for key's label/base
@@ -164,7 +162,7 @@ fun KeyButton(
 @Composable
 fun KeyButtonPreview() {
     AnimaleseTypingTheme(
-        theme = Chocolate
+        theme = AnimaleseThemes.Light
     ) {
         Column(modifier = Modifier.background(color=Color(0xFF1E1F22))) {
             KeyButton(modifier = Modifier.weight(1f), key = Key.CharKey('a', subChars = listOf('1', '2', '3')))

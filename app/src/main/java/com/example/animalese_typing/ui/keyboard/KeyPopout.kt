@@ -22,9 +22,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
-import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
+import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.opacity
 
 /**
@@ -54,7 +54,7 @@ fun KeyPopout(
                     )
                 )
                 .clip(shape)
-                .background(color = AnimaleseColors.keyBase),
+                .background(color = Theme.colors.keyBase),
         ) {
             Box(
                 contentAlignment = Alignment.Center,
@@ -64,7 +64,7 @@ fun KeyPopout(
             ) {
                 KeyText(
                     text = "${key.finalChar}",
-                    color = AnimaleseColors.keyText,
+                    color = Theme.colors.keyText,
                 )
             }
             if (key.subChars.isNotEmpty()) Icon(
@@ -73,7 +73,7 @@ fun KeyPopout(
                     .align(Alignment.BottomCenter),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
                 contentDescription = "",
-                tint = AnimaleseColors.keyText
+                tint = Theme.colors.keyText
             )
         }
     }

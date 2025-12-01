@@ -2,17 +2,14 @@ package com.example.animalese_typing.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import com.example.animalese_typing.AnimalesePreferences
-import com.example.animalese_typing.R
 
 /**
  * Applies the Animalese Theme to all it's children.
@@ -22,13 +19,13 @@ fun AnimaleseTypingTheme(
     theme: ThemeColors? = null,
     content: @Composable () -> Unit
 ) {
-    val storedTheme by AnimalesePreferences(LocalContext.current).getTheme().collectAsState(initial = Light)
+    val storedTheme by AnimalesePreferences(LocalContext.current).getTheme().collectAsState(initial = AnimaleseThemes.Light)
     val useSystemTheme by AnimalesePreferences(LocalContext.current).getSystemDefaultTheme().collectAsState(initial = true)
     val currentTheme = theme?:
-        if (useSystemTheme) if (isSystemInDarkTheme()) Dark else Light
+        if (useSystemTheme) if (isSystemInDarkTheme()) AnimaleseThemes.Dark else AnimaleseThemes.Light
         else storedTheme
 
-    CompositionLocalProvider(LocalAnimaleseColors provides currentTheme) {
+    CompositionLocalProvider(LocalThemeColors provides currentTheme) {
         MaterialTheme(
             colorScheme = androidx.compose.material3.darkColorScheme()
                 .copy(
@@ -42,4 +39,18 @@ fun AnimaleseTypingTheme(
             content = content
         )
     }
+}
+
+val LocalThemeColors = staticCompositionLocalOf { AnimaleseThemes.Light }
+
+/**
+ * Provides access to the current theme's colors.
+ *
+ * Usage: `Theme.colors.keyBase`
+ */
+object Theme {
+    val colors: ThemeColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalThemeColors.current
 }

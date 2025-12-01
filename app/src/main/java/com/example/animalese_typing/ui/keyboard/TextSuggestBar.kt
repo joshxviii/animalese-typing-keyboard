@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
-import com.example.animalese_typing.ui.theme.AnimaleseColors
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.Theme
 
 @Composable
 fun TextSuggestBar(
@@ -42,7 +42,7 @@ fun TextSuggestBar(
             Icon(
                 painter = painterResource(id = R.drawable.ic_backout),
                 contentDescription = "",
-                tint = AnimaleseColors.keyText
+                tint = Theme.colors.keyText
             )
         }
 
@@ -51,7 +51,7 @@ fun TextSuggestBar(
             .forEach { suggestion ->
             Text(
                 text = suggestion,
-                color = AnimaleseColors.keyText,
+                color = Theme.colors.keyText,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)

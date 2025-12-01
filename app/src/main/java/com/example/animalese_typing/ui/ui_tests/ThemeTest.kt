@@ -11,11 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
+import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.ui.theme.Chocolate
-import com.example.animalese_typing.ui.theme.Cream
-import com.example.animalese_typing.ui.theme.Dark
-import com.example.animalese_typing.ui.theme.Light
 
 @Preview(showBackground = true, widthDp = (411*2)+20, heightDp = (250*2)+20)
 @Composable
@@ -29,11 +26,11 @@ fun ThemePreview() {
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             AnimaleseTypingTheme(
-                theme = Light
+                theme = AnimaleseThemes.Light
             ) { KeyboardView() }
 
             AnimaleseTypingTheme(
-                theme = Cream
+                theme = AnimaleseThemes.Dark
             ) { KeyboardView(currentLayout = KeyboardLayouts.NUMPAD) }
         }
 
@@ -42,11 +39,11 @@ fun ThemePreview() {
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             AnimaleseTypingTheme(
-                theme = Dark
+                theme = AnimaleseThemes.Cream
             ) { KeyboardView(currentLayout = KeyboardLayouts.NUMPAD) }
 
             AnimaleseTypingTheme(
-                theme = Chocolate
+                theme = AnimaleseThemes.Chocolate
             ) { KeyboardView() }
         }
     }

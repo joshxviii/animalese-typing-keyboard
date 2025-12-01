@@ -8,8 +8,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.ThemeColors
-import com.example.animalese_typing.ui.theme.parseTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -30,7 +30,7 @@ class AnimalesePreferences (val context: Context) {
 
     // TODO serialize themes as json for custom theme support
     suspend fun saveTheme(name: String) { context.dataStore.edit { it[THEME] = name } }
-    fun getTheme(): Flow<ThemeColors> = context.dataStore.data.map { prefs -> parseTheme(prefs[THEME] ?: "light" ) }
+    fun getTheme(): Flow<ThemeColors> = context.dataStore.data.map { prefs -> AnimaleseThemes.fromName(prefs[THEME] ?: "LIGHT" ) }
 
 
     //
