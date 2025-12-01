@@ -10,10 +10,12 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.WindowCompat
@@ -62,11 +64,15 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val pressedKey: StateFlow<Key?> = _pressedKey
     private val _showPopupMenu = MutableStateFlow<Boolean>(false)
     private val showPopupMenu: StateFlow<Boolean> = _showPopupMenu
+    //TODO make popup menu items selectable
+    private val _selectedMenuIndex = MutableStateFlow<Int>(0)
+    private val selectedMenuIndex: StateFlow<Int> = _selectedMenuIndex
+    private val _pointerPosition = MutableStateFlow<Offset>(Offset.Unspecified)
+    val pointerPosition: StateFlow<Offset> = _pointerPosition
     private val _shiftState = MutableStateFlow(ShiftState.OFF)
     val shiftState: StateFlow<ShiftState> = _shiftState
     private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
     val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
-
     var overlayView: ComposeView? = null
     lateinit var windowManager: WindowManager
 
@@ -77,22 +83,35 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 AnimaleseTypingTheme {
                     val shiftStateValue by shiftState.collectAsStateWithLifecycle()
                     val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
-                    val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
                     KeyboardView(
                         modifier = Modifier,
                         currentLayout = keyboardLayoutValue,
                         onSettings = ::handleSettings,
                         onKeyDown = ::onKeyDown,
                         onKeyUp = ::onKeyUp,
-                        shiftState = shiftStateValue,
-                        pressedKey = pressedKeyValue,
-                        imeService = this@AnimaleseIME
+                        onPointerMove = ::onPointerMove,
+                        shiftState = shiftStateValue
                     )
                 }
             }
+        }
+        window?.window?.decorView?.let { decorView ->
+            decorView.setViewTreeLifecycleOwner(this@AnimaleseIME)
+            decorView.setViewTreeViewModelStoreOwner(this@AnimaleseIME)
+            decorView.setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
+        }
+        return composeView
+    }
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+
+        window?.window?.decorView?.post {
             setOverlayContent {
                 val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
                 val showPopupMenuValue by showPopupMenu.collectAsStateWithLifecycle()
+                val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
+                val selectedMenuIndexValue by selectedMenuIndex.collectAsStateWithLifecycle()
                 //TODO:
                 // The overlay consumes user touches on some devices. setting the visibility off disables touch completely
                 // but setting the overlay visibility is relatively slow.
@@ -104,17 +123,16 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     PopoutOverlay(
                         modifier = Modifier.fillMaxSize(),
                         key = pressedKeyValue,
-                        showMenu = showPopupMenuValue
+                        showMenu = showPopupMenuValue,
+                        menuSelectedIndex = selectedMenuIndexValue,
+                        pointerPosition = pointerPositionValue,
+                        onSelectedIndexChange = { newIndex ->
+                            _selectedMenuIndex.value = newIndex
+                        }
                     )
                 }
             }
         }
-        window?.window?.decorView?.let { decorView ->
-            decorView.setViewTreeLifecycleOwner(this@AnimaleseIME)
-            decorView.setViewTreeViewModelStoreOwner(this@AnimaleseIME)
-            decorView.setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
-        }
-        return composeView
     }
 
     // region IME Overrides
@@ -199,6 +217,10 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     // endregion
 
     //region Event Handlers
+    private fun onPointerMove(position: Offset) {
+        _pointerPosition.value = position
+    }
+
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
@@ -218,29 +240,31 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         } else handleKeyEvent(key.event)
 
         showPopupJob = coroutineScope.launch { // show popup menu when holding key down
-            delay(350)
+            delay(400)
             _showPopupMenu.value = (key is Key.CharKey && key.subChars.isNotEmpty())
         }
 
         return true
     }
     private fun onKeyUp(key: Key): Boolean {
-        repeatJob?.cancel()
-        showPopupJob?.cancel()
-        _showPopupMenu.value = false
-        if (_pressedKey.value == key) _pressedKey.value = null
-
         when (key) {
             is Key.CharKey -> {
-                val charToCommit = key.finalChar
-                currentInputConnection?.commitText(charToCommit.toString(), 1)
+                val charToCommit = // if the key menu is shown get the selected character, otherwise get the key's default char. then apply casing.
+                    (if (_showPopupMenu.value) key.subChars[_selectedMenuIndex.value] else key.char)
+                    .let { if (key.isUpperCase) it.uppercase() else it.lowercase() }
 
-                AudioPlayer.playSound( AudioPlayer.keycodeToSound( key.char.lowercaseChar().code ) )
-
+                currentInputConnection?.commitText(charToCommit, 1)
+                AudioPlayer.playSound( AudioPlayer.keycodeToSound( charToCommit[0].lowercaseChar().code ) )
                 if (_shiftState.value == ShiftState.ON) _shiftState.value = ShiftState.OFF
             }
             else -> {}
         }
+
+        repeatJob?.cancel()
+        showPopupJob?.cancel()
+        _showPopupMenu.value = false
+        _pointerPosition.value = Offset.Unspecified
+        if (_pressedKey.value == key) _pressedKey.value = null
         return true
     }
     private fun handleKeyEvent(id: KeyFunctions) {

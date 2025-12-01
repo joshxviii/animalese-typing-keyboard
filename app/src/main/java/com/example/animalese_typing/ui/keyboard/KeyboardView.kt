@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
@@ -41,11 +42,10 @@ fun KeyboardView(
     currentLayout: KeyboardLayouts = KeyboardLayouts.QWERTY,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
+    onPointerMove: (Offset) -> Unit = {},
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {},
-    shiftState: ShiftState = ShiftState.OFF,
-    pressedKey: Key? = null,
-    imeService: AnimaleseIME? = null,
+    shiftState: ShiftState = ShiftState.OFF
 ) {
     val height by AnimalesePreferences(LocalContext.current).getKeyboardHeight().collectAsState(initial = 250f)
 
@@ -70,6 +70,7 @@ fun KeyboardView(
                 layout = currentLayout.layout,
                 onKeyDown = onKeyDown,
                 onKeyUp = onKeyUp,
+                onPointerMove = onPointerMove,
                 shiftState = shiftState,
                 modifier = modifier
                     .weight(1f),
@@ -83,48 +84,7 @@ fun KeyboardView(
                     )
             )
         }
-
-        //TODO: key popups only overly on top of the keyboard
-        // Need to extend bounds to cover the whole screen to overlay outside the bounds of the keyboard
-//        if (pressedKey is Key.CharKey && pressedKey.showPopup) {
-//            KeyPopout(
-//                key = pressedKey,
-//                isUppercase = shiftState != ShiftState.OFF,
-//                modifier = Modifier
-//                    .offset(y = (-42).dp)
-//                    .align(pressedKey.coordinates as Alignment)
-//                    .zIndex(1f)
-//            )
-//        }
     }
-
-    LaunchedEffect(pressedKey) {
-        if (pressedKey is Key.CharKey && pressedKey.showPopup && imeService != null) {
-//            imeService.showKeyPopup(
-//                x = pressedKey.coordinates?.positionOnScreen()?.x?.toInt() ?: 0,
-//                y = pressedKey.coordinates?.positionOnScreen()?.y?.toInt() ?: 0
-//            ) {
-//                KeyPopout(
-//                    key = pressedKey,
-//                    isUppercase = shiftState != ShiftState.OFF,
-//                    modifier = Modifier
-//                )
-//            }
-
-            // Position the popup window
-//            imeService.popupView?.let { popup ->
-//                val params = popup.layoutParams as WindowManager.LayoutParams
-//                params.x = location[0] + keyWidth / 2 - popupWidth / 2
-//                params.y = location[1] - 220 // adjust this value to move popup up/down
-//                params.width = popupWidth
-//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT
-//                imeService.windowManager.updateViewLayout(popup, params)
-//            }
-        } else {
-            //imeService?.dismissKeyPopup()
-        }
-    }
-
 }
 
 
@@ -135,6 +95,7 @@ fun KeyboardLayout(
     layout : Layout,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
+    onPointerMove: (Offset) -> Unit = {},
     shiftState: ShiftState = ShiftState.OFF,
 ) {
     Column(
@@ -169,6 +130,7 @@ fun KeyboardLayout(
                                     },
                                 onKeyDown = onKeyDown,
                                 onKeyUp = onKeyUp,
+                                onPointerMove = onPointerMove,
                                 shiftState = shiftState
                             )
                         }

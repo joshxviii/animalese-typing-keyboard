@@ -6,17 +6,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
@@ -36,9 +40,11 @@ fun KeyPopoutMenu(
     modifier: Modifier = Modifier,
     selectedIndex: Int = 0,
     size: DpSize = DpSize(40.dp, 46.dp),
+    touchOffset: IntOffset = IntOffset(1,1),
+    itemPositions: SnapshotStateMap<Int, Offset> = SnapshotStateMap(),
 ) {
     if (key == null) return
-    val shape = RoundedCornerShape(50.dp)
+    val shape = RoundedCornerShape(45.dp)
 
     if ( key !is Key.CharKey || !key.showPopup || key.subChars.isEmpty()) return
 
@@ -58,7 +64,7 @@ fun KeyPopoutMenu(
                 )
                 .clip(shape)
                 .background(Theme.colors.keyBase)
-                .padding(10.dp),
+                .padding(12.dp),
             content = {
                 chars.forEachIndexed { index, char ->
                     val isSelected = index == selectedIndex
@@ -74,7 +80,7 @@ fun KeyPopoutMenu(
                         )
                             { KeyText(
                                 modifier = Modifier,
-                                text = "$char",
+                                text = "${if (key.isUpperCase) char.uppercaseChar() else char}",
                                 color = if (isSelected) Color.White else Theme.colors.keyText,
                                 size = 32.sp
                             )
@@ -82,14 +88,16 @@ fun KeyPopoutMenu(
                     }
                 }
             }
+            // position the alternate characters in rows/columns
+            // and save relative location for drag inputs
         ) { measurables, constraints ->
+            itemPositions.clear()
+
             val itemCount = measurables.size
             val columns = minOf(maxColumns, itemCount)
             val rows = (itemCount + columns - 1) / columns
 
-            val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-
-            val placeables = measurables.map { it.measure(childConstraints) }
+            val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
 
             val itemWidth = placeables.maxOf { it.width }
             val itemHeight = placeables.maxOf { it.height }
@@ -103,6 +111,13 @@ fun KeyPopoutMenu(
                             val x = col * itemWidth
                             val y = row * itemHeight
                             placeable.placeRelative(x, y)
+
+                            val itemCenterOnScreen = Offset(
+                                x = x + (itemWidth / 2f) - touchOffset.x,
+                                y = y + (itemHeight / 2f) - touchOffset.y
+                            )
+                            itemPositions[index] = itemCenterOnScreen
+
                             index++
                         }
                     }
@@ -123,7 +138,7 @@ fun KeyPopoutMenuPreview() {
         KeyPopoutMenu(
             Key.CharKey(
                 char = 'a',
-                subChars = listOf('a', 'b', 'c', 'd', 'e', 'f')
+                subChars = listOf('a', 'b', 'c', 'd', 'e', 'f'),
             )
         )
     }

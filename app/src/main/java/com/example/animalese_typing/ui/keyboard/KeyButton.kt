@@ -2,11 +2,9 @@ package com.example.animalese_typing.ui.keyboard
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -17,14 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,10 +50,10 @@ fun KeyButton(
     modifier: Modifier,
     onKeyUp: (Key) -> Unit = {},
     onKeyDown: (Key) -> Unit = {},
+    onPointerMove: (Offset) -> Unit = {},
     shiftState: ShiftState = ShiftState.OFF,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val isPressed : MutableState<Boolean> = remember { mutableStateOf(false) }
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
@@ -64,8 +65,8 @@ fun KeyButton(
     // get the final color for key's label/base
     val shouldShowPopup = key is Key.CharKey && key.showPopup
     val (baseColor, labelColor) = when {
-        isPressed && shouldShowPopup -> Color.Transparent to label.opacity(0.1f)
-        isPressed -> base.highlight() to label.highlight()
+        isPressed.value && shouldShowPopup -> Color.Transparent to label.opacity(0.1f)
+        isPressed.value -> base.highlight() to label.highlight()
         else -> base to label
     }
 
@@ -74,13 +75,18 @@ fun KeyButton(
         modifier = modifier
             .fillMaxHeight()
             .pointerInput(key) {
-                awaitPointerEventScope {
-                    while (true) {
-                        awaitFirstDown(requireUnconsumed = false)
-                        onKeyDown(key)
-                        waitForUpOrCancellation()
-                        onKeyUp(key)
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    onKeyDown(key)
+                    isPressed.value = true
+
+                    drag(down.id) { change: PointerInputChange ->
+                        onPointerMove(change.position - Offset(key.size.width.toFloat(), -(key.size.height.toFloat()/2)))// pointer pos relative to the key
+                        change.consume()
                     }
+
+                    onKeyUp(key)
+                    isPressed.value = false
                 }
             }
 //            .background(Color.Red) // for debugging
@@ -88,11 +94,6 @@ fun KeyButton(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = {}
-                )
         ) {
             Box( // key base color
                 contentAlignment = Alignment.Center,
@@ -102,7 +103,8 @@ fun KeyButton(
                     .background(baseColor)
                     .fillMaxSize()
             ) {
-                if (key is Key.CharKey && key.subChars.isNotEmpty()) KeyText( // tiny sub char label
+                if (key is Key.CharKey && key.subChars.isNotEmpty()) KeyText(
+                    // tiny sub char label
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(5.dp, 2.dp)
@@ -110,7 +112,8 @@ fun KeyButton(
                     text = "${key.subChars[0]}",
                     color = labelColor.opacity(0.1f),
                 )
-                Box( // Text/icon size limiter
+                Box(
+                    // Text/icon size limiter
                     modifier = modifier.fillMaxSize(0.64f),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -119,7 +122,7 @@ fun KeyButton(
                             key.isUpperCase = shiftState != ShiftState.OFF
                             KeyText(
                                 modifier = Modifier.fillMaxSize(),
-                                text = "${key.finalChar}",
+                                text = "${if (key.isUpperCase) key.char.uppercase() else key.char}",
                                 color = labelColor
                             )
                         }

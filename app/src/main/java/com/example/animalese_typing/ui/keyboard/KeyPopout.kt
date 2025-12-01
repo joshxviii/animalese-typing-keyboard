@@ -63,7 +63,7 @@ fun KeyPopout(
                     .fillMaxSize()
             ) {
                 KeyText(
-                    text = "${key.finalChar}",
+                    text = "${if (key.isUpperCase) key.char.uppercase() else key.char}",
                     color = Theme.colors.keyText,
                 )
             }
