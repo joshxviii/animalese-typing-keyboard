@@ -10,11 +10,13 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -31,10 +33,8 @@ import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyPopout
-import com.example.animalese_typing.ui.keyboard.KeyPopoutMenu
 import com.example.animalese_typing.ui.keyboard.KeyboardView
-import com.example.animalese_typing.ui.keyboard.ScreenOverlay
+import com.example.animalese_typing.ui.keyboard.PopoutOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
@@ -90,18 +90,22 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     )
                 }
             }
-            setOverlayContent {// overlay view
+            setOverlayContent {
                 val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
                 val showPopupMenuValue by showPopupMenu.collectAsStateWithLifecycle()
-                // TODO overlayView should be visible when interacting with sub key menu as well as key pressing
+                //TODO:
+                // The overlay consumes user touches on some devices. setting the visibility off disables touch completely
+                // but setting the overlay visibility is relatively slow.
+                // This would not be necessary if the pass through touch was working with One UI systems
+                // have to look into this...
                 overlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
+                //overlayView?.alpha = if (pressedKeyValue != null) 1f else 0f
                 AnimaleseTypingTheme {
-                    ScreenOverlay() {
-                        if (pressedKeyValue != null) {
-                            if (showPopupMenuValue) KeyPopoutMenu(key = pressedKeyValue!!)
-                            else KeyPopout(key = pressedKeyValue!!)
-                        }
-                    }
+                    PopoutOverlay(
+                        modifier = Modifier.fillMaxSize(),
+                        key = pressedKeyValue,
+                        showMenu = showPopupMenuValue
+                    )
                 }
             }
         }
@@ -126,7 +130,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
@@ -149,12 +152,15 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
             setContent { content() }
         }
+        window.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
         val params = WindowManager.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_SPLIT_TOUCH or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
@@ -163,7 +169,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         }
 
         overlayView = composeView
-        windowManager.addView(composeView, params)
+        try {
+            windowManager.addView(composeView, params)
+        } catch (e: Exception) { e.printStackTrace() }
     }
 
     override fun onWindowShown() {
@@ -194,6 +202,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
+        _showPopupMenu.value = false
         logMessage("Key pressed: $key")
 
         // handle repeating keys in coroutine
@@ -210,7 +219,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
 
         showPopupJob = coroutineScope.launch { // show popup menu when holding key down
             delay(350)
-            _showPopupMenu.value = key is Key.CharKey && key.subChars.isNotEmpty()
+            _showPopupMenu.value = (key is Key.CharKey && key.subChars.isNotEmpty())
         }
 
         return true

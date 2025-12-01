@@ -18,15 +18,13 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
@@ -47,7 +45,7 @@ fun KeyboardView(
     onResize: () -> Unit = {},
     shiftState: ShiftState = ShiftState.OFF,
     pressedKey: Key? = null,
-    imeService: AnimaleseIME? = null
+    imeService: AnimaleseIME? = null,
 ) {
     val height by AnimalesePreferences(LocalContext.current).getKeyboardHeight().collectAsState(initial = 250f)
 
@@ -161,7 +159,13 @@ fun KeyboardLayout(
                                     .weight(key.weight)
                                     .onGloballyPositioned { c ->
                                         key.size = c.size
-                                        key.coordinates = c.positionOnScreen()
+
+                                        val position = c.positionOnScreen()
+
+                                        key.position = IntOffset(
+                                            x = position.x.toInt(),
+                                            y = position.y.toInt()
+                                        )
                                     },
                                 onKeyDown = onKeyDown,
                                 onKeyUp = onKeyUp,
