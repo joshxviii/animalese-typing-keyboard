@@ -42,7 +42,7 @@ object SpecialCharacters: Layout( listOf(
             Key.CharKey(';'),
 			Key.CharKey('!'),
 			Key.CharKey('?'),
-            Key.IconKey(R.drawable.ic_backspace,0.15f,"alt", isRepeatable = true)
+            Key.IconKey(R.drawable.ic_backspace,0.15f,"alt", isRepeatable = true, event=KeyFunctions.BACKSPACE)
         ),
         listOf(
             Key.TextKey("ABC", 0.15f,"alt", event=KeyFunctions.OPEN_KEYPAD),
