@@ -2,6 +2,7 @@ package com.example.animalese_typing.ui.keyboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +41,12 @@ fun TopBar(
             )
         }
         else {
+            Spacer(modifier = Modifier.size(24.dp))
+            TopBarButton(
+                icon = R.drawable.male_full,
+                onClick = {/* EMOJI WINDOW */},
+                modifier = Modifier.weight(1f)
+            )
             TopBarButton(
                 icon = R.drawable.ic_settings,
                 onClick = onSettings,
@@ -60,9 +67,7 @@ fun TopBar(
         // edit menu button
         IconButton(
             onClick = { /*TODO*/ },
-            modifier = Modifier.size(
-                24.dp
-            )
+            modifier = Modifier.size(24.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_elipsis),

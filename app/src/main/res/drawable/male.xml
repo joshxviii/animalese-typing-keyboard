@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="32dp" android:viewportHeight="64" android:viewportWidth="64" android:width="32dp">
+      
+    <path android:fillColor="#00000000" android:pathData="m31.717,13.388c-9.585,0.001 -17.355,7.772 -17.355,17.357 0.015,0.632 0.064,1.262 0.148,1.888 -1.128,-0.289 -2.304,-0.21 -3.201,0.315 -1.907,1.116 -2.779,3.326 -1.408,6.291 0.882,1.802 2.788,2.435 4.738,2.795 0.557,2.984 3.708,5.641 8.475,7.149 5.326,1.672 11.888,1.672 17.214,0 4.767,-1.507 7.919,-4.165 8.477,-7.149 1.949,-0.36 3.855,-0.993 4.738,-2.795 1.369,-2.966 0.498,-5.176 -1.408,-6.291 -0.898,-0.526 -2.076,-0.604 -3.205,-0.315 0.084,-0.626 0.133,-1.257 0.148,-1.888 0,-9.586 -7.771,-17.357 -17.357,-17.357z" android:strokeColor="#4b4b4b" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2.00007"/>
+      
+    <path android:fillColor="#4b4b4b" android:pathData="m27.245,34.12c0,1.393 -1.16,2.522 -2.593,2.522 -1.432,0 -2.593,-1.129 -2.593,-2.522 0,-1.392 1.161,-2.522 2.593,-2.522 1.433,0 2.595,1.13 2.595,2.522zM36.204,34.12c0,1.393 1.161,2.522 2.593,2.522 1.433,0 2.593,-1.129 2.593,-2.522 0,-1.392 -1.161,-2.522 -2.593,-2.522 -1.432,0 -2.593,1.13 -2.593,2.522z" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="1.11116"/>
+      
+    <path android:fillColor="#00000000" android:pathData="m36.008,40.597a4.435,4.147 0,0 1,-4.285 3.073,4.435 4.147,0 0,1 -4.283,-3.073" android:strokeColor="#4b4b4b" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2.00007"/>
+      
+    <path android:fillColor="#4b4b4b" android:pathData="m31.717,13.388c-19.312,0 -18.28,19.206 -18.28,19.206l3.075,1.085c0.646,-8.127 3.804,-10.113 3.804,-10.113l3.366,2.867 3.674,-3.383 4.362,3.663 4.364,-3.663 3.674,3.383 3.366,-2.867c0,0 3.158,1.986 3.804,10.113l3.075,-1.085c0,0 1.026,-19.206 -18.286,-19.206z" android:strokeColor="#4b4b4b" android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="1.21577"/>
+    
+</vector>
