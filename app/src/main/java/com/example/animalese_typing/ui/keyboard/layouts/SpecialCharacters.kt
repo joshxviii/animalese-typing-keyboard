@@ -10,7 +10,7 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 object SpecialCharacters: Layout( listOf(
         listOf(
-            Key.CharKey('1'),
+            Key.CharKey('1', subChars = listOf('½', '⅓', '¼', '⅕', '⅙', '⅐', '⅛', '⅑', '⅒') ),
 			Key.CharKey('2'),
 			Key.CharKey('3'),
 			Key.CharKey('4'),
@@ -24,7 +24,7 @@ object SpecialCharacters: Layout( listOf(
         listOf(
              Key.CharKey('@'),
 			Key.CharKey('#'),
-			Key.CharKey('$'),
+			Key.CharKey('$', subChars = listOf('¢', '$', '£', '¥')),
 			Key.CharKey('_'),
             Key.CharKey('&'),
 			Key.CharKey('-'),
@@ -40,8 +40,8 @@ object SpecialCharacters: Layout( listOf(
 			Key.CharKey('\''),
 			Key.CharKey(':'),
             Key.CharKey(';'),
-			Key.CharKey('!'),
-			Key.CharKey('?'),
+			Key.CharKey('!', subChars = listOf('¡')),
+			Key.CharKey('?', subChars = listOf('¿')),
             Key.IconKey(R.drawable.ic_backspace,0.15f,"alt", isRepeatable = true, event=KeyFunctions.BACKSPACE)
         ),
         listOf(

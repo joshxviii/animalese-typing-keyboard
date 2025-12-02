@@ -50,12 +50,11 @@ sealed class Key(
         type : String = "",
         isRepeatable: Boolean = false,
         val showPopup: Boolean = true,
+        val altKeyHint: Boolean = false,
         val subChars: List<Char> = emptyList(),
         event : KeyFunctions = KeyFunctions.CHARACTER,
     ) : Key(weight, type, isRepeatable, event) {
         var isUpperCase: Boolean = false
-        val finalChar: Char
-            get() = if (isUpperCase) char.uppercaseChar() else char.lowercaseChar()
     }
     class IconKey(
         val iconId: Int,

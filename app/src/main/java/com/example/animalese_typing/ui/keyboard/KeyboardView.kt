@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
-import com.example.animalese_typing.ShiftState
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.keyboard.layouts.Layout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
@@ -45,7 +43,9 @@ fun KeyboardView(
     onPointerMove: (Offset) -> Unit = {},
     onSettings: () -> Unit = {},
     onResize: () -> Unit = {},
-    shiftState: ShiftState = ShiftState.OFF
+    onSuggestionClick: (String) -> Unit = {},
+    shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
+    showSuggestions: Boolean = false
 ) {
     val height by AnimalesePreferences(LocalContext.current).getKeyboardHeight().collectAsState(initial = 250f)
 
@@ -62,7 +62,9 @@ fun KeyboardView(
             // Top Bar
             TopBar(
                 onSettings = onSettings,
-                onResize = onResize
+                onResize = onResize,
+                onSuggestionClick = onSuggestionClick,
+                showSuggestions = showSuggestions
             )
 
             // Keyboard
@@ -96,7 +98,7 @@ fun KeyboardLayout(
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
-    shiftState: ShiftState = ShiftState.OFF,
+    shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
     Column(
         modifier = modifier

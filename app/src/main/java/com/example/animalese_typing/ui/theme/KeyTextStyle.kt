@@ -1,17 +1,17 @@
 package com.example.animalese_typing.ui.theme
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.R
@@ -19,9 +19,9 @@ import com.example.animalese_typing.ui.keyboard.OnColor
 
 @Composable
 fun KeyText(
-    modifier: Modifier = Modifier,
     text: String,
-    color: Color,
+    modifier: Modifier = Modifier,
+    color: Color = Theme.colors.keyText,
     size: TextUnit? = null
 ) {
     val defaultTextStyle = TextStyle(
@@ -30,12 +30,7 @@ fun KeyText(
             Font(R.font.arial_rounded_bold, FontWeight.Bold)
         ),
 
-        letterSpacing = 0.5.sp,
-        shadow = Shadow(
-            color = color.copy(alpha = 0.5f),
-            offset = Offset(1.0f, 1.0f),
-            blurRadius = 1.5f
-        )
+        letterSpacing = 0.0.sp,
     )
     val defaultAutoSize = TextAutoSize.StepBased(
         minFontSize = size ?: 8.sp,
@@ -51,4 +46,19 @@ fun KeyText(
         softWrap = false,
         color = OnColor(color)
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun KeyTextStylePreview() {
+    AnimaleseTypingTheme(
+        theme = AnimaleseThemes.Light
+    ) {
+        Column() {
+            KeyText(
+                text = "Text",
+                size = 30.sp
+            )
+        }
+    }
 }

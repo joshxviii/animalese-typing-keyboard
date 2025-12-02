@@ -40,7 +40,7 @@ fun ThemePreview() {
         ) {
             AnimaleseTypingTheme(
                 theme = AnimaleseThemes.Cream
-            ) { KeyboardView(currentLayout = KeyboardLayouts.NUMPAD) }
+            ) { KeyboardView(currentLayout = KeyboardLayouts.SPECIAL) }
 
             AnimaleseTypingTheme(
                 theme = AnimaleseThemes.Chocolate

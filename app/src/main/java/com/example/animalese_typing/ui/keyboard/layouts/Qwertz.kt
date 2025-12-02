@@ -10,20 +10,20 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 object Qwertz: Layout(listOf(
         listOf(
-            Key.CharKey('q', subChars = listOf('1')),
-			Key.CharKey('w', subChars = listOf('2')),
-			Key.CharKey('e', subChars = listOf('3')),
-            Key.CharKey('r', subChars = listOf('4')),
-			Key.CharKey('t', subChars = listOf('5')),
-			Key.CharKey('z', subChars = listOf('6')),
-            Key.CharKey('u', subChars = listOf('7')),
-			Key.CharKey('i', subChars = listOf('8')),
-			Key.CharKey('o', subChars = listOf('9')),
-            Key.CharKey('p', subChars = listOf('0'))
+            Key.CharKey('q', altKeyHint = true, subChars = listOf('1')),
+			Key.CharKey('w', altKeyHint = true, subChars = listOf('2')),
+            Key.CharKey('e', altKeyHint = true, subChars = listOf('3', 'é', 'è', 'ê')),
+            Key.CharKey('r', altKeyHint = true, subChars = listOf('4')),
+			Key.CharKey('t', altKeyHint = true, subChars = listOf('5')),
+			Key.CharKey('z', altKeyHint = true, subChars = listOf('6')),
+            Key.CharKey('u', altKeyHint = true, subChars = listOf('7', 'ù', 'ú')),
+            Key.CharKey('i', altKeyHint = true, subChars = listOf('8', 'ì', 'í')),
+            Key.CharKey('o', altKeyHint = true, subChars = listOf('9', 'ò', 'ó')),
+            Key.CharKey('p', altKeyHint = true, subChars = listOf('0'))
         ),
         listOf(
             Key.Empty(),
-			Key.CharKey('a'),
+            Key.CharKey('a', subChars = listOf('á', 'à', 'â', 'ã', 'ä', 'æ')),
 			Key.CharKey('s'),
 			Key.CharKey('d'),
             Key.CharKey('f'),
@@ -41,7 +41,7 @@ object Qwertz: Layout(listOf(
 			Key.CharKey('c'),
             Key.CharKey('v'),
 			Key.CharKey('b'),
-			Key.CharKey('n'),
+            Key.CharKey('n', subChars = listOf('ñ')),
             Key.CharKey('m'),
             Key.IconKey(R.drawable.ic_backspace,0.16f,"alt",isRepeatable = true,event=KeyFunctions.BACKSPACE)
         ),

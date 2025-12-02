@@ -22,22 +22,20 @@ object AnimaleseThemes {
         background = Color(0xFFF1F0F7),
         keyBase = Color(0xFFFFFFFF),
         keyBaseAlt = Color(0xFFCFE1FF),
-        keyText = Color(0xFF484F50),
-        keyTextAlt = Color(0xFF1A1B20),
+        keyText = Color(0xFF566062),
+        keyTextAlt = Color(0xFF27282F),
         keyIcon = Color(0xFF1A1B20),
         highlight = Color(0xFF2ED3CE)
     )
-
     val Dark: ThemeColors = ThemeColors(
         background = Color(0xFF1A1B20),
         keyBase = Color(0xFF2F3036),
         keyBaseAlt = Color(0xFF45464C),
-        keyText = Color(0xFFF1F0F7),
+        keyText = Color(0xFFD2D1D9),
         keyTextAlt = Color(0xFFF1F0F7),
         keyIcon = Color(0xFFF1F0F7),
         highlight = Color(0xFF00D0CB)
     )
-
     val Cream: ThemeColors = ThemeColors(
         background = Color(0xFFFFFAE4),
         keyBase = Color(0xFFECE0D0),
@@ -47,7 +45,6 @@ object AnimaleseThemes {
         keyIcon = Color(0xFFD9BD96),
         highlight = Color(0xFF2ED3CE)
     )
-
     val Chocolate: ThemeColors = ThemeColors(
         background = Color(0xFF2B2218),
         keyBase = Color(0xFF3A3429),
