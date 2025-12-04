@@ -24,7 +24,7 @@ object SpecialCharacters: Layout( listOf(
         listOf(
              Key.CharKey('@'),
 			Key.CharKey('#'),
-			Key.CharKey('$', subChars = listOf('¢', '$', '£', '¥')),
+			Key.CharKey('$', subChars = listOf('¢', '₹', '£', '¥', '€', '₱')),
 			Key.CharKey('_'),
             Key.CharKey('&'),
 			Key.CharKey('-'),

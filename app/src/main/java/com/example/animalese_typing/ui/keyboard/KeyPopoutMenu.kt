@@ -9,8 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -26,7 +26,6 @@ import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
@@ -34,6 +33,7 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.opacity
+import kotlin.math.ceil
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -45,7 +45,7 @@ import kotlin.math.sqrt
 fun KeyPopoutMenu(
     key: Key?,
     modifier: Modifier = Modifier,
-    size: DpSize = DpSize(40.dp, 46.dp),
+    itemSize: DpSize = DpSize(42.dp, 42.dp),
     pointerPosition: Offset = Offset.Unspecified,
     onSelectedIndexChange: (Int) -> Unit = {},
 ) {
@@ -54,11 +54,8 @@ fun KeyPopoutMenu(
 
     if ( key !is Key.CharKey || !key.showPopup || key.subChars.isEmpty()) return
 
-    val maxColumns = 4
-    val chars = key.subChars
-
     val itemPositions = remember { mutableStateMapOf<Int, Offset>() }
-    var closestIndex by remember { mutableStateOf(0) }
+    var closestIndex by remember { mutableIntStateOf(-1) }
 
     LaunchedEffect(pointerPosition) {
         // if finger is lifted or menu isn't ready, select the first item by default
@@ -97,18 +94,18 @@ fun KeyPopoutMenu(
                 .background(Theme.colors.keyBase)
                 .padding(12.dp),
             content = {
-                chars.forEachIndexed { index, char ->
+                key.subChars.forEachIndexed { index, char ->
                     val isSelected = index == closestIndex
                     Box(
                         modifier = Modifier
-                            .size(size)
+                            .size(itemSize)
                             .clip(shape)
-                            .background(if (isSelected) Theme.colors.highlight else Color.Transparent)
+                            .background(if (isSelected) Theme.colors.keyBaseHighlight else Color.Transparent)
                             .onGloballyPositioned { c->
                                 val screenPos = c.positionOnScreen()
                                 itemPositions[index] = Offset (
                                     screenPos.x + (c.size.width / 2f),
-                                    screenPos.y + (c.size.height / 2f)
+                                    screenPos.y + (c.size.height)
                                 )
                             }
                     ) {
@@ -119,39 +116,47 @@ fun KeyPopoutMenu(
                             { KeyText(
                                 modifier = Modifier,
                                 text = "${if (key.isUpperCase) char.uppercaseChar() else char}",
-                                color = if (isSelected) Color.White else Theme.colors.keyText,
-                                size = 32.sp
+                                color = if (isSelected) Color.White else Theme.colors.keyLabel,
+                                size = 28.sp
                             )
                         }
                     }
                 }
             }
             // position the characters in rows/columns
-            // and save relative location for drag inputs
+            //TODO: still needs some adjustments.
+            // The first character in the list should be the closest to the touch point
         ) { measurables, constraints ->
             itemPositions.clear()
 
+            val maxColumns = 5
+            val horizontalGap = 6.dp.toPx()
+            val verticalGap = 6.dp.toPx()
+
             val itemCount = measurables.size
-            val columns = minOf(maxColumns, itemCount)
-            val rows = (itemCount + columns - 1) / columns
 
             val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-
             val itemWidth = placeables.maxOfOrNull { it.width } ?: 0
             val itemHeight = placeables.maxOfOrNull { it.height } ?: 0
-            val menuSize = IntSize(itemWidth * columns, itemHeight * rows)
 
-            layout(menuSize.width, menuSize.height) {
-                var index = 0
+            val columns = if (itemCount > maxColumns) ceil(itemCount / 2.0).toInt() else itemCount
+            val rows = if (itemCount > maxColumns) 2 else 1
+
+            val menuWidth = (itemWidth * columns + horizontalGap * (columns - 1)).toInt()
+            val menuHeight = (itemHeight * rows + verticalGap * (rows - 1)).toInt()
+            layout(menuWidth, menuHeight) {
+                var currentItem = 0
                 for (row in (rows - 1) downTo 0) {
-                    for (col in 0 until columns) {
-                        if (index < itemCount) {
-                            val placeable = placeables[index]
-                            val x = col * itemWidth
-                            val y = row * itemHeight
-                            placeable.placeRelative(x, y)
+                    val columnsInRow =
+                        if (rows==1) columns
+                        else ceil(itemCount / 2.0).toInt()
 
-                            index++
+                    for (col in 0 until columnsInRow) {
+                        if (currentItem < itemCount) {
+                            val x = col * (itemWidth + horizontalGap)
+                            val y = row * (itemHeight + verticalGap)
+                            placeables[currentItem].placeRelative(x.toInt(), y.toInt())
+                            currentItem++
                         }
                     }
                 }
@@ -171,7 +176,7 @@ fun KeyPopoutMenuPreview() {
         KeyPopoutMenu(
             Key.CharKey(
                 char = 'a',
-                subChars = listOf('a', 'b', 'c', 'd', 'e', 'f'),
+                subChars = listOf('1','2','3','A','B'),
             )
         )
     }
