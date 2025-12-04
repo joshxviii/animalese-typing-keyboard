@@ -29,7 +29,7 @@ class AnimalesePreferences (val context: Context) {
 
 
     // TODO serialize themes as json for custom theme support
-    suspend fun saveTheme(name: String) { context.dataStore.edit { it[THEME] = name } }
+    suspend fun saveTheme(name: String) { context.dataStore.edit { it[THEME] = name.lowercase() } }
     fun getTheme(): Flow<ThemeColors> = context.dataStore.data.map { prefs -> AnimaleseThemes.fromName(prefs[THEME] ?: "LIGHT" ) }
 
 

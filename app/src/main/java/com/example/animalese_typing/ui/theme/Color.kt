@@ -10,49 +10,71 @@ import androidx.core.graphics.ColorUtils
  */
 data class ThemeColors(
     val background: Color,
-    val keyBase: Color,
+    val defaultText: Color,
+    val keyBase: Color, //
     val keyBaseAlt: Color,
-    val keyText: Color,
-    val keyTextAlt: Color,
-    val keyIcon: Color,
-    val highlight: Color,
+    val keyBaseHighlight: Color,
+    val keyLabel: Color,
+    val keyLabelAlt: Color,
+    val keyLabelHighlight: Color,
+    val iconButton: Color,
 )
 object AnimaleseThemes {
     val Light: ThemeColors = ThemeColors(
         background = Color(0xFFF1F0F7),
+        defaultText = Color(0xFF27282F),
         keyBase = Color(0xFFFFFFFF),
         keyBaseAlt = Color(0xFFCFE1FF),
-        keyText = Color(0xFF566062),
-        keyTextAlt = Color(0xFF27282F),
-        keyIcon = Color(0xFF1A1B20),
-        highlight = Color(0xFF2ED3CE)
+        keyBaseHighlight = Color(0xFF2ED3CE),
+        keyLabel = Color(0xFF566062),
+        keyLabelAlt = Color(0xFF27282F),
+        keyLabelHighlight = Color(0xFFFFFFFF),
+        iconButton = Color(0xFF566062),
     )
     val Dark: ThemeColors = ThemeColors(
         background = Color(0xFF1A1B20),
+        defaultText = Color(0xFFF1F0F7),
         keyBase = Color(0xFF2F3036),
         keyBaseAlt = Color(0xFF45464C),
-        keyText = Color(0xFFD2D1D9),
-        keyTextAlt = Color(0xFFF1F0F7),
-        keyIcon = Color(0xFFF1F0F7),
-        highlight = Color(0xFF00D0CB)
+        keyBaseHighlight = Color(0xFF4DDA01),
+        keyLabel = Color(0xFFD2D1D9),
+        keyLabelAlt = Color(0xFFF1F0F7),
+        keyLabelHighlight = Color(0xFFFFFFFF),
+        iconButton = Color(0xFFD2D1D9),
     )
     val Cream: ThemeColors = ThemeColors(
+        defaultText = Color(0xFFB9935E),
         background = Color(0xFFFFFAE4),
         keyBase = Color(0xFFECE0D0),
         keyBaseAlt = Color(0xFFDECBB2),
-        keyText = Color(0xFFB49162),
-        keyTextAlt = Color(0xFFB9935E),
-        keyIcon = Color(0xFFD9BD96),
-        highlight = Color(0xFF2ED3CE)
+        keyBaseHighlight = Color(0xFF2ED3CE),
+        keyLabel = Color(0xFFB49162),
+        keyLabelAlt = Color(0xFFB9935E),
+        keyLabelHighlight = Color(0xFFFFFFFF),
+        iconButton = Color(0xFFD9BD96),
     )
     val Chocolate: ThemeColors = ThemeColors(
         background = Color(0xFF2B2218),
+        defaultText = Color(0xFFF0D4A8),
         keyBase = Color(0xFF3A3429),
         keyBaseAlt = Color(0xFF4A3F30),
-        keyText = Color(0xFFE8D5B5),
-        keyTextAlt = Color(0xFFF0D4A8),
-        keyIcon = Color(0xFFF0D9B0),
-        highlight = Color(0xFF00D0CB)
+        keyBaseHighlight = Color(0xFF00D0CB),
+        keyLabel = Color(0xFFE8D5B5),
+        keyLabelAlt = Color(0xFFF0D4A8),
+        keyLabelHighlight = Color(0xFFFFFFFF),
+        iconButton = Color(0xFFF0D9B0),
+    )
+
+    val Cherry: ThemeColors = ThemeColors(
+        background = Color(0xFFFFDFF2),
+        defaultText = Color(0xFFF888C1),
+        keyBase = Color(0xFFFDF2F8),
+        keyBaseAlt = Color(0xFFFFF5FA),
+        keyBaseHighlight = Color(0xFF2ED3CE),
+        keyLabel = Color(0xFFFDB4D4),
+        keyLabelAlt = Color(0xFFF888C1),
+        keyLabelHighlight = Color(0xFFFFFFFF),
+        iconButton = Color(0xFFFDB4D4),
     )
 
     /**
@@ -61,14 +83,15 @@ object AnimaleseThemes {
      * @param name The case-insensitive name of the theme.
      */
     fun fromName(name: String): ThemeColors {
-        return themes[name.uppercase()] ?: Light
+        return themes[name.lowercase()] ?: Light
     }
 
     val themes = mapOf(
-        "LIGHT" to Light,
-        "DARK" to Dark,
-        "CREAM" to Cream,
-        "CHOCOLATE" to Chocolate
+        "light" to Light,
+        "dark" to Dark,
+        "cream" to Cream,
+        "chocolate" to Chocolate,
+        "cherry" to Cherry,
     )
 }
 

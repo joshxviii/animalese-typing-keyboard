@@ -26,7 +26,7 @@ fun ThemePreview() {
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             AnimaleseTypingTheme(
-                theme = AnimaleseThemes.Light
+                theme = AnimaleseThemes.Cherry
             ) { KeyboardView() }
 
             AnimaleseTypingTheme(
@@ -39,7 +39,7 @@ fun ThemePreview() {
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             AnimaleseTypingTheme(
-                theme = AnimaleseThemes.Cream
+                theme = AnimaleseThemes.Light
             ) { KeyboardView(currentLayout = KeyboardLayouts.SPECIAL) }
 
             AnimaleseTypingTheme(

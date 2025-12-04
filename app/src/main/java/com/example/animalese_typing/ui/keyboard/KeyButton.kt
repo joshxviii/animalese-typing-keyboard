@@ -65,9 +65,9 @@ fun KeyButton(
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
-        "alt" -> Theme.colors.keyBaseAlt to Theme.colors.keyTextAlt
-        "highlight" -> Theme.colors.highlight to Color.White
-        else -> Theme.colors.keyBase to Theme.colors.keyText
+        "alt" -> Theme.colors.keyBaseAlt to Theme.colors.keyLabelAlt
+        "highlight" -> Theme.colors.keyBaseHighlight to Theme.colors.keyLabelHighlight
+        else -> Theme.colors.keyBase to Theme.colors.keyLabel
     }
 
     // get the final color for key's label/base
@@ -98,7 +98,7 @@ fun KeyButton(
                     onKeyDown(key)
                     isPressed.value = true
 
-                    //onPointerMove(positionOnScreen + down.position)
+                    onPointerMove(positionOnScreen + down.position)
                     drag(down.id) { change: PointerInputChange ->
                         onPointerMove(positionOnScreen + change.position)
                         change.consume()

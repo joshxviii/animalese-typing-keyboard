@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.ui.theme.capitalizeAll
 import kotlinx.coroutines.launch
 
 @Composable
@@ -34,9 +35,9 @@ fun ThemesSettingsScreen(
         SettingsCategory("Themes")
         AnimaleseThemes.themes.keys.forEach { themeName ->
             RadioButtonItem(
-                title = themeName,
+                title = themeName.capitalizeAll(),
                 selected = currentTheme == AnimaleseThemes.fromName(themeName),
-                onClick = { scope.launch { preferences.saveTheme(themeName.uppercase()) } },
+                onClick = { scope.launch { preferences.saveTheme(themeName) } },
                 enabled = !useSystemDefault
             )
         }

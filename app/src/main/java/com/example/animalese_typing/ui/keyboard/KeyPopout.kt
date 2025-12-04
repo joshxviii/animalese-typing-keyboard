@@ -64,7 +64,7 @@ fun KeyPopout(
             ) {
                 KeyText(
                     text = "${if (key.isUpperCase) key.char.uppercase() else key.char}",
-                    color = Theme.colors.keyText,
+                    color = Theme.colors.keyLabel,
                 )
             }
             if (key.subChars.isNotEmpty()) Icon(
@@ -73,7 +73,7 @@ fun KeyPopout(
                     .align(Alignment.BottomCenter),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_elipsis),
                 contentDescription = "",
-                tint = Theme.colors.keyText
+                tint = Theme.colors.keyLabel
             )
         }
     }

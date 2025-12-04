@@ -125,7 +125,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         } else handleKeyEvent(key.event)
 
         showPopupJob = coroutineScope.launch { // show popup menu when holding key down
-            delay(400)
+            delay(320)
             _showPopupMenu.value = (key is Key.CharKey && key.subChars.isNotEmpty())
         }
 

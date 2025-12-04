@@ -47,7 +47,7 @@ fun TextSuggestBar(
             if (i!=0) TextSeparator()
             Text(
                 text = suggestion,
-                color = Theme.colors.keyText,
+                color = Theme.colors.keyLabel,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
@@ -60,7 +60,7 @@ fun TextSuggestBar(
 @Composable
 fun TextSeparator(
     height: Int = 20,
-    color: Color = Theme.colors.keyText.opacity(0.2f)
+    color: Color = Theme.colors.keyLabel.opacity(0.2f)
 ) {
     Canvas(modifier = Modifier
         .height(height.dp)

@@ -21,7 +21,7 @@ import com.example.animalese_typing.ui.keyboard.OnColor
 fun KeyText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Theme.colors.keyText,
+    color: Color = Theme.colors.keyLabel,
     size: TextUnit? = null
 ) {
     val defaultTextStyle = TextStyle(

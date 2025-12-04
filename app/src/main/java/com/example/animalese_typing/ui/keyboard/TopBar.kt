@@ -82,7 +82,7 @@ fun TopBar(
 fun TopBarButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    color: Color = Theme.colors.keyText,
+    color: Color = Theme.colors.iconButton,
     icon: Int
 ) {
     IconButton(

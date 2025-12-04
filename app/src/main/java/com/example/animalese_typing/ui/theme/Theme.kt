@@ -30,10 +30,10 @@ fun AnimaleseTypingTheme(
             colorScheme = androidx.compose.material3.darkColorScheme()
                 .copy(
                     background = currentTheme.background,
-                    onBackground = currentTheme.keyText,
+                    onBackground = currentTheme.defaultText,
                     surface = currentTheme.keyBase,
-                    onSurface = currentTheme.keyText,
-                    primary = currentTheme.highlight,
+                    onSurface = currentTheme.defaultText,
+                    primary = currentTheme.keyBaseHighlight,
                     onPrimary = currentTheme.keyBase
                 ),
             content = content
