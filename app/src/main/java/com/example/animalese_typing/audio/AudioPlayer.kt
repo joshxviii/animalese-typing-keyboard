@@ -5,13 +5,15 @@ import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION
 import android.media.AudioAttributes.USAGE_GAME
 import android.media.SoundPool
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
+import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.StringWriter
-import kotlin.collections.iterator
 
 /**
  * Dedicated Audio Player for sounds.
@@ -19,6 +21,7 @@ import kotlin.collections.iterator
 object AudioPlayer {
     private var applicationContext: Context? = null
     private var keycodeMap: Map<Int, String>? = null
+    private var playSoundsEnabled = true
 
     // SoundPool
     private var soundPool: SoundPool? = null
@@ -27,6 +30,10 @@ object AudioPlayer {
 
     fun initialize(context: Context, initialVoiceProfilePrefix: String = "f1") {
         applicationContext = context.applicationContext
+
+        CoroutineScope(Dispatchers.IO).launch {
+            AnimalesePreferences(context).getPlaySounds().collect { playSoundsEnabled = it }
+        }
 
         initializeSoundPool()
         loadKeycodeMap()
@@ -108,6 +115,7 @@ object AudioPlayer {
     }
 
     fun playSound(audioFile: String?) {
+        if (!playSoundsEnabled) return
         //logMessage("Playing $audioFile $soundPool")
         if (audioFile == null || soundPool == null) playSound(keycodeToSound(0))
         val soundId = soundIdMap[audioFile]

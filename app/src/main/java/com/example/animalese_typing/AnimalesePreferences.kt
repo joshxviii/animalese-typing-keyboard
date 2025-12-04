@@ -37,6 +37,13 @@ class AnimalesePreferences (val context: Context) {
     suspend fun saveSystemDefaultTheme(isSystemDefault: Boolean) { context.dataStore.edit { it[SYSTEM_DEFAULT_THEME] = isSystemDefault } }
     fun getSystemDefaultTheme(): Flow<Boolean> = context.dataStore.data.map { it[SYSTEM_DEFAULT_THEME] ?: true }
 
+    //
+    suspend fun savePlaySounds(playSounds: Boolean) { context.dataStore.edit { it[PLAY_SOUNDS] = playSounds } }
+    fun getPlaySounds(): Flow<Boolean> = context.dataStore.data.map { it[PLAY_SOUNDS] ?: true }
+
+    //
+    suspend fun saveVibrate(vibrate: Boolean) { context.dataStore.edit { it[VIBRATE] = vibrate } }
+    fun getVibrate(): Flow<Boolean> = context.dataStore.data.map { it[VIBRATE] ?: true }
 
     //
     suspend fun saveVibrationIntensity(intensity: Float) {context.dataStore.edit { it[VIBRATION_INTENSITY] = intensity } }

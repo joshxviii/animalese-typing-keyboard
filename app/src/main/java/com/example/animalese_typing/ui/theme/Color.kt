@@ -36,7 +36,7 @@ object AnimaleseThemes {
         defaultText = Color(0xFFF1F0F7),
         keyBase = Color(0xFF2F3036),
         keyBaseAlt = Color(0xFF45464C),
-        keyBaseHighlight = Color(0xFF4DDA01),
+        keyBaseHighlight = Color(0xFF00D0CB),
         keyLabel = Color(0xFFD2D1D9),
         keyLabelAlt = Color(0xFFF1F0F7),
         keyLabelHighlight = Color(0xFFFFFFFF),

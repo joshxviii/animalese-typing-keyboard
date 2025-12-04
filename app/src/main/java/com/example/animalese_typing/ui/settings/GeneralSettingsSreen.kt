@@ -17,16 +17,22 @@ fun GeneralSettingsScreen(
 ) {
     val scope = rememberCoroutineScope()
     val currentVibrationIntensity by preferences.getVibrationIntensity().collectAsState(initial = 0.3f)
+    val playSounds by preferences.getPlaySounds().collectAsState(initial = true)
+    val vibrate by preferences.getVibrate().collectAsState(initial = true)
 
     SettingsList {
         SettingsCategory("General")
         SettingsItem(
             title = "Play Sounds",
-            control = { Switch(checked = true, onCheckedChange = {}) }
+            control = { Switch(checked = playSounds, onCheckedChange = {
+                scope.launch { preferences.savePlaySounds(it) }
+            }) }
         )
         SettingsItem(
             title = "Vibrate",
-            control = { Switch(checked = false, onCheckedChange = {}) }
+            control = { Switch(checked = vibrate, onCheckedChange = {
+                scope.launch { preferences.saveVibrate(it) }
+            }) }
         )
         SliderItem(
             title = "Vibration Intensity",
