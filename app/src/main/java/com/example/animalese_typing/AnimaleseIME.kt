@@ -94,7 +94,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 modifier = Modifier.fillMaxSize(),
                 key = pressedKeyValue,
                 showMenu = showPopupMenuValue,
-                menuSelectedIndex = selectedMenuIndexValue,
                 pointerPosition = pointerPositionValue,
                 onSelectedIndexChange = { newIndex ->
                     _selectedMenuIndex.value = newIndex

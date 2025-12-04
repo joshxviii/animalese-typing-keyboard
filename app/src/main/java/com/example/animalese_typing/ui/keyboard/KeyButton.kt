@@ -17,8 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +30,11 @@ import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.AnimaleseIME
@@ -56,6 +61,7 @@ fun KeyButton(
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
     val isPressed : MutableState<Boolean> = remember { mutableStateOf(false) }
+    var positionOnScreen by remember { mutableStateOf(Offset.Zero) }
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
@@ -76,19 +82,31 @@ fun KeyButton(
     BoxWithConstraints(// Key interaction size
         modifier = modifier
             .fillMaxHeight()
+            .onGloballyPositioned { c ->
+                key.size = c.size
+
+                positionOnScreen = c.positionOnScreen()
+
+                key.position = IntOffset(
+                    x = positionOnScreen.x.toInt(),
+                    y = positionOnScreen.y.toInt()
+                )
+            }
             .pointerInput(key) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     onKeyDown(key)
                     isPressed.value = true
 
+                    //onPointerMove(positionOnScreen + down.position)
                     drag(down.id) { change: PointerInputChange ->
-                        onPointerMove(change.position - Offset(key.size.width.toFloat(), -(key.size.height.toFloat()/2)))// pointer pos relative to the key
+                        onPointerMove(positionOnScreen + change.position)
                         change.consume()
                     }
 
                     onKeyUp(key)
                     isPressed.value = false
+                    onPointerMove(Offset.Unspecified)
                 }
             }
 //            .background(Color.Red) // for debugging

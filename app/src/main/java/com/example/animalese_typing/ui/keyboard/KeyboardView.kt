@@ -17,11 +17,8 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
@@ -119,17 +116,7 @@ fun KeyboardLayout(
                             KeyButton(
                                 key = key,
                                 modifier = Modifier
-                                    .weight(key.weight)
-                                    .onGloballyPositioned { c ->
-                                        key.size = c.size
-
-                                        val position = c.positionOnScreen()
-
-                                        key.position = IntOffset(
-                                            x = position.x.toInt(),
-                                            y = position.y.toInt()
-                                        )
-                                    },
+                                    .weight(key.weight),
                                 onKeyDown = onKeyDown,
                                 onKeyUp = onKeyUp,
                                 onPointerMove = onPointerMove,

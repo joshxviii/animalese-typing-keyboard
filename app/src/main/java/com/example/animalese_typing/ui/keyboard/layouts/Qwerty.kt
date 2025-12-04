@@ -18,7 +18,7 @@ object Qwerty: Layout(listOf(
             Key.CharKey('y', altKeyHint = true, subChars = listOf('6')),
             Key.CharKey('u', altKeyHint = true, subChars = listOf('7', 'ù', 'ú')),
             Key.CharKey('i', altKeyHint = true, subChars = listOf('8', 'ì', 'í')),
-            Key.CharKey('o', altKeyHint = true, subChars = listOf('9', 'ò', 'ó')),
+            Key.CharKey('o', altKeyHint = true, subChars = listOf('9', 'ò', 'ó', 'ô', 'õ')),
             Key.CharKey('p', altKeyHint = true, subChars = listOf('0'))
         ),
         listOf(
