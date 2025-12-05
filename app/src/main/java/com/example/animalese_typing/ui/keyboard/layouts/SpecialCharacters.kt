@@ -8,7 +8,7 @@ import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object SpecialCharacters: Layout( listOf(
+object SpecialCharacters: KeyboardLayout( listOf(
         listOf(
             Key.CharKey('1', subChars = listOf('½', '⅓', '¼', '⅕', '⅙', '⅐', '⅛', '⅑', '⅒') ),
 			Key.CharKey('2'),
@@ -22,7 +22,7 @@ object SpecialCharacters: Layout( listOf(
 			Key.CharKey('0')
         ),
         listOf(
-             Key.CharKey('@'),
+            Key.CharKey('@'),
 			Key.CharKey('#'),
 			Key.CharKey('$', subChars = listOf('¢', '₹', '£', '¥', '€', '₱')),
 			Key.CharKey('_'),
@@ -47,7 +47,7 @@ object SpecialCharacters: Layout( listOf(
         listOf(
             Key.TextKey("ABC", 0.15f,"alt", event=KeyFunctions.OPEN_KEYPAD),
             Key.CharKey(',', 0.1f,"alt"),
-            Key.Blank(0.5f, isRepeatable = true, event=KeyFunctions.SPACE),
+            Key.Blank(0.5f, event=KeyFunctions.SPACE),
             Key.CharKey('.', 0.1f,"alt"),
             Key.IconKey(R.drawable.ic_enter,0.15f,"highlight", event=KeyFunctions.ENTER)
         )
@@ -60,7 +60,7 @@ object SpecialCharacters: Layout( listOf(
 fun LayoutSpecialCharactersPreview() {
     AnimaleseTypingTheme {
         KeyboardLayout(
-            layout = SpecialCharacters
+            keyboardLayout = SpecialCharacters
         )
     }
 }

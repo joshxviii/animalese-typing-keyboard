@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -60,6 +61,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val shiftStateValue by shiftState.collectAsStateWithLifecycle()
             val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
+            val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
+
             KeyboardView(
                 modifier = Modifier,
                 currentLayout = keyboardLayoutValue,
@@ -69,6 +72,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 onSuggestionClick = ::onSuggestionClick,
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
+                cursorActive = cursorActiveValue,
                 showSuggestions = showSuggestionsValue
             )
         }
@@ -103,8 +107,12 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     }
 
     //region Event Handlers
+
     private fun onPointerMove(position: Offset) {
+        val diff = position - _pointerPosition.value
         _pointerPosition.value = position
+
+        if (_cursorActive.value) handleCursorMovement(diff)
     }
 
     private fun onKeyDown(key: Key): Boolean {
@@ -113,16 +121,16 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         _showPopupMenu.value = false
         logMessage("Key pressed: $key")
 
+        handleKeyEvent(key.event)
         if (key.isRepeatable) { // repeating key logic
             repeatJob = coroutineScope.launch {
-                handleKeyEvent(key.event)
                 delay(500)
                 while (true) {
                     handleKeyEvent(key.event)
                     delay(50)
                 }
             }
-        } else handleKeyEvent(key.event)
+        }
 
         showPopupJob = coroutineScope.launch { // show popup menu when holding key down
             delay(320)
@@ -147,7 +155,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
 
         repeatJob?.cancel()
         showPopupJob?.cancel()
+        moveCursorJob?.cancel()
         _showPopupMenu.value = false
+        _cursorActive.value = false
         _pointerPosition.value = Offset.Unspecified
         if (_pressedKey.value == key) _pressedKey.value = null
         return true
@@ -160,7 +170,13 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         AudioPlayer.playSound(AudioPlayer.keycodeToSound(0))
         when (id) {
             KeyFunctions.SPACE -> {
-                currentInputConnection?.commitText(" ", 1)
+                moveCursorJob = coroutineScope.launch {
+                    delay(320)
+                    _cursorActive.value = true
+                }
+                moveCursorJob?.invokeOnCompletion {// only commit SPACE if cursor was not activated
+                    if (!_cursorActive.value) currentInputConnection?.commitText(" ", 1)
+                }
             }
             KeyFunctions.BACKSPACE -> {
                 if (currentInputConnection?.getSelectedText(0) != null) {
@@ -169,10 +185,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     currentInputConnection?.deleteSurroundingText(1, 0)
                 }
             }
-            KeyFunctions.ENTER -> {
-                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
-            }
+            KeyFunctions.ENTER -> sendIMEKeyEvent(KeyEvent.KEYCODE_ENTER)
             KeyFunctions.SHIFT -> {
                 _shiftState.value = when (_shiftState.value) {
                     ShiftState.OFF -> ShiftState.ON
@@ -189,10 +202,44 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         }
     }
 
+    private fun sendIMEKeyEvent(keyCode: Int) {
+        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+    }
+
     private fun handleSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+    }
+
+    private val HORIZONTAL_MOVE_THRESHOLD = 20
+    private val VERTICAL_MOVE_THRESHOLD = 60
+    private var cursorH = 0
+    private var cursorV = 0
+    private fun handleCursorMovement(move: Offset) {
+        cursorH += move.x.toInt()
+        cursorV += move.y.toInt()
+
+        while (cursorH > HORIZONTAL_MOVE_THRESHOLD) {// right
+            sendIMEKeyEvent(KeyEvent.KEYCODE_DPAD_RIGHT)
+            cursorH -= HORIZONTAL_MOVE_THRESHOLD
+        }
+
+        while (cursorH < -HORIZONTAL_MOVE_THRESHOLD) {// left
+            sendIMEKeyEvent(KeyEvent.KEYCODE_DPAD_LEFT)
+            cursorH += HORIZONTAL_MOVE_THRESHOLD
+        }
+
+        while (cursorV > VERTICAL_MOVE_THRESHOLD) {// down
+            sendIMEKeyEvent(KeyEvent.KEYCODE_DPAD_DOWN)
+            cursorV -= VERTICAL_MOVE_THRESHOLD
+        }
+
+        while (cursorV < -VERTICAL_MOVE_THRESHOLD) {// up
+            sendIMEKeyEvent(KeyEvent.KEYCODE_DPAD_UP)
+            cursorV += VERTICAL_MOVE_THRESHOLD
+        }
     }
     //endregion
 
@@ -209,11 +256,14 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
     private var repeatJob: Job? = null
     private var showPopupJob: Job? = null
+    private var moveCursorJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _pressedKey = MutableStateFlow<Key?>(null)
     private val pressedKey: StateFlow<Key?> = _pressedKey
     private val _showPopupMenu = MutableStateFlow<Boolean>(false)
     private val showPopupMenu: StateFlow<Boolean> = _showPopupMenu
+    private val _cursorActive = MutableStateFlow<Boolean>(false)
+    private val cursorActive: StateFlow<Boolean> = _cursorActive
     private val _selectedMenuIndex = MutableStateFlow<Int>(0)
     private val selectedMenuIndex: StateFlow<Int> = _selectedMenuIndex
     private val _pointerPosition = MutableStateFlow<Offset>(Offset.Unspecified)

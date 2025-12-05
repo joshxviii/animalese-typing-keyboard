@@ -8,7 +8,7 @@ import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object Azerty: Layout(listOf(
+object Azerty: KeyboardLayout(listOf(
         listOf(
             Key.CharKey('a', altKeyHint = true, subChars = listOf('1', 'á', 'à', 'â', 'ã', 'ä', 'æ')),
 			Key.CharKey('z', altKeyHint = true, subChars = listOf('2')),
@@ -48,7 +48,7 @@ object Azerty: Layout(listOf(
         listOf(
             Key.TextKey("123", 0.15f,"alt", event=KeyFunctions.OPEN_NUMPAD),
             Key.CharKey(',',0.1f,"alt"),
-            Key.Blank(0.5f, isRepeatable = true, event=KeyFunctions.SPACE),
+            Key.Blank(0.5f, event=KeyFunctions.SPACE),
             Key.CharKey('.',0.1f,"alt"),
             Key.IconKey(R.drawable.ic_enter,0.15f,"highlight", event=KeyFunctions.ENTER)
         )
@@ -61,7 +61,7 @@ object Azerty: Layout(listOf(
 fun LayoutAzertyPreview() {
     AnimaleseTypingTheme {
         KeyboardLayout(
-            layout = Azerty
+            keyboardLayout = Azerty
         )
     }
 }

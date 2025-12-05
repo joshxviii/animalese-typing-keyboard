@@ -8,7 +8,7 @@ import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object Numpad: Layout(listOf(
+object Numpad: KeyboardLayout(listOf(
         listOf(
             Key.CharKey('+', 0.066f,"alt", showPopup = false),
 			Key.CharKey('7', showPopup = false),
@@ -48,7 +48,7 @@ object Numpad: Layout(listOf(
 fun LayoutNumpadPreview() {
     AnimaleseTypingTheme {
         KeyboardLayout(
-            layout = Numpad
+            keyboardLayout = Numpad
         )
     }
 }
