@@ -24,8 +24,8 @@ import com.example.animalese_typing.ui.theme.Theme
  */
 @Composable
 fun TopBar(
-    onSettings: () -> Unit = {},
-    onResize: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onToggleResizeClick: () -> Unit = {},
     onSuggestionClick: (String) -> Unit = {},
     showSuggestions: Boolean = false
 ) {
@@ -54,7 +54,7 @@ fun TopBar(
             )
             TopBarButton(
                 icon = R.drawable.ic_settings,
-                onClick = onSettings,
+                onClick = onSettingsClick,
                 modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
             )
             TopBarButton(
@@ -64,7 +64,7 @@ fun TopBar(
             )
             TopBarButton(
                 icon = R.drawable.ic_keyboard_resize,
-                onClick = onResize,
+                onClick = onToggleResizeClick,
                 modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
             )
         }

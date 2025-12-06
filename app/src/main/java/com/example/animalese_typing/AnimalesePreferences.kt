@@ -24,7 +24,9 @@ class AnimalesePreferences (val context: Context) {
     private val VIBRATION_INTENSITY = floatPreferencesKey("vibration_intensity")
 
     //
-    suspend fun saveKeyboardHeight(height: Float) {context.dataStore.edit { it[KEYBOARD_HEIGHT] = height } }
+    suspend fun saveKeyboardHeight(height: Float) {
+        context.dataStore.edit { it[KEYBOARD_HEIGHT] = height.coerceIn(200f..300f) }
+    }
     fun getKeyboardHeight(): Flow<Float> = context.dataStore.data.map { it[KEYBOARD_HEIGHT] ?: 250f }
 
 

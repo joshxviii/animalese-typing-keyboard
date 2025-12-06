@@ -23,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,9 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.zIndex
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
@@ -46,6 +51,8 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.opacity
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 
 /**
@@ -58,8 +65,8 @@ fun KeyboardView(
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
-    onSettings: () -> Unit = {},
-    onResize: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onToggleResizeClick: () -> Unit = {},
     onSuggestionClick: (String) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
     cursorActive: Boolean = false,
@@ -74,14 +81,15 @@ fun KeyboardView(
             modifier = modifier
                 .fillMaxWidth()
                 .background(Theme.colors.background)
-                .height(height.dp+navBarPadding),
+                .height(height.dp+navBarPadding)
+                .align(Alignment.BottomCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
             // Top Bar
             TopBar(
-                onSettings = onSettings,
-                onResize = onResize,
+                onSettingsClick = onSettingsClick,
+                onToggleResizeClick = onToggleResizeClick,
                 onSuggestionClick = onSuggestionClick,
                 showSuggestions = showSuggestions
             )
@@ -101,33 +109,17 @@ fun KeyboardView(
             // Nav Bar Padding
             Box(modifier = modifier.height(navBarPadding))
         }
-        if (cursorActive) Box(// Cursor overlay
-            modifier = modifier
-                .fillMaxWidth()
-                .background(Color(0x99000000))
-                .padding(4.dp)
-                .height(height.dp),
-            contentAlignment = Alignment.TopCenter
+        if (cursorActive) CursorOverlay(modifier.height(height.dp))
+    }
+    Popup(
+        alignment = Alignment.Center,
+        offset = IntOffset(0,-900)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .background(Color.Red)
         )
-        {
-            Row(
-                modifier = modifier.padding(top=36.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(9.dp),
-            ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(R.drawable.ic_control),
-                    contentDescription = "",
-                    tint = Color(0xFFDDDDDD)
-                )
-                KeyText(
-                    text = "Drag to move cursor",
-                    color = Color(0xFFDDDDDD),
-                    size = 24.sp
-                )
-            }
-        }
     }
 }
 
@@ -174,6 +166,39 @@ fun KeyboardLayout(
         }
     }
 }
+
+@Composable
+fun CursorOverlay(
+    modifier: Modifier = Modifier,
+) {
+    Box(// Cursor overlay
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color(0x99000000))
+            .padding(4.dp),
+        contentAlignment = Alignment.TopCenter
+    )
+    {
+        Row(
+            modifier = modifier.padding(top=36.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Icon(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(R.drawable.ic_control),
+                contentDescription = "",
+                tint = Color(0xFFDDDDDD)
+            )
+            KeyText(
+                text = "Drag to move cursor",
+                color = Color(0xFFDDDDDD),
+                size = 24.sp
+            )
+        }
+    }
+}
+
 
 // region UI PREVIEW
 @Preview(showBackground = true)

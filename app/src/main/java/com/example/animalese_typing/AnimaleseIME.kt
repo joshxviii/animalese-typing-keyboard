@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -39,6 +38,7 @@ import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.PopoutOverlay
+import com.example.animalese_typing.ui.keyboard.ResizeOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
@@ -62,19 +62,23 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
+            val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
 
             KeyboardView(
                 modifier = Modifier,
                 currentLayout = keyboardLayoutValue,
-                onSettings = ::handleSettings,
+                onSettingsClick = ::handleSettings,
                 onKeyDown = ::onKeyDown,
                 onKeyUp = ::onKeyUp,
                 onSuggestionClick = ::onSuggestionClick,
+                onToggleResizeClick = ::onToggleResizeClick,
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
                 cursorActive = cursorActiveValue,
+                resizeActive = resizeActiveValue,
                 showSuggestions = showSuggestionsValue
             )
+
         }
     }
 
@@ -82,17 +86,16 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
      * The overlay window for popup menus etc.
      */
     @Composable
-    fun OverlayWindowContent() {
+    fun PopupOverlayContent() {
         val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
         val showPopupMenuValue by showPopupMenu.collectAsStateWithLifecycle()
         val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
-        val selectedMenuIndexValue by selectedMenuIndex.collectAsStateWithLifecycle()
         //TODO:
         // The overlay consumes user touches on some devices. setting the visibility off disables touch completely
         // but setting the overlay visibility is relatively slow.
         // This would not be necessary if the pass through touch was working with One UI systems
         // have to look into this...
-        overlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
+        popupOverlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
         AnimaleseTypingTheme {
             PopoutOverlay(
                 modifier = Modifier.fillMaxSize(),
@@ -107,6 +110,10 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     }
 
     //region Event Handlers
+
+    private fun onToggleResizeClick() {
+        _resizeActive.value = !_resizeActive.value
+    }
 
     private fun onPointerMove(position: Offset) {
         val diff = position - _pointerPosition.value
@@ -264,6 +271,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val showPopupMenu: StateFlow<Boolean> = _showPopupMenu
     private val _cursorActive = MutableStateFlow<Boolean>(false)
     private val cursorActive: StateFlow<Boolean> = _cursorActive
+    private val _resizeActive = MutableStateFlow<Boolean>(false)
+    private val resizeActive: StateFlow<Boolean> = _resizeActive
     private val _selectedMenuIndex = MutableStateFlow<Int>(0)
     private val selectedMenuIndex: StateFlow<Int> = _selectedMenuIndex
     private val _pointerPosition = MutableStateFlow<Offset>(Offset.Unspecified)
@@ -274,7 +283,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val showSuggestions: StateFlow<Boolean> = _showSuggestions
     private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
     val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
-    var overlayView: ComposeView? = null
+    var popupOverlayView: ComposeView? = null
+    var interactOverlayView: ComposeView? = null
     lateinit var windowManager: WindowManager
     // endregion
 
@@ -304,7 +314,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         window?.window?.decorView?.post {
-            setOverlayContent { OverlayWindowContent() }
+            setOverlayContent { PopupOverlayContent() }
         }
     }
 
@@ -322,9 +332,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
-    fun setOverlayContent(content: @Composable (() -> Unit)) {
+    fun setOverlayContent(interactable: Boolean = false, content: @Composable (() -> Unit)) {
         val decorView = window?.window?.decorView ?: return
-        overlayView?.let { windowManager.removeView(it) }
+        popupOverlayView?.let { windowManager.removeView(it) }
 
         val composeView = ComposeView(this).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -338,18 +348,17 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_SPLIT_TOUCH or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                    or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                    or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            ,PixelFormat.TRANSLUCENT
         ).apply {
             token = decorView.windowToken
         }
 
-        overlayView = composeView
+        popupOverlayView = composeView
         try {
             windowManager.addView(composeView, params)
         } catch (e: Exception) { e.printStackTrace() }
