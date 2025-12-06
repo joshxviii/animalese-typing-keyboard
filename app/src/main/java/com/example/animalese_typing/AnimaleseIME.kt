@@ -274,6 +274,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     }
     override fun onWindowHidden() {
         super.onWindowHidden()
+        _keyboardLayout.value = mainKeyboardLayout
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }

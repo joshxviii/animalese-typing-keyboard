@@ -16,16 +16,19 @@ import kotlinx.coroutines.flow.map
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class AnimalesePreferences (val context: Context) {
-    private val KEYBOARD_HEIGHT = floatPreferencesKey("keyboard_height")
-    private val THEME = stringPreferencesKey("theme")
-    private val SYSTEM_DEFAULT_THEME = booleanPreferencesKey("system_default")
-    private val PLAY_SOUNDS = booleanPreferencesKey("play_sounds")
-    private val VIBRATE = booleanPreferencesKey("vibrate")
-    private val VIBRATION_INTENSITY = floatPreferencesKey("vibration_intensity")
+    companion object {
+        val HEIGHT_RANGE = 200f..300f
+        private val KEYBOARD_HEIGHT = floatPreferencesKey("keyboard_height")
+        private val THEME = stringPreferencesKey("theme")
+        private val SYSTEM_DEFAULT_THEME = booleanPreferencesKey("system_default")
+        private val PLAY_SOUNDS = booleanPreferencesKey("play_sounds")
+        private val VIBRATE = booleanPreferencesKey("vibrate")
+        private val VIBRATION_INTENSITY = floatPreferencesKey("vibration_intensity")
+    }
 
     //
     suspend fun saveKeyboardHeight(height: Float) {
-        context.dataStore.edit { it[KEYBOARD_HEIGHT] = height.coerceIn(200f..300f) }
+        context.dataStore.edit { it[KEYBOARD_HEIGHT] = height.coerceIn(HEIGHT_RANGE) }
     }
     fun getKeyboardHeight(): Flow<Float> = context.dataStore.data.map { it[KEYBOARD_HEIGHT] ?: 250f }
 

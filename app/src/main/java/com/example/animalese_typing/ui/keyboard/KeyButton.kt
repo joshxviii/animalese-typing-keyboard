@@ -29,8 +29,12 @@ import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.AnimaleseIME
@@ -84,6 +88,15 @@ fun KeyButton(
     BoxWithConstraints(// Key interaction size
         modifier = modifier
             .fillMaxHeight()
+            .onGloballyPositioned {
+                key.size = it.size
+                val position = it.positionInRoot()
+
+                key.position = IntOffset(
+                    x = position.x.toInt(),
+                    y = position.y.toInt()
+                )
+            }
             .pointerInput(key) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
@@ -100,9 +113,9 @@ fun KeyButton(
                         change.consume()
                     }
 
+                    setPopupMenu(false)
                     onKeyUp(key)
                     showPopupJob.cancel()
-                    setPopupMenu(false)
                     isPressed.value = false
                     onPointerMove(Offset.Unspecified)
                 }

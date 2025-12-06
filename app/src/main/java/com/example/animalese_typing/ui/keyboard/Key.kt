@@ -1,5 +1,8 @@
 package com.example.animalese_typing.ui.keyboard
 
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+
 enum class KeyFunctions {
     NONE,
     CHARACTER,
@@ -22,6 +25,14 @@ sealed class Key(
     val isRepeatable: Boolean = false,
     val event : KeyFunctions,
     ) {
+    var size: IntSize = IntSize(0, 0)
+    var position: IntOffset = IntOffset(0, 0) // from center of key
+        get() {
+            return IntOffset(
+                x = field.x + (size.width / 2),
+                y = field.y - (size.height / 2)
+            )
+        }
     class Empty(
         weight: Float = 0.05f,
         isRepeatable: Boolean = false,
