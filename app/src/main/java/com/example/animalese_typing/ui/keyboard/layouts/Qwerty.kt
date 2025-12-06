@@ -5,10 +5,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyboardLayout
+import com.example.animalese_typing.ui.keyboard.KeyboardKeyLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object Qwerty: KeyboardLayout(listOf(
+object Qwerty: KeyLayout(listOf(
         listOf(
             Key.CharKey('q', altKeyHint = true, subChars = listOf('1')),
             Key.CharKey('w', altKeyHint = true, subChars = listOf('2')),
@@ -60,8 +60,8 @@ object Qwerty: KeyboardLayout(listOf(
 @Composable
 fun LayoutQwertyPreview() {
     AnimaleseTypingTheme {
-        KeyboardLayout(
-            keyboardLayout = Qwerty
+        KeyboardKeyLayout(
+            keyLayout = Qwerty
         )
     }
 }

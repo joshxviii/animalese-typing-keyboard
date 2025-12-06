@@ -1,25 +1,19 @@
 package com.example.animalese_typing
 
 import android.content.Intent
-import android.graphics.PixelFormat
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsResponse
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -37,9 +31,8 @@ import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardView
-import com.example.animalese_typing.ui.keyboard.PopoutOverlay
-import com.example.animalese_typing.ui.keyboard.ResizeOverlay
-import com.example.animalese_typing.ui.keyboard.layouts.KeyboardLayouts
+import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
+import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,58 +55,25 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
-            val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
+            val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
 
             KeyboardView(
                 modifier = Modifier,
+                pressedKey = pressedKeyValue,
                 currentLayout = keyboardLayoutValue,
                 onSettingsClick = ::handleSettings,
                 onKeyDown = ::onKeyDown,
                 onKeyUp = ::onKeyUp,
                 onSuggestionClick = ::onSuggestionClick,
-                onToggleResizeClick = ::onToggleResizeClick,
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
                 cursorActive = cursorActiveValue,
-                resizeActive = resizeActiveValue,
                 showSuggestions = showSuggestionsValue
-            )
-
-        }
-    }
-
-    /**
-     * The overlay window for popup menus etc.
-     */
-    @Composable
-    fun PopupOverlayContent() {
-        val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
-        val showPopupMenuValue by showPopupMenu.collectAsStateWithLifecycle()
-        val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
-        //TODO:
-        // The overlay consumes user touches on some devices. setting the visibility off disables touch completely
-        // but setting the overlay visibility is relatively slow.
-        // This would not be necessary if the pass through touch was working with One UI systems
-        // have to look into this...
-        popupOverlayView?.visibility = if (pressedKeyValue != null) View.VISIBLE else View.GONE
-        AnimaleseTypingTheme {
-            PopoutOverlay(
-                modifier = Modifier.fillMaxSize(),
-                key = pressedKeyValue,
-                showMenu = showPopupMenuValue,
-                pointerPosition = pointerPositionValue,
-                onSelectedIndexChange = { newIndex ->
-                    _selectedMenuIndex.value = newIndex
-                }
             )
         }
     }
 
     //region Event Handlers
-
-    private fun onToggleResizeClick() {
-        _resizeActive.value = !_resizeActive.value
-    }
 
     private fun onPointerMove(position: Offset) {
         val diff = position - _pointerPosition.value
@@ -125,7 +85,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
-        _showPopupMenu.value = false
         logMessage("Key pressed: $key")
 
         handleKeyEvent(key.event)
@@ -139,22 +98,13 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             }
         }
 
-        showPopupJob = coroutineScope.launch { // show popup menu when holding key down
-            delay(320)
-            _showPopupMenu.value = (key is Key.CharKey && key.subChars.isNotEmpty())
-        }
-
         return true
     }
     private fun onKeyUp(key: Key): Boolean {// TODO: add compose typing
         when (key) {
             is Key.CharKey -> {
-                val charToCommit = // if the alternate key menu is shown get the selected character, otherwise get the key's default char. then apply casing.
-                    (if (_showPopupMenu.value) key.subChars[_selectedMenuIndex.value] else key.char)
-                        .let { if (key.isUpperCase) it.uppercase() else it.lowercase() }
-
-                currentInputConnection?.commitText(charToCommit, 1)
-                AudioPlayer.playSound( AudioPlayer.keycodeToSound( charToCommit[0].lowercaseChar().code ) )
+                currentInputConnection?.commitText(key.charToCommit, 1)
+                AudioPlayer.playSound( AudioPlayer.keycodeToSound( key.charToCommit[0].lowercaseChar().code ) )
                 if (_shiftState.value == ShiftState.ON) _shiftState.value = ShiftState.OFF
             }
             else -> {}
@@ -163,7 +113,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         repeatJob?.cancel()
         showPopupJob?.cancel()
         moveCursorJob?.cancel()
-        _showPopupMenu.value = false
         _cursorActive.value = false
         _pointerPosition.value = Offset.Unspecified
         if (_pressedKey.value == key) _pressedKey.value = null
@@ -200,11 +149,10 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     ShiftState.LOCKED -> ShiftState.OFF
                 }
             }
-            //TODO: currently switching layouts is kinda slow, maybe preload then first then hide/show
-            KeyFunctions.OPEN_NUMPAD -> _keyboardLayout.value = KeyboardLayouts.NUMPAD
-            KeyFunctions.OPEN_KEYPAD -> _keyboardLayout.value = KeyboardLayouts.QWERTY // TODO: Get from settings
-            KeyFunctions.OPEN_SPECIAL -> _keyboardLayout.value = KeyboardLayouts.SPECIAL
-            KeyFunctions.OPEN_SPECIAL_ALT -> _keyboardLayout.value = KeyboardLayouts.SPECIAL_ALT
+            KeyFunctions.OPEN_NUMPAD -> _keyboardLayout.value = KeyLayouts.NUMPAD
+            KeyFunctions.OPEN_KEYPAD -> _keyboardLayout.value = mainKeyboardLayout
+            KeyFunctions.OPEN_SPECIAL -> _keyboardLayout.value = KeyLayouts.SPECIAL
+            KeyFunctions.OPEN_SPECIAL_ALT -> _keyboardLayout.value = KeyLayouts.SPECIAL_ALT
             else -> {}
         }
     }
@@ -265,27 +213,19 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private var showPopupJob: Job? = null
     private var moveCursorJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
-    private val _pressedKey = MutableStateFlow<Key?>(null)
-    private val pressedKey: StateFlow<Key?> = _pressedKey
-    private val _showPopupMenu = MutableStateFlow<Boolean>(false)
-    private val showPopupMenu: StateFlow<Boolean> = _showPopupMenu
     private val _cursorActive = MutableStateFlow<Boolean>(false)
     private val cursorActive: StateFlow<Boolean> = _cursorActive
-    private val _resizeActive = MutableStateFlow<Boolean>(false)
-    private val resizeActive: StateFlow<Boolean> = _resizeActive
-    private val _selectedMenuIndex = MutableStateFlow<Int>(0)
-    private val selectedMenuIndex: StateFlow<Int> = _selectedMenuIndex
     private val _pointerPosition = MutableStateFlow<Offset>(Offset.Unspecified)
     val pointerPosition: StateFlow<Offset> = _pointerPosition
+    private val _pressedKey = MutableStateFlow<Key?>(null)
+    private val pressedKey: StateFlow<Key?> = _pressedKey
     private val _shiftState = MutableStateFlow(ShiftState.OFF)
     val shiftState: StateFlow<ShiftState> = _shiftState
     private val _showSuggestions = MutableStateFlow<Boolean>(false)
     private val showSuggestions: StateFlow<Boolean> = _showSuggestions
-    private val _keyboardLayout = MutableStateFlow(KeyboardLayouts.QWERTY)
-    val keyboardLayout: StateFlow<KeyboardLayouts> = _keyboardLayout
-    var popupOverlayView: ComposeView? = null
-    var interactOverlayView: ComposeView? = null
-    lateinit var windowManager: WindowManager
+    private val _keyboardLayout = MutableStateFlow(KeyLayouts.QWERTY)
+    val keyboardLayout: StateFlow<KeyLayouts> = _keyboardLayout
+    private var mainKeyboardLayout = KeyLayouts.QWERTY // TODO: get from settings
     // endregion
 
     // region IME Overrides
@@ -311,16 +251,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         return composeView
     }
 
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        window?.window?.decorView?.post {
-            setOverlayContent { PopupOverlayContent() }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         vibrator = getSystemService(Vibrator::class.java)
         vibe = VibrationEffect.createWaveform(
@@ -332,37 +264,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
-    fun setOverlayContent(interactable: Boolean = false, content: @Composable (() -> Unit)) {
-        val decorView = window?.window?.decorView ?: return
-        popupOverlayView?.let { windowManager.removeView(it) }
-
-        val composeView = ComposeView(this).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setViewTreeLifecycleOwner(this@AnimaleseIME)
-            setViewTreeViewModelStoreOwner(this@AnimaleseIME)
-            setViewTreeSavedStateRegistryOwner(this@AnimaleseIME)
-            setContent { content() }
-        }
-        window.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
-        val params = WindowManager.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                    or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                    or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-                    or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-            ,PixelFormat.TRANSLUCENT
-        ).apply {
-            token = decorView.windowToken
-        }
-
-        popupOverlayView = composeView
-        try {
-            windowManager.addView(composeView, params)
-        } catch (e: Exception) { e.printStackTrace() }
-    }
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
     }

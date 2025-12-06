@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -47,7 +44,6 @@ fun KeyPopoutMenu(
     modifier: Modifier = Modifier,
     itemSize: DpSize = DpSize(42.dp, 42.dp),
     pointerPosition: Offset = Offset.Unspecified,
-    onSelectedIndexChange: (Int) -> Unit = {},
 ) {
     if (key == null) return
     val shape = RoundedCornerShape(45.dp)
@@ -55,16 +51,15 @@ fun KeyPopoutMenu(
     if ( key !is Key.CharKey || !key.showPopup || key.subChars.isEmpty()) return
 
     val itemPositions = remember { mutableStateMapOf<Int, Offset>() }
-    var closestIndex by remember { mutableIntStateOf(-1) }
 
     LaunchedEffect(pointerPosition) {
         // if finger is lifted or menu isn't ready, select the first item by default
         if (pointerPosition == Offset.Unspecified || itemPositions.isEmpty()) {
-            onSelectedIndexChange(0)
             return@LaunchedEffect
         }
 
         var minDistance = Float.MAX_VALUE
+        key.selectSubChar = 0
 
         itemPositions.forEach { (index, itemCenter) ->
             val distance = sqrt(
@@ -72,16 +67,14 @@ fun KeyPopoutMenu(
             )
             if (distance < minDistance) {
                 minDistance = distance
-                closestIndex = index
+                key.selectSubChar = index
             }
         }
-        onSelectedIndexChange(closestIndex)
     }
 
     Box {
         Layout(
             modifier = modifier
-                .onGloballyPositioned {}
                 .dropShadow(
                     shape = shape,
                     shadow = Shadow(
@@ -95,14 +88,14 @@ fun KeyPopoutMenu(
                 .padding(12.dp),
             content = {
                 key.subChars.forEachIndexed { index, char ->
-                    val isSelected = index == closestIndex
+                    val isSelected = index == (key.selectSubChar ?: 0)
                     Box(
                         modifier = Modifier
                             .size(itemSize)
                             .clip(shape)
                             .background(if (isSelected) Theme.colors.keyBaseHighlight else Color.Transparent)
                             .onGloballyPositioned { c->
-                                val screenPos = c.positionOnScreen()
+                                val screenPos = c.positionInRoot()
                                 itemPositions[index] = Offset (
                                     screenPos.x + (c.size.width / 2f),
                                     screenPos.y + (c.size.height)
@@ -156,6 +149,7 @@ fun KeyPopoutMenu(
                             val x = col * (itemWidth + horizontalGap)
                             val y = row * (itemHeight + verticalGap)
                             placeables[currentItem].placeRelative(x.toInt(), y.toInt())
+                            itemPositions[currentItem] = Offset(x + (itemWidth / 2f), y + (itemHeight))
                             currentItem++
                         }
                     }

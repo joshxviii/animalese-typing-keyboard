@@ -5,10 +5,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyboardLayout
+import com.example.animalese_typing.ui.keyboard.KeyboardKeyLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object Azerty: KeyboardLayout(listOf(
+object Azerty: KeyLayout(listOf(
         listOf(
             Key.CharKey('a', altKeyHint = true, subChars = listOf('1', 'á', 'à', 'â', 'ã', 'ä', 'æ')),
 			Key.CharKey('z', altKeyHint = true, subChars = listOf('2')),
@@ -60,8 +60,8 @@ object Azerty: KeyboardLayout(listOf(
 @Composable
 fun LayoutAzertyPreview() {
     AnimaleseTypingTheme {
-        KeyboardLayout(
-            keyboardLayout = Azerty
+        KeyboardKeyLayout(
+            keyLayout = Azerty
         )
     }
 }

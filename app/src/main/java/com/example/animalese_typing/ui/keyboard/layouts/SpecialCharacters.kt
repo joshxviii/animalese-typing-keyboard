@@ -5,10 +5,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyboardLayout
+import com.example.animalese_typing.ui.keyboard.KeyboardKeyLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object SpecialCharacters: KeyboardLayout( listOf(
+object SpecialCharacters: KeyLayout( listOf(
         listOf(
             Key.CharKey('1', subChars = listOf('½', '⅓', '¼', '⅕', '⅙', '⅐', '⅛', '⅑', '⅒') ),
 			Key.CharKey('2'),
@@ -59,8 +59,8 @@ object SpecialCharacters: KeyboardLayout( listOf(
 @Composable
 fun LayoutSpecialCharactersPreview() {
     AnimaleseTypingTheme {
-        KeyboardLayout(
-            keyboardLayout = SpecialCharacters
+        KeyboardKeyLayout(
+            keyLayout = SpecialCharacters
         )
     }
 }

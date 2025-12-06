@@ -17,10 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,11 +29,8 @@ import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.AnimaleseIME
@@ -45,6 +41,9 @@ import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.ui.theme.highlight
 import com.example.animalese_typing.ui.theme.opacity
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class OnColor(val color: Color) : ColorProducer {
     override fun invoke(): Color = color
@@ -58,10 +57,13 @@ fun KeyButton(
     onKeyUp: (Key) -> Unit = {},
     onKeyDown: (Key) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
+    setPopupMenu: (Boolean) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     val isPressed : MutableState<Boolean> = remember { mutableStateOf(false) }
-    var positionOnScreen by remember { mutableStateOf(Offset.Zero) }
+    var showPopupJob: Job?
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
@@ -82,35 +84,33 @@ fun KeyButton(
     BoxWithConstraints(// Key interaction size
         modifier = modifier
             .fillMaxHeight()
-            .onGloballyPositioned { c ->
-                key.size = c.size
-
-                positionOnScreen = c.positionOnScreen()
-
-                key.position = IntOffset(
-                    x = positionOnScreen.x.toInt(),
-                    y = positionOnScreen.y.toInt()
-                )
-            }
             .pointerInput(key) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     onKeyDown(key)
                     isPressed.value = true
+                    showPopupJob = coroutineScope.launch { // show popup menu when holding key down
+                        delay(320)
+                        setPopupMenu(key is Key.CharKey && key.subChars.isNotEmpty())
+                    }
 
-                    onPointerMove(positionOnScreen + down.position)
+                    onPointerMove(down.position)
                     drag(down.id) { change: PointerInputChange ->
-                        onPointerMove(positionOnScreen + change.position)
+                        onPointerMove(change.position)
                         change.consume()
                     }
 
                     onKeyUp(key)
+                    showPopupJob.cancel()
+                    setPopupMenu(false)
                     isPressed.value = false
                     onPointerMove(Offset.Unspecified)
                 }
             }
 //            .background(Color.Red) // for debugging
     ) {
+        // Popup elements
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -123,7 +123,8 @@ fun KeyButton(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                if (key is Key.CharKey && key.subChars.isNotEmpty() && key.altKeyHint) KeyText( // tiny sub char label
+                if (key is Key.CharKey && key.subChars.isNotEmpty() && key.altKeyHint) KeyText(
+                    // tiny sub char label
                     modifier = Modifier
                         .padding(3.dp, 2.dp)
                         .height(14.dp)
@@ -140,6 +141,7 @@ fun KeyButton(
                     when (key) {
                         is Key.CharKey -> {
                             key.isUpperCase = shiftState != AnimaleseIME.ShiftState.OFF
+
                             KeyText(
                                 modifier = Modifier.align(Alignment.Center),
                                 text = "${if (key.isUpperCase) key.char.uppercase() else key.char}",

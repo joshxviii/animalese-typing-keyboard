@@ -2,7 +2,7 @@ package com.example.animalese_typing.ui.keyboard.layouts
 
 import com.example.animalese_typing.ui.keyboard.Key
 
-enum class KeyboardLayouts(val keyboardLayout: KeyboardLayout) {
+enum class KeyLayouts(val keyLayout: KeyLayout) {
     QWERTY(Qwerty),
     QWERTZ(Qwertz),
     AZERTY(Azerty),
@@ -10,6 +10,6 @@ enum class KeyboardLayouts(val keyboardLayout: KeyboardLayout) {
     SPECIAL(SpecialCharacters),
     SPECIAL_ALT(SpecialCharactersAlt)
 }
-sealed class KeyboardLayout(
+sealed class KeyLayout(
     val value: List<List<Key>>
 )

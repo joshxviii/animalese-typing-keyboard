@@ -5,10 +5,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyboardLayout
+import com.example.animalese_typing.ui.keyboard.KeyboardKeyLayout
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
-object Numpad: KeyboardLayout(listOf(
+object Numpad: KeyLayout(listOf(
         listOf(
             Key.CharKey('+', 0.066f,"alt", showPopup = false),
 			Key.CharKey('7', showPopup = false),
@@ -47,8 +47,8 @@ object Numpad: KeyboardLayout(listOf(
 @Composable
 fun LayoutNumpadPreview() {
     AnimaleseTypingTheme {
-        KeyboardLayout(
-            keyboardLayout = Numpad
+        KeyboardKeyLayout(
+            keyLayout = Numpad
         )
     }
 }

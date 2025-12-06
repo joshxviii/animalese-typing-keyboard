@@ -1,8 +1,5 @@
 package com.example.animalese_typing.ui.keyboard
 
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-
 enum class KeyFunctions {
     NONE,
     CHARACTER,
@@ -25,15 +22,6 @@ sealed class Key(
     val isRepeatable: Boolean = false,
     val event : KeyFunctions,
     ) {
-    var size: IntSize = IntSize(0, 0)
-    var position: IntOffset = IntOffset(0, 0) // from center of key
-        get() {
-            return IntOffset(
-                x = field.x + (size.width / 2),
-                y = field.y - (size.height / 2)
-            )
-        }
-
     class Empty(
         weight: Float = 0.05f,
         isRepeatable: Boolean = false,
@@ -55,6 +43,14 @@ sealed class Key(
         event : KeyFunctions = KeyFunctions.CHARACTER,
     ) : Key(weight, type, isRepeatable, event) {
         var isUpperCase: Boolean = false
+        var selectSubChar: Int? = null
+        val charToCommit: CharSequence
+            get() {// if sub character is selected get that character, otherwise get the key's default char. then apply casing.
+                val subChar = selectSubChar
+                selectSubChar = null // reset
+                return (subChar?.let { subChars[it] } ?: char)
+                    .let { if (isUpperCase) it.uppercase() else it.lowercase() }
+            }
     }
     class IconKey(
         val iconId: Int,
@@ -74,8 +70,8 @@ sealed class Key(
     override fun toString(): String {
         return when (this) {
             is Empty -> "Empty"
-            is CharKey -> "${char.uppercase()} $event at (${position.x}, ${position.y}) size: $size"
-            else -> "$event at (${position.x}, ${position.y}) size: $size"
+            is CharKey -> "${char.uppercase()} $event"
+            else -> "$event"
         }
     }
 }
