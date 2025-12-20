@@ -32,19 +32,22 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.AnimaleseIME
+import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
-import com.example.animalese_typing.ui.theme.highlight
-import com.example.animalese_typing.ui.theme.opacity
+import com.example.animalese_typing.utils.highlight
+import com.example.animalese_typing.utils.opacity
+import com.example.animalese_typing.utils.toOffset
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,10 +67,8 @@ fun KeyButton(
     setPopupMenu: (Boolean) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
-    val coroutineScope = rememberCoroutineScope()
 
     val isPressed : MutableState<Boolean> = remember { mutableStateOf(false) }
-    var showPopupJob: Job?
 
     // get generic colors based on key type
     val (base, label) = when (key.type) {
@@ -102,20 +103,14 @@ fun KeyButton(
                     val down = awaitFirstDown()
                     onKeyDown(key)
                     isPressed.value = true
-                    showPopupJob = coroutineScope.launch { // show popup menu when holding key down
-                        delay(320)
-                        setPopupMenu(key is Key.CharKey && key.subChars.isNotEmpty())
-                    }
 
                     onPointerMove(down.position)
                     drag(down.id) { change: PointerInputChange ->
-                        onPointerMove(change.position)
+                        onPointerMove(change.position + key.position.toOffset())
                         change.consume()
                     }
 
-                    setPopupMenu(false)
                     onKeyUp(key)
-                    showPopupJob.cancel()
                     isPressed.value = false
                     onPointerMove(Offset.Unspecified)
                 }

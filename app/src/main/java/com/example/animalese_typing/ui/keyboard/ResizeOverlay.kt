@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,15 +52,20 @@ import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Theme
-import com.example.animalese_typing.ui.theme.opacity
+import com.example.animalese_typing.utils.opacity
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 
 @Composable
-fun ResizeOverlay(// Resize overlay
-    onToggleResizeClick: () -> Unit = {},
-    bottomPadding: Dp = 0.dp
+fun ResizeOverlay(
+    modifier: Modifier = Modifier,
+    initialHeight: Float = 250f,
+    onResizeClick: (Boolean) -> Unit = {},
+    onDragEnd: (Float) -> Unit = {},
 ) {
+    var resizeHeight by remember { mutableFloatStateOf(initialHeight) }
 
     Box(
         Modifier
@@ -67,46 +73,11 @@ fun ResizeOverlay(// Resize overlay
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = onToggleResizeClick
+                onClick = { onResizeClick(false) }
             )
     ) {
-        ResizableBox(
-            Modifier.align(Alignment.BottomCenter)
-        ) {
-            IconButton(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                onClick = onToggleResizeClick
-            ) {
-                Icon(
-                    modifier = Modifier.size(48.dp),
-                    painter = painterResource(R.drawable.ic_control),
-                    contentDescription = "",
-                    tint = Theme.colors.keyBaseHighlight
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ResizableBox(
-    modifier: Modifier = Modifier,
-    content: @Composable (BoxScope.() -> Unit) = {}
-) {
-    val preferences = AnimalesePreferences(LocalContext.current)
-    val currentKeyboardHeight by preferences.getKeyboardHeight().collectAsState(initial = 250f)
-    var resizeHeight by remember(currentKeyboardHeight) { mutableStateOf(currentKeyboardHeight) }
-
-    val scope = rememberCoroutineScope()
-    fun onDragEnd() {
-        scope.launch { preferences.saveKeyboardHeight(resizeHeight) }
-    }
-
-    // Main content box
-    key(currentKeyboardHeight) {
-        Box(
-            modifier = modifier
+        Box (
+            Modifier
                 .fillMaxWidth()
                 .height(resizeHeight.dp)
                 .background(Theme.colors.background.opacity(0.4f))
@@ -116,7 +87,9 @@ fun ResizableBox(
                     indication = null,
                     onClick = {}
                 )
+                .align(Alignment.BottomCenter)
         ) {
+
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
@@ -133,33 +106,45 @@ fun ResizableBox(
                     .height(20.dp)
                     .align(Alignment.BottomCenter)
             )
-            content()
-        }
 
-        ResizeHandle(
-            onDrag = { delta ->
-                val newHeight = (resizeHeight.dp + delta).value.coerceIn(AnimalesePreferences.HEIGHT_RANGE)
-                resizeHeight = newHeight
-            },
-            onDragEnd = ::onDragEnd,
-            modifier = modifier
-        ) // Bottom
-        ResizeHandle(
-            onDrag = { delta ->
-                val newHeight = (resizeHeight.dp - delta).value.coerceIn(AnimalesePreferences.HEIGHT_RANGE)
-                resizeHeight = newHeight
-            },
-            onDragEnd = ::onDragEnd,
-            modifier = modifier.offset(0.dp, (-resizeHeight+32).dp)
-        ) // Top
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                onClick = {onResizeClick(false)}
+            ) {
+                Icon(
+                    modifier = Modifier.size(48.dp),
+                    painter = painterResource(R.drawable.ic_control),
+                    contentDescription = "",
+                    tint = Theme.colors.keyBaseHighlight
+                )
+            }
+
+            ResizeHandle(
+                onDrag = { delta ->
+                    val newHeight = (resizeHeight.dp - delta).value.coerceIn(AnimalesePreferences.HEIGHT_RANGE)
+                    resizeHeight = newHeight
+                },
+                onDragEnd = { onDragEnd(resizeHeight) },
+                modifier = Modifier
+            ) // Bottom
+            ResizeHandle(
+                onDrag = { delta ->
+                    val newHeight = (resizeHeight.dp + delta).value.coerceIn(AnimalesePreferences.HEIGHT_RANGE)
+                    resizeHeight = newHeight
+                },
+                onDragEnd = { onDragEnd(resizeHeight) },
+                modifier = Modifier.offset(0.dp, (-resizeHeight+32).dp)
+            ) // Top
+        }
     }
 }
 
 @Composable
 private fun ResizeHandle(
     onDrag: (Dp) -> Unit,
-    onDragEnd: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onDragEnd: (Float) -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     Box(
@@ -172,7 +157,7 @@ private fun ResizeHandle(
                         change.consume()
                         onDrag(with(density) { dragAmount.y.toDp() })
                     },
-                    onDragEnd = onDragEnd
+                    onDragEnd = {onDragEnd(0f)}
                 )
             }
             //.background(Color.White.copy(alpha = 0.8f))

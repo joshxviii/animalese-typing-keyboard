@@ -3,6 +3,7 @@ package com.example.animalese_typing.ui.keyboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,13 +24,14 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
-import com.example.animalese_typing.ui.theme.opacity
+import com.example.animalese_typing.utils.opacity
 import kotlin.math.ceil
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -51,6 +53,7 @@ fun KeyPopoutMenu(
     if ( key !is Key.CharKey || !key.showPopup || key.subChars.isEmpty()) return
 
     val itemPositions = remember { mutableStateMapOf<Int, Offset>() }
+    var popupOffset = remember { IntOffset.Zero }
 
     LaunchedEffect(pointerPosition) {
         // if finger is lifted or menu isn't ready, select the first item by default
@@ -72,7 +75,7 @@ fun KeyPopoutMenu(
         }
     }
 
-    Box {
+    Box{
         Layout(
             modifier = modifier
                 .dropShadow(
@@ -95,11 +98,12 @@ fun KeyPopoutMenu(
                             .clip(shape)
                             .background(if (isSelected) Theme.colors.keyBaseHighlight else Color.Transparent)
                             .onGloballyPositioned { c->
-                                val screenPos = c.positionInRoot()
-                                itemPositions[index] = Offset (
-                                    screenPos.x + (c.size.width / 2f),
-                                    screenPos.y + (c.size.height)
+                                val localPos = c.positionInRoot()
+                                val itemSize = Offset (
+                                    c.size.width / 1f,
+                                   c.size.height / 1f
                                 )
+                                itemPositions[index] = localPos + itemSize
                             }
                     ) {
                         Box(
@@ -137,6 +141,7 @@ fun KeyPopoutMenu(
 
             val menuWidth = (itemWidth * columns + horizontalGap * (columns - 1)).toInt()
             val menuHeight = (itemHeight * rows + verticalGap * (rows - 1)).toInt()
+
             layout(menuWidth, menuHeight) {
                 var currentItem = 0
                 for (row in (rows - 1) downTo 0) {
@@ -149,7 +154,6 @@ fun KeyPopoutMenu(
                             val x = col * (itemWidth + horizontalGap)
                             val y = row * (itemHeight + verticalGap)
                             placeables[currentItem].placeRelative(x.toInt(), y.toInt())
-                            itemPositions[currentItem] = Offset(x + (itemWidth / 2f), y + (itemHeight))
                             currentItem++
                         }
                     }

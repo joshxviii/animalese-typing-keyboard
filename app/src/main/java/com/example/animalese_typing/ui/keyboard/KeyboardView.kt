@@ -1,9 +1,6 @@
 package com.example.animalese_typing.ui.keyboard
 
-import android.content.res.Configuration
-import android.graphics.Paint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,16 +10,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -33,8 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,10 +37,8 @@ import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import com.example.animalese_typing.AnimaleseIME
 import com.example.animalese_typing.AnimalesePreferences
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
@@ -58,6 +46,8 @@ import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 
 /**
@@ -66,10 +56,11 @@ import com.example.animalese_typing.ui.theme.Theme
 @Composable
 fun KeyboardView(
     modifier: Modifier = Modifier,
-    pressedKey: Key? = null,
+    height: Float = 250f,
     currentLayout: KeyLayouts = KeyLayouts.QWERTY,
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
+    onResizeClick: (Boolean) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onSuggestionClick: (String) -> Unit = {},
@@ -77,18 +68,14 @@ fun KeyboardView(
     cursorActive: Boolean = false,
     showSuggestions: Boolean = false,
 ) {
-    val height by AnimalesePreferences(LocalContext.current).getKeyboardHeight().collectAsState(initial = 250f)
     val navBarPadding = max(WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(), 0.dp)
-
-    var popupMenuActive by remember { mutableStateOf(false) }
-    var resizeActive by mutableStateOf(false)
 
     Box() {
         Column(
             modifier = modifier
+                .height(height.dp+navBarPadding)
                 .fillMaxWidth()
                 .background(Theme.colors.background)
-                .height(height.dp + navBarPadding)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         )
@@ -96,7 +83,7 @@ fun KeyboardView(
             // Top Bar
             TopBar(
                 onSettingsClick = onSettingsClick,
-                onToggleResizeClick = {resizeActive = !resizeActive},
+                onResizeClick = onResizeClick,
                 onSuggestionClick = onSuggestionClick,
                 showSuggestions = showSuggestions
             )
@@ -112,10 +99,6 @@ fun KeyboardView(
                         onKeyDown = onKeyDown,
                         onKeyUp = onKeyUp,
                         onPointerMove = onPointerMove,
-                        setPopupMenu = { value ->
-                                        logMessage("$value $pressedKey")
-                                        popupMenuActive = value
-                                       },
                         shiftState = shiftState,
                         modifier = Modifier
                             .fillMaxSize()
@@ -126,28 +109,7 @@ fun KeyboardView(
             // Nav Bar Padding
             Box(modifier = modifier.height(navBarPadding))
         }
-    }
-    if (cursorActive) CursorOverlay(modifier.height(height.dp))
-
-    Popup() {
-        Text(text=" ")// a trick to reupdate Popup content on some devices without recreating Popup
-        if (resizeActive) ResizeOverlay(onToggleResizeClick = { !resizeActive })
-    }
-
-    if (pressedKey!=null) Popup( //TODO: it is not ideal to recompose a Popup every key change. But I am tired of looking for better solutions...
-        popupPositionProvider = object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize,
-            ): IntOffset {// position content above the center of the key
-                return pressedKey.position - IntOffset(popupContentSize.width/2, popupContentSize.height/2)
-            }
-        },
-    ) {
-        if (popupMenuActive) KeyPopoutMenu(key = pressedKey)
-        else KeyPopout(key = pressedKey)
+        if (cursorActive) CursorOverlay(modifier.height(height.dp))
     }
 }
 
@@ -160,7 +122,6 @@ fun KeyboardKeyLayout(
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
-    setPopupMenu: (Boolean) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
     Column(
@@ -186,7 +147,6 @@ fun KeyboardKeyLayout(
                                 onKeyDown = onKeyDown,
                                 onKeyUp = onKeyUp,
                                 onPointerMove = onPointerMove,
-                                setPopupMenu = setPopupMenu,
                                 shiftState = shiftState
                             )
                         }

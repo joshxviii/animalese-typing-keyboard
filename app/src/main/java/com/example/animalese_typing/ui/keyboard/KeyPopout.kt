@@ -25,7 +25,7 @@ import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
-import com.example.animalese_typing.ui.theme.opacity
+import com.example.animalese_typing.utils.opacity
 
 /**
  * When [Key.CharKey.showPopup] is enabled [KeyPopout] will render

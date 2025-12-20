@@ -1,6 +1,8 @@
 package com.example.animalese_typing
 
 import android.content.Intent
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.graphics.drawable.GradientDrawable
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.VibrationEffect
@@ -8,12 +10,38 @@ import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InlineSuggestionsResponse
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -30,19 +58,31 @@ import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
+import com.example.animalese_typing.ui.keyboard.KeyPopout
+import com.example.animalese_typing.ui.keyboard.KeyPopoutMenu
 import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.ResizeOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
+import com.example.animalese_typing.utils.toOffset
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+
+    companion object {
+        lateinit var audioManager: AudioManager
+        lateinit var vibrator: Vibrator
+        lateinit var vibe : VibrationEffect
+    }
 
     /**
      * The main IME window component.
@@ -55,21 +95,72 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
+            val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
+            val popupMenuActiveValue by popupMenuActive.collectAsStateWithLifecycle()
             val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+            val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
+            var popupPosition by remember { mutableStateOf(Offset.Zero) }
+
+
+            val preferences = AnimalesePreferences(this)
+            var keyboardHeight by remember { mutableStateOf(runBlocking { preferences.getKeyboardHeight().first() }) }
+
 
             KeyboardView(
                 modifier = Modifier,
-                pressedKey = pressedKeyValue,
+                height = keyboardHeight,
                 currentLayout = keyboardLayoutValue,
                 onSettingsClick = ::handleSettings,
                 onKeyDown = ::onKeyDown,
                 onKeyUp = ::onKeyUp,
                 onSuggestionClick = ::onSuggestionClick,
+                onResizeClick = ::onResizeClick,
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
                 cursorActive = cursorActiveValue,
                 showSuggestions = showSuggestionsValue
             )
+
+            if (resizeActiveValue) Popup() {
+                ResizeOverlay(
+                    initialHeight = keyboardHeight,
+                    onResizeClick = ::onResizeClick,
+                    onDragEnd = { newHeight ->
+                        keyboardHeight = newHeight
+                        coroutineScope.launch { preferences.saveKeyboardHeight(newHeight) }
+                    }
+                )
+            }
+
+            val key = pressedKeyValue
+            Popup(
+                properties = PopupProperties(
+                    clippingEnabled = false,
+                    focusable = false
+                ),
+                //TODO: it is not ideal to recompose a Popup every key change. But I am tired of looking for better solutions...
+                popupPositionProvider = object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize,
+                    ): IntOffset {// Only show popup when key is pressed
+                        return if (key is Key.CharKey) IntOffset.Zero else IntOffset(0,9999)
+                    }
+                },
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (popupMenuActiveValue) KeyPopoutMenu(
+                        key = key,
+                        pointerPosition = pointerPositionValue,
+                    )
+                    else KeyPopout(key = key)
+                }
+            }
+
         }
     }
 
@@ -98,6 +189,13 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             }
         }
 
+        if (key is Key.CharKey && key.subChars.isNotEmpty()) {
+            showPopupMenuJob = coroutineScope.launch { // show popup menu when holding key down
+                delay(320)
+                _popupMenuActive.value = true
+            }
+        }
+
         return true
     }
     private fun onKeyUp(key: Key): Boolean {// TODO: add compose typing
@@ -111,15 +209,19 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         }
 
         repeatJob?.cancel()
-        showPopupJob?.cancel()
+        showPopupMenuJob?.cancel()
         moveCursorJob?.cancel()
         _cursorActive.value = false
+        _popupMenuActive.value = false
         _pointerPosition.value = Offset.Unspecified
         if (_pressedKey.value == key) _pressedKey.value = null
         return true
     }
     private fun onSuggestionClick(suggestion: String) {
         currentInputConnection?.commitText("$suggestion ", 1)
+    }
+    private fun onResizeClick(value:Boolean? = null) {
+        _resizeActive.value = value ?: !_resizeActive.value
     }
     private fun handleKeyEvent(id: KeyFunctions) {
         if (id == KeyFunctions.NONE || id == KeyFunctions.CHARACTER) return
@@ -203,18 +305,19 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     enum class ShiftState {
         OFF, ON, LOCKED
     }
-    private lateinit var audioManager: AudioManager
-    private lateinit var vibrator: Vibrator
-    private lateinit var vibe : VibrationEffect
     private val _lifecycleRegistry = LifecycleRegistry(this)
     private val _viewModelStore = ViewModelStore()
     private val _savedStateRegistryController = SavedStateRegistryController.create(this)
     private var repeatJob: Job? = null
-    private var showPopupJob: Job? = null
+    private var showPopupMenuJob: Job? = null
     private var moveCursorJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _cursorActive = MutableStateFlow<Boolean>(false)
     private val cursorActive: StateFlow<Boolean> = _cursorActive
+    private val _resizeActive = MutableStateFlow<Boolean>(false)
+    private val resizeActive: StateFlow<Boolean> = _resizeActive
+    private val _popupMenuActive = MutableStateFlow<Boolean>(false)
+    private val popupMenuActive: StateFlow<Boolean> = _popupMenuActive
     private val _pointerPosition = MutableStateFlow<Offset>(Offset.Unspecified)
     val pointerPosition: StateFlow<Offset> = _pointerPosition
     private val _pressedKey = MutableStateFlow<Key?>(null)
@@ -275,6 +378,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     override fun onWindowHidden() {
         super.onWindowHidden()
         _keyboardLayout.value = mainKeyboardLayout
+        _resizeActive.value = false
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }

@@ -3,6 +3,7 @@ package com.example.animalese_typing.audio
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION
+import android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
 import android.media.AudioAttributes.USAGE_GAME
 import android.media.SoundPool
 import com.example.animalese_typing.AnimalesePreferences
@@ -43,7 +44,7 @@ object AudioPlayer {
         if (soundPool != null) return
 
         val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-            .setUsage(USAGE_GAME)
+            .setUsage(USAGE_ASSISTANCE_SONIFICATION)
             .setContentType(CONTENT_TYPE_SONIFICATION)
             .build()
 

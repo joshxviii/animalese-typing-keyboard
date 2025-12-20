@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Theme
-import com.example.animalese_typing.ui.theme.opacity
+import com.example.animalese_typing.utils.opacity
 
 /**
  * Text prediction bar.
