@@ -33,16 +33,13 @@ import com.example.animalese_typing.utils.opacity
  */
 @Composable
 fun KeyPopout(
-    key: Key?,
+    key: Key.CharKey,
     modifier: Modifier = Modifier,
     size: DpSize = DpSize(64.dp, 64.dp),
 ) {
-    if (key == null) return
-
     val shape = RoundedCornerShape(50)
-
     Box {
-        if (key is Key.CharKey && key.showPopup) Box(
+        Box(
             modifier = modifier
                 .size(size)
                 .dropShadow(

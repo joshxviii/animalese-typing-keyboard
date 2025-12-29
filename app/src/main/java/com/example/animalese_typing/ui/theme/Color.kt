@@ -1,9 +1,6 @@
 package com.example.animalese_typing.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.ColorUtils
 
 /**
  * Color values used for the keyboard theme.
@@ -11,13 +8,16 @@ import androidx.core.graphics.ColorUtils
 data class ThemeColors(
     val background: Color,
     val defaultText: Color,
-    val keyBase: Color, //
+    val keyBase: Color,
     val keyBaseAlt: Color,
     val keyBaseHighlight: Color,
     val keyLabel: Color,
     val keyLabelAlt: Color,
     val keyLabelHighlight: Color,
     val iconButton: Color,
+
+    // static colors
+    val debugBackground: Color = Color(0xFFFF0000)
 )
 object AnimaleseThemes {
     val Light: ThemeColors = ThemeColors(

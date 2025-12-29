@@ -3,7 +3,6 @@ package com.example.animalese_typing.ui.keyboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +23,6 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
@@ -42,18 +40,13 @@ import kotlin.math.sqrt
  */
 @Composable
 fun KeyPopoutMenu(
-    key: Key?,
+    key: Key.CharKey,
     modifier: Modifier = Modifier,
     itemSize: DpSize = DpSize(42.dp, 42.dp),
     pointerPosition: Offset = Offset.Unspecified,
 ) {
-    if (key == null) return
     val shape = RoundedCornerShape(45.dp)
-
-    if ( key !is Key.CharKey || !key.showPopup || key.subChars.isEmpty()) return
-
     val itemPositions = remember { mutableStateMapOf<Int, Offset>() }
-    var popupOffset = remember { IntOffset.Zero }
 
     LaunchedEffect(pointerPosition) {
         // if finger is lifted or menu isn't ready, select the first item by default
@@ -112,7 +105,7 @@ fun KeyPopoutMenu(
                         )
                             { KeyText(
                                 modifier = Modifier,
-                                text = "${if (key.isUpperCase) char.uppercaseChar() else char}",
+                                text = "${if (key is Key.CharKey && key.isUpperCase) char.uppercaseChar() else char}",
                                 color = if (isSelected) Color.White else Theme.colors.keyLabel,
                                 size = 28.sp
                             )
@@ -121,7 +114,7 @@ fun KeyPopoutMenu(
                 }
             }
             // position the characters in rows/columns
-            //TODO: still needs some adjustments.
+            //TODO:
             // The first character in the list should be the closest to the touch point
         ) { measurables, constraints ->
             itemPositions.clear()
@@ -139,8 +132,8 @@ fun KeyPopoutMenu(
             val columns = if (itemCount > maxColumns) ceil(itemCount / 2.0).toInt() else itemCount
             val rows = if (itemCount > maxColumns) 2 else 1
 
-            val menuWidth = (itemWidth * columns + horizontalGap * (columns - 1)).toInt()
-            val menuHeight = (itemHeight * rows + verticalGap * (rows - 1)).toInt()
+            val menuWidth = (itemWidth * columns + horizontalGap * (columns - 1)).toInt().coerceAtLeast(constraints.minWidth)
+            val menuHeight = (itemHeight * rows + verticalGap * (rows - 1)).toInt().coerceAtLeast(constraints.minHeight)
 
             layout(menuWidth, menuHeight) {
                 var currentItem = 0
@@ -161,7 +154,6 @@ fun KeyPopoutMenu(
             }
         }
     }
-
 }
 
 // region UI PREVIEW
@@ -174,7 +166,6 @@ fun KeyPopoutMenuPreview() {
         KeyPopoutMenu(
             Key.CharKey(
                 char = 'a',
-                subChars = listOf('1','2','3','A','B'),
             )
         )
     }

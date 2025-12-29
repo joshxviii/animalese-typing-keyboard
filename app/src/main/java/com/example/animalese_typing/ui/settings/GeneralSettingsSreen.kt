@@ -19,6 +19,7 @@ fun GeneralSettingsScreen(
     val currentVibrationIntensity by preferences.getVibrationIntensity().collectAsState(initial = 0.3f)
     val playSounds by preferences.getPlaySounds().collectAsState(initial = true)
     val vibrate by preferences.getVibrate().collectAsState(initial = true)
+    val debugMode by preferences.getDebugMode().collectAsState(initial = false)
 
     SettingsList {
         SettingsCategory("General")
@@ -26,6 +27,12 @@ fun GeneralSettingsScreen(
             title = "Play Sounds",
             control = { Switch(checked = playSounds, onCheckedChange = {
                 scope.launch { preferences.savePlaySounds(it) }
+            }) }
+        )
+        SettingsItem(
+            title = "Enable Debug Mode",
+            control = { Switch(checked = debugMode, onCheckedChange = {
+                scope.launch { preferences.saveDebugMode(it) }
             }) }
         )
         SettingsItem(

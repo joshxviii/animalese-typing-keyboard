@@ -44,7 +44,7 @@ object AudioPlayer {
         if (soundPool != null) return
 
         val audioAttributes: AudioAttributes = AudioAttributes.Builder()
-            .setUsage(USAGE_ASSISTANCE_SONIFICATION)
+            .setUsage(USAGE_GAME) // for system sound bus, use 'USAGE_ASSISTANCE_SONIFICATION'
             .setContentType(CONTENT_TYPE_SONIFICATION)
             .build()
 

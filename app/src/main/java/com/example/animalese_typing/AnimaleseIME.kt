@@ -1,8 +1,7 @@
 package com.example.animalese_typing
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
-import android.graphics.drawable.GradientDrawable
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
 import android.os.VibrationEffect
@@ -10,38 +9,17 @@ import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InlineSuggestionsResponse
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -58,14 +36,11 @@ import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
-import com.example.animalese_typing.ui.keyboard.KeyPopout
-import com.example.animalese_typing.ui.keyboard.KeyPopoutMenu
 import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.PopoutOverlay
 import com.example.animalese_typing.ui.keyboard.ResizeOverlay
-import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
-import com.example.animalese_typing.utils.toOffset
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -88,6 +63,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
      * The main IME window component.
      * renders the entire keyboard.
      */
+    @SuppressLint("UnusedBoxWithConstraintsScope")
     @Composable
     fun IMEWindowContent() {
         AnimaleseTypingTheme {
@@ -96,15 +72,17 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
             val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
-            val popupMenuActiveValue by popupMenuActive.collectAsStateWithLifecycle()
             val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
+            val popupMenuActiveValue by popupMenuActive.collectAsStateWithLifecycle()
             val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
-            var popupPosition by remember { mutableStateOf(Offset.Zero) }
-
 
             val preferences = AnimalesePreferences(this)
-            var keyboardHeight by remember { mutableStateOf(runBlocking { preferences.getKeyboardHeight().first() }) }
-
+            val debugMode by preferences.getDebugMode().collectAsState(initial = false)
+            var keyboardHeight by remember {
+                mutableStateOf(runBlocking {
+                    preferences.getKeyboardHeight().first()
+                })
+            }
 
             KeyboardView(
                 modifier = Modifier,
@@ -121,6 +99,12 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 showSuggestions = showSuggestionsValue
             )
 
+            PopoutOverlay(
+                key = pressedKeyValue,
+                popupMenuActive = popupMenuActiveValue,
+                pointerPosition = pointerPositionValue
+            )
+
             if (resizeActiveValue) Popup() {
                 ResizeOverlay(
                     initialHeight = keyboardHeight,
@@ -131,36 +115,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     }
                 )
             }
-
-            val key = pressedKeyValue
-            Popup(
-                properties = PopupProperties(
-                    clippingEnabled = false,
-                    focusable = false
-                ),
-                //TODO: it is not ideal to recompose a Popup every key change. But I am tired of looking for better solutions...
-                popupPositionProvider = object : PopupPositionProvider {
-                    override fun calculatePosition(
-                        anchorBounds: IntRect,
-                        windowSize: IntSize,
-                        layoutDirection: LayoutDirection,
-                        popupContentSize: IntSize,
-                    ): IntOffset {// Only show popup when key is pressed
-                        return if (key is Key.CharKey) IntOffset.Zero else IntOffset(0,9999)
-                    }
-                },
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (popupMenuActiveValue) KeyPopoutMenu(
-                        key = key,
-                        pointerPosition = pointerPositionValue,
-                    )
-                    else KeyPopout(key = key)
-                }
-            }
-
         }
     }
 

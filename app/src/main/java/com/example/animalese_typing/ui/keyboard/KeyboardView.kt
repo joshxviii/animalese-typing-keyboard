@@ -170,7 +170,7 @@ fun CursorOverlay(
     )
     {
         Row(
-            modifier = modifier.padding(top=36.dp),
+            modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {
@@ -197,7 +197,9 @@ fun KeyboardPreview() {
     AnimaleseTypingTheme(
         theme = AnimaleseThemes.Light
     ) {
-        KeyboardView()
+        KeyboardView(
+            cursorActive = false
+        )
     }
 }
 // endregion
