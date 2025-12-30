@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -25,30 +24,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import com.example.animalese_typing.AnimaleseIME
-import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.R
+import com.example.animalese_typing.ui.keyboard.layouts.EmojiPicker
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
+import com.example.animalese_typing.ui.keyboard.layouts.TopBarEditMenu
+import com.example.animalese_typing.ui.keyboard.layouts.VoiceEditor
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.KeyText
 import com.example.animalese_typing.ui.theme.Theme
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
+enum class KeyboardContent {
+    KEYBOARD, EMOJI_PICKER, VOICE_EDITOR, TOPBAR_MENU
+}
 
 /**
  * The full keyboard view.
@@ -57,7 +52,9 @@ import kotlinx.coroutines.runBlocking
 fun KeyboardView(
     modifier: Modifier = Modifier,
     height: Float = 250f,
-    currentLayout: KeyLayouts = KeyLayouts.QWERTY,
+    currentContent: KeyboardContent = KeyboardContent.KEYBOARD,
+    currentKeyLayout: KeyLayouts = KeyLayouts.QWERTY,
+    onContentChange: (KeyboardContent) -> Unit = {},
     onKeyDown: (Key) -> Unit = {},
     onKeyUp: (Key) -> Unit = {},
     onResizeClick: (Boolean) -> Unit = {},
@@ -73,7 +70,7 @@ fun KeyboardView(
     Box() {
         Column(
             modifier = modifier
-                .height(height.dp+navBarPadding)
+                .height(height.dp + navBarPadding)
                 .fillMaxWidth()
                 .background(Theme.colors.background)
                 .align(Alignment.BottomCenter),
@@ -83,26 +80,38 @@ fun KeyboardView(
             // Top Bar
             TopBar(
                 onSettingsClick = onSettingsClick,
-                onResizeClick = onResizeClick,
+                onResizeClick = {onResizeClick(true)},
                 onSuggestionClick = onSuggestionClick,
-                showSuggestions = showSuggestions
+                showSuggestions = showSuggestions,
+                onEmojiPickerClick = { onContentChange(KeyboardContent.EMOJI_PICKER) },
+                onVoiceEditorClick = { onContentChange(KeyboardContent.VOICE_EDITOR) },
+                onBackToKeyboardClick = { onContentChange(KeyboardContent.KEYBOARD) },
+                onTopBarMenuClick = { onContentChange(KeyboardContent.TOPBAR_MENU) },
+                showBackToKeyboardButton = currentContent != KeyboardContent.KEYBOARD
             )
 
-            // Keyboard
-            Box(modifier = modifier
-                .padding(4.dp, 0.dp)
-                .weight(1f)
+            // Main content view
+            Box(
+                modifier = modifier
+                    .padding(4.dp, 0.dp)
+                    .weight(1f)
             ) {
-                KeyLayouts.entries.forEach { e -> //TODO: Only load in necessary key layouts
-                    if (currentLayout == e) KeyboardKeyLayout(
-                        keyLayout = e.keyLayout,
-                        onKeyDown = onKeyDown,
-                        onKeyUp = onKeyUp,
-                        onPointerMove = onPointerMove,
-                        shiftState = shiftState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
+                when (currentContent) {
+                    KeyboardContent.KEYBOARD -> {
+                        KeyLayouts.entries.forEach { e -> //TODO: Only load in necessary key layouts
+                            if (currentKeyLayout == e) KeyboardKeyLayout(
+                                keyLayout = e.keyLayout,
+                                onKeyDown = onKeyDown,
+                                onKeyUp = onKeyUp,
+                                onPointerMove = onPointerMove,
+                                shiftState = shiftState,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                    KeyboardContent.EMOJI_PICKER -> EmojiPicker()
+                    KeyboardContent.VOICE_EDITOR -> VoiceEditor()
+                    KeyboardContent.TOPBAR_MENU -> TopBarEditMenu()
                 }
             }
 

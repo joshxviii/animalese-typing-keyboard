@@ -36,7 +36,7 @@ enum class TopBarButtons(
 @Composable
 fun TopBar(
     onSettingsClick: () -> Unit = {},
-    onResizeClick: (Boolean) -> Unit = {},
+    onResizeClick: () -> Unit = {},
     onSuggestionClick: (String) -> Unit = {},
     onVoiceEditorClick: () -> Unit = {},
     onEmojiPickerClick: () -> Unit = {},
@@ -81,15 +81,14 @@ fun TopBar(
             if (shownButtons.isNotEmpty()) for (button in shownButtons) {
                 TopBarButton(
                     icon = button.icon,
-                    onClick ={
+                    onClick =
                         when (button) {
-                            TopBarButtons.SETTINGS -> onSettingsClick()
-                            TopBarButtons.RESIZE -> onResizeClick(true)
-                            TopBarButtons.VOICE_EDITOR -> onVoiceEditorClick()
-                            TopBarButtons.EMOJI_PICKER -> onEmojiPickerClick()
-                            TopBarButtons.CLIPBOARD -> onClipboardClick()
-                        }
-                    },
+                            TopBarButtons.SETTINGS -> onSettingsClick
+                            TopBarButtons.RESIZE -> onResizeClick
+                            TopBarButtons.VOICE_EDITOR -> onVoiceEditorClick// navigate to voice editor
+                            TopBarButtons.EMOJI_PICKER -> onEmojiPickerClick// navigate to emoji picker
+                            TopBarButtons.CLIPBOARD -> onClipboardClick
+                        },
                     modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
                 )
             }

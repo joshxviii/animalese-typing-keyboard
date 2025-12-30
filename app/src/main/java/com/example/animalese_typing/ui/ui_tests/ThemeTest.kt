@@ -31,7 +31,7 @@ fun ThemePreview() {
 
             AnimaleseTypingTheme(
                 theme = AnimaleseThemes.Dark
-            ) { KeyboardView(currentLayout = KeyLayouts.NUMPAD,) }
+            ) { KeyboardView(currentKeyLayout = KeyLayouts.NUMPAD,) }
         }
 
         Column(
@@ -40,7 +40,7 @@ fun ThemePreview() {
         ) {
             AnimaleseTypingTheme(
                 theme = AnimaleseThemes.Light
-            ) { KeyboardView(currentLayout = KeyLayouts.SPECIAL,) }
+            ) { KeyboardView(currentKeyLayout = KeyLayouts.SPECIAL,) }
 
             AnimaleseTypingTheme(
                 theme = AnimaleseThemes.Chocolate

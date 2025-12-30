@@ -8,6 +8,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InlineSuggestionsResponse
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,6 +37,7 @@ import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
+import com.example.animalese_typing.ui.keyboard.KeyboardContent
 import com.example.animalese_typing.ui.keyboard.KeyboardView
 import com.example.animalese_typing.ui.keyboard.PopoutOverlay
 import com.example.animalese_typing.ui.keyboard.ResizeOverlay
@@ -68,7 +70,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     fun IMEWindowContent() {
         AnimaleseTypingTheme {
             val shiftStateValue by shiftState.collectAsStateWithLifecycle()
-            val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
             val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
@@ -87,7 +88,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             KeyboardView(
                 modifier = Modifier,
                 height = keyboardHeight,
-                currentLayout = keyboardLayoutValue,
+                currentContent = _keyboardContent.value,
+                currentKeyLayout = _keyboardLayout.value,
+                onContentChange = { _keyboardContent.value = it },
                 onSettingsClick = ::handleSettings,
                 onKeyDown = ::onKeyDown,
                 onKeyUp = ::onKeyUp,
@@ -280,8 +283,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     val shiftState: StateFlow<ShiftState> = _shiftState
     private val _showSuggestions = MutableStateFlow<Boolean>(false)
     private val showSuggestions: StateFlow<Boolean> = _showSuggestions
+    private val _keyboardContent = mutableStateOf(KeyboardContent.KEYBOARD)
     private val _keyboardLayout = MutableStateFlow(KeyLayouts.QWERTY)
-    val keyboardLayout: StateFlow<KeyLayouts> = _keyboardLayout
     private var mainKeyboardLayout = KeyLayouts.QWERTY // TODO: get from settings
     // endregion
 
@@ -319,6 +322,12 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         )
         _savedStateRegistryController.performRestore(null)
         _lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(editorInfo, restarting)
+        _keyboardContent.value = KeyboardContent.KEYBOARD
+        _keyboardLayout.value = mainKeyboardLayout
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
