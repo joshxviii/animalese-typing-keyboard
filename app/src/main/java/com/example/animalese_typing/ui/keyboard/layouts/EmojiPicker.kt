@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.emoji2.emojipicker.EmojiPickerView
+import androidx.emoji2.emojipicker.RecentEmojiProvider
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.KeyboardContent
 import com.example.animalese_typing.ui.keyboard.KeyboardView
@@ -23,7 +24,7 @@ fun EmojiPicker(onEmojiPicked: (String) -> Unit = {}) {
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
-
+            // apply theme colors to emojipicker view
             val themeId = when (currentTheme) {
                 AnimaleseThemes.Light -> R.style.Theme_AnimaleseTyping_light
                 AnimaleseThemes.Dark -> R.style.Theme_AnimaleseTyping_dark

@@ -60,7 +60,7 @@ fun KeyboardView(
     onResizeClick: (Boolean) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onSuggestionClick: (String) -> Unit = {},
+    onTextToCommitClick: (String) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
     cursorActive: Boolean = false,
     showSuggestions: Boolean = false,
@@ -81,7 +81,7 @@ fun KeyboardView(
             TopBar(
                 onSettingsClick = onSettingsClick,
                 onResizeClick = {onResizeClick(true)},
-                onSuggestionClick = onSuggestionClick,
+                onSuggestionClick = onTextToCommitClick,
                 showSuggestions = showSuggestions,
                 onEmojiPickerClick = { onContentChange(KeyboardContent.EMOJI_PICKER) },
                 onVoiceEditorClick = { onContentChange(KeyboardContent.VOICE_EDITOR) },
@@ -109,7 +109,7 @@ fun KeyboardView(
                             )
                         }
                     }
-                    KeyboardContent.EMOJI_PICKER -> EmojiPicker()
+                    KeyboardContent.EMOJI_PICKER -> EmojiPicker(onTextToCommitClick)
                     KeyboardContent.VOICE_EDITOR -> VoiceEditor()
                     KeyboardContent.TOPBAR_MENU -> TopBarEditMenu()
                 }

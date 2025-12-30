@@ -51,7 +51,7 @@ fun TextSuggestBar(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onSuggestionClick(suggestion) }
+                    .clickable { onSuggestionClick("$suggestion ") }
             )
         }
     }

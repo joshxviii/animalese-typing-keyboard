@@ -90,11 +90,14 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 height = keyboardHeight,
                 currentContent = _keyboardContent.value,
                 currentKeyLayout = _keyboardLayout.value,
-                onContentChange = { _keyboardContent.value = it },
+                onContentChange = {
+                    if (_keyboardContent.value == it) _keyboardContent.value = KeyboardContent.KEYBOARD
+                    else _keyboardContent.value = it
+                },
                 onSettingsClick = ::handleSettings,
                 onKeyDown = ::onKeyDown,
                 onKeyUp = ::onKeyUp,
-                onSuggestionClick = ::onSuggestionClick,
+                onTextToCommitClick = ::onTextToCommitClick,
                 onResizeClick = ::onResizeClick,
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
@@ -174,8 +177,8 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         if (_pressedKey.value == key) _pressedKey.value = null
         return true
     }
-    private fun onSuggestionClick(suggestion: String) {
-        currentInputConnection?.commitText("$suggestion ", 1)
+    private fun onTextToCommitClick(textToCommit: String) {
+        currentInputConnection?.commitText(textToCommit, 1)
     }
     private fun onResizeClick(value:Boolean? = null) {
         _resizeActive.value = value ?: !_resizeActive.value
