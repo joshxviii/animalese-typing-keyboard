@@ -2,6 +2,7 @@ package com.example.animalese_typing
 
 import android.app.Application
 import android.util.Log
+import androidx.emoji2.text.EmojiCompat
 import com.example.animalese_typing.audio.AudioPlayer
 
 class AnimaleseTyping: Application() {
@@ -15,9 +16,8 @@ class AnimaleseTyping: Application() {
 
     override fun onCreate() {
         super.onCreate()
-
+        EmojiCompat.init(this)
         val context = this.applicationContext
-
         AudioPlayer.initialize(context)
     }
 }

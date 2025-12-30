@@ -3,7 +3,30 @@
 
     <style name="Theme.AnimaleseTyping" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.AnimaleseTypingLight" parent="Theme.AnimaleseTyping" />
-    <style name="Theme.AnimaleseTypingDark" parent="Theme.AnimaleseTyping" />
+    <style name="Theme.AnimaleseTyping.light" parent="Theme.AnimaleseTyping">
+        <item name="android:textColorPrimary">@color/text.light</item>
+        <item name="android:tint">@color/icon.light</item>
+        <item name="android:colorAccent">@color/icon.light</item>
+    </style>
+    <style name="Theme.AnimaleseTyping.dark" parent="Theme.AnimaleseTyping">
+        <item name="android:textColorPrimary">@color/text.dark</item>
+        <item name="android:tint">@color/icon.dark</item>
+        <item name="android:colorAccent">@color/icon.dark</item>
+    </style>
+    <style name="Theme.AnimaleseTyping.cream" parent="Theme.AnimaleseTyping">
+        <item name="android:textColorPrimary">@color/text.cream</item>
+        <item name="android:tint">@color/icon.cream</item>
+        <item name="android:colorAccent">@color/icon.cream</item>
+    </style>
+    <style name="Theme.AnimaleseTyping.chocolate" parent="Theme.AnimaleseTyping">
+        <item name="android:textColorPrimary">@color/text.chocolate</item>
+        <item name="android:tint">@color/icon.chocolate</item>
+        <item name="android:colorAccent">@color/icon.chocolate</item>
+    </style>
+    <style name="Theme.AnimaleseTyping.cherry" parent="Theme.AnimaleseTyping">
+        <item name="android:textColorPrimary">@color/text.cherry</item>
+        <item name="android:tint">@color/icon.cherry</item>
+        <item name="android:colorAccent">@color/icon.cherry</item>
+    </style>
 
 </resources>

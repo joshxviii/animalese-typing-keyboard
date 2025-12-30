@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#fffae4</color>
 
-    <color name="key_top">#ece0d0</color>
-    <color name="key_base">#d9bd96</color>
-    <color name="key_text">#CAAC84</color>
-    <color name="key_icon">#d9bd96</color>
+    <color name="text.light">#27282F</color>
+    <color name="text.dark">#F1F0F7</color>
+    <color name="text.cream">#B9935E</color>
+    <color name="text.chocolate">#F0D4A8</color>
+    <color name="text.cherry">#F888C1</color>
 
-    <color name="icons">#d9bd96</color>
-    <color name="button">#d9bd96</color>
+    <color name="icon.light">#566062</color>
+    <color name="icon.dark">#D2D1D9</color>
+    <color name="icon.cream">#D9BD96</color>
+    <color name="icon.chocolate">#F0D9B0</color>
+    <color name="icon.cherry">#FDB4D4</color>
 
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
 </resources>
