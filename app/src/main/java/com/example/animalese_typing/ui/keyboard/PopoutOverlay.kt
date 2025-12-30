@@ -1,12 +1,10 @@
 package com.example.animalese_typing.ui.keyboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -18,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import com.example.animalese_typing.utils.opacity
 
 @Composable
 fun PopoutOverlay(
@@ -38,7 +35,8 @@ fun PopoutOverlay(
             clippingEnabled = false,
             focusable = false,
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
+            dismissOnClickOutside = false,
+            excludeFromSystemGesture = true,
         ),
         popupPositionProvider = object : PopupPositionProvider {
             override fun calculatePosition(
@@ -65,6 +63,8 @@ fun PopoutOverlay(
                                 pointerPosition.y + Y_OFFSET
                             )
                         )
+                        //TODO: since the Popup window isn't passthrough
+                        // it can block gestures sometimes, causing the keyboard to feel unresponsive.
                         else KeyPopout(key = key)
                     }
                 }

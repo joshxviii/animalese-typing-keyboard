@@ -19,6 +19,17 @@ import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Theme
 
+enum class TopBarButtons(
+    val icon: Int,
+) {
+    SETTINGS(R.drawable.ic_settings),
+    RESIZE(R.drawable.ic_keyboard_resize),
+    VOICE_EDITOR(R.drawable.ic_note),
+    EMOJI_PICKER(R.drawable.male_full),
+    CLIPBOARD(R.drawable.ic_clipboard),
+}
+
+
 /**
  * The menu bar above the main keyboard.
  */
@@ -27,7 +38,19 @@ fun TopBar(
     onSettingsClick: () -> Unit = {},
     onResizeClick: (Boolean) -> Unit = {},
     onSuggestionClick: (String) -> Unit = {},
-    showSuggestions: Boolean = false
+    onVoiceEditorClick: () -> Unit = {},
+    onEmojiPickerClick: () -> Unit = {},
+    onClipboardClick: () -> Unit = {},
+    onBackToKeyboardClick: () -> Unit = {},
+    onTopBarMenuClick: () -> Unit = {},
+    showSuggestions: Boolean = false,
+    showBackToKeyboardButton: Boolean = false,
+    shownButtons: List<TopBarButtons> = listOf(
+        TopBarButtons.VOICE_EDITOR,
+        TopBarButtons.EMOJI_PICKER,
+        TopBarButtons.SETTINGS,
+        TopBarButtons.RESIZE
+    ),
 ) {
     Row(
         modifier = Modifier
@@ -46,33 +69,37 @@ fun TopBar(
             )
         }
         else {
-            Spacer(modifier = Modifier.size(24.dp))
-            TopBarButton(
-                icon = R.drawable.male_full,
-                onClick = {/* TODO: EMOJI WINDOW */},
-                modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
+            // back to keyboard button
+            if (showBackToKeyboardButton) TopBarButton(
+                icon = R.drawable.ic_keyboard,
+                onClick = onBackToKeyboardClick,
+                modifier = Modifier
             )
-            TopBarButton(
-                icon = R.drawable.ic_settings,
-                onClick = onSettingsClick,
-                modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
-            )
-            TopBarButton(
-                icon = R.drawable.ic_clipboard,
-                onClick = {/* TODO: CLIPBOARD */},
-                modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
-            )
-            TopBarButton(
-                icon = R.drawable.ic_keyboard_resize,
-                onClick = { onResizeClick(true)} ,
-                modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
-            )
+            else Spacer(modifier = Modifier.size(24.dp))
+
+            // top bar buttons
+            if (shownButtons.isNotEmpty()) for (button in shownButtons) {
+                TopBarButton(
+                    icon = button.icon,
+                    onClick ={
+                        when (button) {
+                            TopBarButtons.SETTINGS -> onSettingsClick()
+                            TopBarButtons.RESIZE -> onResizeClick(true)
+                            TopBarButtons.VOICE_EDITOR -> onVoiceEditorClick()
+                            TopBarButtons.EMOJI_PICKER -> onEmojiPickerClick()
+                            TopBarButtons.CLIPBOARD -> onClipboardClick()
+                        }
+                    },
+                    modifier = Modifier.weight(1f).padding(16.dp, 0.dp)
+                )
+            }
+            else Spacer(modifier = Modifier.weight(1f).padding(16.dp, 0.dp))
         }
 
         // edit menu button
         TopBarButton(
             icon = R.drawable.ic_elipsis,
-            onClick = { /*TODO: TOP BAR MENU*/ },
+            onClick = onTopBarMenuClick,
             modifier = Modifier
         )
     }
