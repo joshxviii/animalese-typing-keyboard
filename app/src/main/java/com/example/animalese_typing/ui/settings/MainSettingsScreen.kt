@@ -3,10 +3,12 @@ package com.example.animalese_typing.ui.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import com.example.animalese_typing.AnimaleseTyping.Companion.appInfo
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 
 @Composable
 fun MainSettingsScreen(navController: NavController? = null) {
+
     SettingsList {
 
         SettingsCategory(title = "Settings")
@@ -24,7 +26,7 @@ fun MainSettingsScreen(navController: NavController? = null) {
         )
 
         SettingsCategory(title = "About")
-        SettingsItem(title = "Version", subtitle = "")
+        SettingsItem(title = "Version", subtitle = "${appInfo.versionName}")
     }
 }
 
