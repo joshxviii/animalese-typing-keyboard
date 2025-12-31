@@ -48,21 +48,7 @@ fun VoiceEditor() {
                 onValueChange = {},
             )
         }
-        Column(
-            modifier = Modifier
-                .weight(.25f)
-        ) {
-            SelectorItem(
-                title = "Voice",
-                options = listOf(
-                    "Voice 1",
-                    "Voice 2",
-                    "Voice 3",
-                )
-            )
-        }
     }
-
 }
 
 // region UI PREVIEW

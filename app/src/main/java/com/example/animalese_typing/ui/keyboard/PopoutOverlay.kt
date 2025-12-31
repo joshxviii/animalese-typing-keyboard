@@ -63,8 +63,6 @@ fun PopoutOverlay(
                                 pointerPosition.y + Y_OFFSET
                             )
                         )
-                        //TODO: since the Popup window isn't passthrough
-                        // it can block gestures sometimes, causing the keyboard to feel unresponsive.
                         else KeyPopout(key = key)
                     }
                 }

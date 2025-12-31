@@ -33,13 +33,11 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.example.animalese_typing.AnimaleseTyping.Companion.logMessage
 import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardContent
 import com.example.animalese_typing.ui.keyboard.KeyboardView
-import com.example.animalese_typing.ui.keyboard.PopoutOverlay
 import com.example.animalese_typing.ui.keyboard.ResizeOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
@@ -73,6 +71,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             val showSuggestionsValue by showSuggestions.collectAsStateWithLifecycle()
             val cursorActiveValue by cursorActive.collectAsStateWithLifecycle()
             val resizeActiveValue by resizeActive.collectAsStateWithLifecycle()
+            val keyboardLayoutValue by keyboardLayout.collectAsStateWithLifecycle()
             val pressedKeyValue by pressedKey.collectAsStateWithLifecycle()
             val popupMenuActiveValue by popupMenuActive.collectAsStateWithLifecycle()
             val pointerPositionValue by pointerPosition.collectAsStateWithLifecycle()
@@ -89,7 +88,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 modifier = Modifier,
                 height = keyboardHeight,
                 currentContent = _keyboardContent.value,
-                currentKeyLayout = _keyboardLayout.value,
+                currentKeyLayout = keyboardLayoutValue,
                 onContentChange = {
                     if (_keyboardContent.value == it) _keyboardContent.value = KeyboardContent.KEYBOARD
                     else _keyboardContent.value = it
@@ -105,11 +104,14 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 showSuggestions = showSuggestionsValue,
             )
 
-            PopoutOverlay(
-                key = pressedKeyValue,
-                popupMenuActive = popupMenuActiveValue,
-                pointerPosition = pointerPositionValue
-            )
+            //TODO: since the Popup window isn't passthrough
+            // it can block gestures sometimes, causing the keyboard to feel unresponsive.
+            // not sure what to do about this at the moment.
+//            PopoutOverlay(
+//                key = pressedKeyValue,
+//                popupMenuActive = popupMenuActiveValue,
+//                pointerPosition = pointerPositionValue
+//            )
 
             if (resizeActiveValue) Popup() {
                 ResizeOverlay(
@@ -136,7 +138,6 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private fun onKeyDown(key: Key): Boolean {
         vibrator.vibrate(vibe)
         _pressedKey.value = key
-        logMessage("Key pressed: $key")
 
         handleKeyEvent(key.event)
         if (key.isRepeatable) { // repeating key logic
@@ -283,6 +284,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     private val showSuggestions: StateFlow<Boolean> = _showSuggestions
     private val _keyboardContent = mutableStateOf(KeyboardContent.KEYBOARD)
     private val _keyboardLayout = MutableStateFlow(KeyLayouts.QWERTY)
+    val keyboardLayout: StateFlow<KeyLayouts> = _keyboardLayout
     private var mainKeyboardLayout = KeyLayouts.QWERTY // TODO: get from settings
     // endregion
 
