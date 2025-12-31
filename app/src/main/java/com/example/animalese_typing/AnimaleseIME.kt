@@ -37,7 +37,8 @@ import com.example.animalese_typing.audio.AudioPlayer
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardContent
-import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.AnimaleseKeyboard
+import com.example.animalese_typing.ui.keyboard.PopoutOverlay
 import com.example.animalese_typing.ui.keyboard.ResizeOverlay
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayouts
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
@@ -57,6 +58,10 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
         lateinit var audioManager: AudioManager
         lateinit var vibrator: Vibrator
         lateinit var vibe : VibrationEffect
+
+        fun vibrate() {
+            vibrator.vibrate(vibe)
+        }
     }
 
     /**
@@ -84,7 +89,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 })
             }
 
-            KeyboardView(
+            AnimaleseKeyboard(
                 modifier = Modifier,
                 height = keyboardHeight,
                 currentContent = _keyboardContent.value,
@@ -107,11 +112,11 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
             //TODO: since the Popup window isn't passthrough
             // it can block gestures sometimes, causing the keyboard to feel unresponsive.
             // not sure what to do about this at the moment.
-//            PopoutOverlay(
-//                key = pressedKeyValue,
-//                popupMenuActive = popupMenuActiveValue,
-//                pointerPosition = pointerPositionValue
-//            )
+            PopoutOverlay(
+                key = pressedKeyValue,
+                popupMenuActive = popupMenuActiveValue,
+                pointerPosition = pointerPositionValue
+            )
 
             if (resizeActiveValue) Popup() {
                 ResizeOverlay(
@@ -136,7 +141,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     }
 
     private fun onKeyDown(key: Key): Boolean {
-        vibrator.vibrate(vibe)
+        vibrate()
         _pressedKey.value = key
 
         handleKeyEvent(key.event)

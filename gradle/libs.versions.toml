@@ -16,6 +16,8 @@ navigationCompose = "2.9.6"
 datastoreCore = "1.2.0"
 ui = "1.9.5"
 emoji2Emojipicker = "1.6.0"
+reorderable = "3.0.0"
+foundationVersion = "1.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +42,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCore" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-emoji2-emojipicker = { group = "androidx.emoji2", name = "emoji2-emojipicker", version.ref = "emoji2Emojipicker" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

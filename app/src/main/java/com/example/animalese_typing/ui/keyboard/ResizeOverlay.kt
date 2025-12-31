@@ -36,9 +36,13 @@ import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.utils.opacity
 
+/**
+ * Overlay used for resizing the keyboard.
+ *
+ * @param initialHeight The initial height of the keyboard.
+ */
 @Composable
 fun ResizeOverlay(
-    modifier: Modifier = Modifier,
     initialHeight: Float = 250f,
     onResizeClick: (Boolean) -> Unit = {},
     onDragEnd: (Float) -> Unit = {},

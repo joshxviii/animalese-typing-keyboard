@@ -15,21 +15,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.animalese_typing.AnimaleseIME
+import com.example.animalese_typing.AnimalesePreferences
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.layouts.EmojiPicker
 import com.example.animalese_typing.ui.keyboard.layouts.KeyLayout
@@ -46,10 +45,10 @@ enum class KeyboardContent {
 }
 
 /**
- * The full keyboard view.
+ * The full animalese keyboard view.
  */
 @Composable
-fun KeyboardView(
+fun AnimaleseKeyboard(
     modifier: Modifier = Modifier,
     height: Float = 250f,
     currentContent: KeyboardContent = KeyboardContent.KEYBOARD,
@@ -87,7 +86,7 @@ fun KeyboardView(
                 onVoiceEditorClick = { onContentChange(KeyboardContent.VOICE_EDITOR) },
                 onBackToKeyboardClick = { onContentChange(KeyboardContent.KEYBOARD) },
                 onTopBarMenuClick = { onContentChange(KeyboardContent.TOPBAR_MENU) },
-                showBackToKeyboardButton = currentContent != KeyboardContent.KEYBOARD
+                showBackToKeyboardButton = currentContent != KeyboardContent.KEYBOARD,
             )
 
             // Main content view
@@ -127,7 +126,9 @@ fun KeyboardView(
 }
 
 
-
+/**
+ * Defines a KeyLayout for [AnimaleseKeyboard].
+ */
 @Composable
 fun KeyboardKeyLayout(
     modifier: Modifier = Modifier,
@@ -170,49 +171,14 @@ fun KeyboardKeyLayout(
     }
 }
 
-@Composable
-fun CursorOverlay(
-    modifier: Modifier = Modifier,
-) {
-    Box(// Cursor overlay
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color(0x99000000))
-            .padding(4.dp),
-        contentAlignment = Alignment.TopCenter
-    )
-    {
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            Icon(
-                modifier = Modifier.size(32.dp),
-                painter = painterResource(R.drawable.ic_control),
-                contentDescription = "",
-                tint = Color(0xFFDDDDDD)
-            )
-            KeyText(
-                text = "Drag to move cursor",
-                color = Color(0xFFDDDDDD),
-                size = 24.sp
-            )
-        }
-    }
-}
-
-
 // region UI PREVIEW
 @Preview(showBackground = true)
 @Composable
-fun KeyboardPreview() {
+fun AnimaleseKeyboardPreview() {
     AnimaleseTypingTheme(
         theme = AnimaleseThemes.Light
     ) {
-        KeyboardView(
-            cursorActive = false
-        )
+        AnimaleseKeyboard()
     }
 }
 // endregion

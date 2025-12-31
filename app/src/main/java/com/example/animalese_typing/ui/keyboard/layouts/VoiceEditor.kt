@@ -6,13 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.animalese_typing.ui.keyboard.KeyboardContent
-import com.example.animalese_typing.ui.keyboard.KeyboardView
-import com.example.animalese_typing.ui.settings.SelectorItem
+import com.example.animalese_typing.ui.keyboard.AnimaleseKeyboard
 import com.example.animalese_typing.ui.settings.SliderItem
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
@@ -58,7 +56,7 @@ fun VoiceEditorPreview() {
     AnimaleseTypingTheme(
         theme = AnimaleseThemes.Chocolate
     ) {
-        KeyboardView(
+        AnimaleseKeyboard(
             currentContent = KeyboardContent.VOICE_EDITOR
         )
     }

@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.animalese_typing.ui.keyboard.TopBarButtons
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.ThemeColors
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class AnimalesePreferences (val context: Context) {
         private val VIBRATE = booleanPreferencesKey("vibrate")
         private val DEBUG_MODE = booleanPreferencesKey("debug_mode")
         private val VIBRATION_INTENSITY = floatPreferencesKey("vibration_intensity")
+        private val TOP_BAR_BUTTONS = stringPreferencesKey("top_bar_buttons")
     }
 
     // KEYBOARD_HEIGHT
@@ -59,6 +61,33 @@ class AnimalesePreferences (val context: Context) {
     // VIBRATION_INTENSITY
     suspend fun saveVibrationIntensity(intensity: Float) {context.dataStore.edit { it[VIBRATION_INTENSITY] = intensity } }
     fun getVibrationIntensity(): Flow<Float> = context.dataStore.data.map { it[VIBRATION_INTENSITY] ?: 0.3f }
+
+    // TOP_BAR_BUTTONS
+    suspend fun saveTopBarButtons(buttons: List<TopBarButtons>) {
+        context.dataStore.edit {
+            it[TOP_BAR_BUTTONS] = buttons.joinToString(",") { b -> b.name }
+        }
+    }
+    fun getTopBarButtons(): Flow<List<TopBarButtons>> = context.dataStore.data.map { prefs ->
+        val savedOrder = prefs[TOP_BAR_BUTTONS]
+        if (savedOrder.isNullOrEmpty()) {
+            // Default order if nothing is saved
+            listOf(
+                TopBarButtons.VOICE_EDITOR,
+                TopBarButtons.EMOJI_PICKER,
+                TopBarButtons.RESIZE,
+                TopBarButtons.SETTINGS,
+            )
+        } else {
+            savedOrder.split(',').mapNotNull { name ->
+                try {
+                    TopBarButtons.valueOf(name)
+                } catch (e: IllegalArgumentException) {
+                    null // Handle cases where a button name might be invalid
+                }
+            }
+        }
+    }
 }
 
 

@@ -49,6 +49,9 @@ class OnColor(val color: Color) : ColorProducer {
     override fun invoke(): Color = color
 }
 
+/**
+ * Represents a key on a [KeyboardKeyLayout]
+ */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun KeyButton(
@@ -57,7 +60,6 @@ fun KeyButton(
     onKeyUp: (Key) -> Unit = {},
     onKeyDown: (Key) -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
-    setPopupMenu: (Boolean) -> Unit = {},
     shiftState: AnimaleseIME.ShiftState = AnimaleseIME.ShiftState.OFF,
 ) {
 

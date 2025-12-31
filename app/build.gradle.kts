@@ -48,6 +48,7 @@ android {
 
 dependencies {
 
+    implementation(libs.reorderable)
     implementation("androidx.emoji2:emoji2:1.6.0")
     implementation(libs.androidx.emoji2.emojipicker)
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -67,6 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

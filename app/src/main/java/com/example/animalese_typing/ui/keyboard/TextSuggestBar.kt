@@ -20,8 +20,11 @@ import com.example.animalese_typing.ui.theme.Theme
 import com.example.animalese_typing.utils.opacity
 
 /**
- * Text prediction bar.
- * Displays a list of top suggestions.
+ * Suggestion bar for text input. Displays a list of suggestions and allows the user to select
+ * one of them.
+ *
+ * @param modifier Modifier to be applied to the layout.
+ * @param suggestions List of suggestions to be displayed.
  */
 @Composable
 fun TextSuggestBar(

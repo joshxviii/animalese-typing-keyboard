@@ -6,30 +6,25 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.emoji2.emojipicker.EmojiPickerView
-import androidx.emoji2.emojipicker.RecentEmojiProvider
 import com.example.animalese_typing.R
 import com.example.animalese_typing.ui.keyboard.Key
 import com.example.animalese_typing.ui.keyboard.KeyFunctions
 import com.example.animalese_typing.ui.keyboard.KeyboardContent
-import com.example.animalese_typing.ui.keyboard.KeyboardView
+import com.example.animalese_typing.ui.keyboard.AnimaleseKeyboard
 import com.example.animalese_typing.ui.theme.AnimaleseThemes
 import com.example.animalese_typing.ui.theme.AnimaleseTypingTheme
 import com.example.animalese_typing.ui.theme.Theme
@@ -106,7 +101,7 @@ fun EmojiPicker(
 @Composable
 fun EmojiLayoutPreview() {
     AnimaleseTypingTheme {
-        KeyboardView(
+        AnimaleseKeyboard(
             currentContent = KeyboardContent.EMOJI_PICKER
         )
     }

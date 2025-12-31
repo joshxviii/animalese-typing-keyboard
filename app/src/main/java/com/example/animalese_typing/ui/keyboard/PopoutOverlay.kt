@@ -1,10 +1,12 @@
 package com.example.animalese_typing.ui.keyboard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -16,7 +18,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+private const val Y_OFFSET = 126
 
+/**
+ * A popup overlay used for alternative key menus and pressed key popups.
+ *
+ * @param key The key that is being pressed.
+ * @param popupMenuActive Whether a key's popup menu should be shown.
+ * @param pointerPosition The position of the pointer on the screen used for navigating popupmenu.
+ */
 @Composable
 fun PopoutOverlay(
     key: Key?,
@@ -27,7 +37,6 @@ fun PopoutOverlay(
      * Used to move overlay past the bounds of the keyboard.
      * pointerPosition will need to be adjusted based on this value as well.
      */
-    val Y_OFFSET = 126
     val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx().toInt() }
 
     Popup(
@@ -45,13 +54,16 @@ fun PopoutOverlay(
                 layoutDirection: LayoutDirection,
                 popupContentSize: IntSize,
             ): IntOffset {// Only show popup when key is pressed
-                return if (key is Key.CharKey && key.showPopup) IntOffset(0,-Y_OFFSET)
+                return if (key is Key.CharKey && popupMenuActive) IntOffset(0,-Y_OFFSET)
+                //return if (key is Key.CharKey && key.showPopup) IntOffset(0,-Y_OFFSET)
                 else IntOffset(0, 9999)
             }
         },
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                //.background(Color.Red)
         ) {
             Layout(
                 content = {
