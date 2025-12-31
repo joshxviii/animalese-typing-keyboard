@@ -102,7 +102,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                 onPointerMove = ::onPointerMove,
                 shiftState = shiftStateValue,
                 cursorActive = cursorActiveValue,
-                showSuggestions = showSuggestionsValue
+                showSuggestions = showSuggestionsValue,
             )
 
             PopoutOverlay(
@@ -196,13 +196,7 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
                     if (!_cursorActive.value) currentInputConnection?.commitText(" ", 1)
                 }
             }
-            KeyFunctions.BACKSPACE -> {
-                if (currentInputConnection?.getSelectedText(0) != null) {
-                    currentInputConnection?.commitText("", 1)
-                } else {
-                    currentInputConnection?.deleteSurroundingText(1, 0)
-                }
-            }
+            KeyFunctions.BACKSPACE -> sendIMEKeyEvent(KeyEvent.KEYCODE_DEL)
             KeyFunctions.ENTER -> sendIMEKeyEvent(KeyEvent.KEYCODE_ENTER)
             KeyFunctions.SHIFT -> {
                 _shiftState.value = when (_shiftState.value) {
@@ -220,8 +214,9 @@ class AnimaleseIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, 
     }
 
     private fun sendIMEKeyEvent(keyCode: Int) {
-        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-        currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        val inputConnection = currentInputConnection ?: return
+        inputConnection.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+        inputConnection.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
     }
 
     private fun handleSettings() {
