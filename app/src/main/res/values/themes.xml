@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AnimaleseTyping" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.AnimaleseTyping" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="font">@font/arial_rounded_bold</item>
+    </style>
 
     <style name="Theme.AnimaleseTyping.light" parent="Theme.AnimaleseTyping">
         <item name="android:textColorPrimary">@color/text.light</item>

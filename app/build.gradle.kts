@@ -47,10 +47,9 @@ android {
 }
 
 dependencies {
-    val emoji2_version = "1.6.0"
 
+    implementation("androidx.emoji2:emoji2:1.6.0")
     implementation(libs.androidx.emoji2.emojipicker)
-    implementation("androidx.emoji2:emoji2:${emoji2_version}")
     implementation("androidx.startup:startup-runtime:1.1.1")
     implementation("androidx.activity:activity:1.8.1")
     implementation(libs.androidx.core.ktx)

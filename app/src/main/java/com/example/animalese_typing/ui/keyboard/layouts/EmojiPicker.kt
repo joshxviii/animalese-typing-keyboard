@@ -49,7 +49,7 @@ fun EmojiPicker(
             event=KeyFunctions.BACKSPACE
         )
 
-
+        //TODO: make custom emoji picker ui so custom emoji fonts can be used.
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
