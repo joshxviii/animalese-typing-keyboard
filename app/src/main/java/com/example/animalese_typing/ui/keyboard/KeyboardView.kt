@@ -109,7 +109,11 @@ fun KeyboardView(
                             )
                         }
                     }
-                    KeyboardContent.EMOJI_PICKER -> EmojiPicker(onTextToCommitClick)
+                    KeyboardContent.EMOJI_PICKER -> EmojiPicker(
+                        onTextToCommitClick,
+                                onKeyDown,
+                                onKeyUp
+                    )
                     KeyboardContent.VOICE_EDITOR -> VoiceEditor()
                     KeyboardContent.TOPBAR_MENU -> TopBarEditMenu()
                 }

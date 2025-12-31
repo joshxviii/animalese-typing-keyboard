@@ -80,7 +80,7 @@ object AnimaleseThemes {
         keyLabel = Color(0xFFFDB4D4),
         keyLabelAlt = Color(0xFFF888C1),
         keyLabelHighlight = Color(0xFFFFFFFF),
-        iconButton = Color(0xFFFDB4D4),
+        iconButton = Color(0xFFFCA3C9),
     )
 
     /**
